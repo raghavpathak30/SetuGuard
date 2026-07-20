@@ -1,0 +1,54 @@
+# =====================================================================
+# APK corpora (malware + benign) — must never reach a public repo
+# =====================================================================
+*.apk
+banking_holdout_16/
+fdroid_benign_apks/
+cicmaldroid_banking/
+fdroid_benign/
+Banking.tar.gz
+
+# =====================================================================
+# Model weights / embeddings / vector indexes
+# (none currently in-tree; defensive patterns for future PS2/PS1 work)
+# =====================================================================
+*.bin
+*.gguf
+*.faiss
+*.index
+models/
+embeddings/
+
+# =====================================================================
+# Regenerable measurement / per-run output artifacts
+# =====================================================================
+setuguard_ps1/baseline/
+setuguard_ps1/baseline_v2/
+setuguard_ps1/out/
+
+# =====================================================================
+# Unexplained top-level binary (6.5MB, identifies as PostScript, purpose
+# unknown — do not commit an unexplained binary; see CONTEXT.md)
+# =====================================================================
+/logging
+
+# =====================================================================
+# F-Droid/corpus scraping data artifacts — data, not source or docs
+# =====================================================================
+index-v2.json
+download_log.txt
+all_packages.txt
+package_ids.txt
+clean_package_ids.txt
+fdroid_urls.txt
+
+# =====================================================================
+# Python / environment / local caches
+# =====================================================================
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+.env
+*.cache
