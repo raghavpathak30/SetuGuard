@@ -200,7 +200,7 @@ def _extract_certificate(a):
 
 
 def analyze_apk(apk_path: str) -> dict:
-    a, d, dx = AnalyzeAPK(apk_path)
+    a, _, dx = AnalyzeAPK(apk_path)
 
     package_name = a.get_package()
     permissions = a.get_permissions()

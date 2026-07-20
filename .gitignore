@@ -25,6 +25,7 @@ embeddings/
 setuguard_ps1/baseline/
 setuguard_ps1/baseline_v2/
 setuguard_ps1/out/
+setuguard_ps1/fix3_fp_baseline/
 
 # =====================================================================
 # Unexplained top-level binary (6.5MB, identifies as PostScript, purpose
