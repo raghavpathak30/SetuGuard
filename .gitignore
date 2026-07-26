@@ -55,3 +55,12 @@ __pycache__/
 venv/
 .env
 *.cache
+
+# =====================================================================
+# PS2 Datasets & Large Binary Files (>100MB)
+# =====================================================================
+*.csv
+*.xlsx
+*.crdownload
+baseline_predictions.csv
+ps2_bridge_payload.json
