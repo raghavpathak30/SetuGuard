@@ -1,0 +1,1227 @@
+{
+  "279": {
+    "current_score": 0.6484,
+    "simulated_score": 0.1058,
+    "target_tier": "T1 (No action)",
+    "conditions": [
+      "F531 <= 0.3475"
+    ],
+    "actionable_steps": [
+      {
+        "feature": "F531",
+        "current_value": 1.39,
+        "proposed_value": 0.3475,
+        "risk_reduction": 0.5426
+      },
+      {
+        "feature": "F3894",
+        "current_value": 28.0,
+        "proposed_value": 7.0,
+        "risk_reduction": 0.4805
+      },
+      {
+        "feature": "F2956",
+        "current_value": 34.0,
+        "proposed_value": 0.0,
+        "risk_reduction": 0.4271
+      }
+    ],
+    "original_tier": "T2 (Monitor)"
+  },
+  "335": {
+    "current_score": 0.7205,
+    "simulated_score": 0.1294,
+    "target_tier": "T1 (No action)",
+    "conditions": [
+      "F531 <= 0.485"
+    ],
+    "actionable_steps": [
+      {
+        "feature": "F531",
+        "current_value": 1.94,
+        "proposed_value": 0.485,
+        "risk_reduction": 0.5911
+      },
+      {
+        "feature": "F2956",
+        "current_value": 43.0,
+        "proposed_value": 0.0,
+        "risk_reduction": 0.5178
+      },
+      {
+        "feature": "F3894",
+        "current_value": 30.0,
+        "proposed_value": 7.5,
+        "risk_reduction": 0.479
+      }
+    ],
+    "original_tier": "T2 (Monitor)"
+  },
+  "753": {
+    "current_score": 0.7179,
+    "simulated_score": 0.1287,
+    "target_tier": "T1 (No action)",
+    "conditions": [
+      "F531 <= 0.505"
+    ],
+    "actionable_steps": [
+      {
+        "feature": "F531",
+        "current_value": 2.02,
+        "proposed_value": 0.505,
+        "risk_reduction": 0.5892
+      },
+      {
+        "feature": "F2956",
+        "current_value": 43.0,
+        "proposed_value": 0.0,
+        "risk_reduction": 0.5445
+      },
+      {
+        "feature": "F3894",
+        "current_value": 37.0,
+        "proposed_value": 0.0,
+        "risk_reduction": 0.4841
+      }
+    ],
+    "original_tier": "T2 (Monitor)"
+  },
+  "966": {
+    "current_score": 0.6446,
+    "simulated_score": 0.1459,
+    "target_tier": "T1 (No action)",
+    "conditions": [
+      "F531 <= 0.3175"
+    ],
+    "actionable_steps": [
+      {
+        "feature": "F531",
+        "current_value": 1.27,
+        "proposed_value": 0.3175,
+        "risk_reduction": 0.4987
+      },
+      {
+        "feature": "F527",
+        "current_value": 1.01,
+        "proposed_value": 0.0,
+        "risk_reduction": 0.4425
+      },
+      {
+        "feature": "F2956",
+        "current_value": 81.0,
+        "proposed_value": 0.0,
+        "risk_reduction": 0.4212
+      }
+    ],
+    "original_tier": "T2 (Monitor)"
+  },
+  "1198": {
+    "current_score": 0.7753,
+    "simulated_score": 0.2021,
+    "target_tier": "T1 (No action)",
+    "conditions": [
+      "F531 <= 0.4325"
+    ],
+    "actionable_steps": [
+      {
+        "feature": "F531",
+        "current_value": 1.73,
+        "proposed_value": 0.4325,
+        "risk_reduction": 0.5731
+      },
+      {
+        "feature": "F3894",
+        "current_value": 33.0,
+        "proposed_value": 8.25,
+        "risk_reduction": 0.5244
+      },
+      {
+        "feature": "F2956",
+        "current_value": 13.0,
+        "proposed_value": 6.5,
+        "risk_reduction": 0.4571
+      }
+    ],
+    "original_tier": "T2 (Monitor)"
+  },
+  "1321": {
+    "current_score": 0.6783,
+    "simulated_score": 0.1308,
+    "target_tier": "T1 (No action)",
+    "conditions": [
+      "F531 <= 0.3675"
+    ],
+    "actionable_steps": [
+      {
+        "feature": "F531",
+        "current_value": 1.47,
+        "proposed_value": 0.3675,
+        "risk_reduction": 0.5476
+      },
+      {
+        "feature": "F3894",
+        "current_value": 32.0,
+        "proposed_value": 8.0,
+        "risk_reduction": 0.4951
+      },
+      {
+        "feature": "F2956",
+        "current_value": 18.0,
+        "proposed_value": 4.5,
+        "risk_reduction": 0.4897
+      }
+    ],
+    "original_tier": "T2 (Monitor)"
+  },
+  "1480": {
+    "current_score": 0.9237,
+    "simulated_score": 0.1918,
+    "target_tier": "T1 (No action)",
+    "conditions": [
+      "F3887 <= 0.0",
+      "F2956 <= 0.0"
+    ],
+    "actionable_steps": [
+      {
+        "feature": "F3887",
+        "current_value": 116.0,
+        "proposed_value": 0.0,
+        "risk_reduction": 0.3174
+      },
+      {
+        "feature": "F2956",
+        "current_value": 58.0,
+        "proposed_value": 0.0,
+        "risk_reduction": 0.2926
+      },
+      {
+        "feature": "F3894",
+        "current_value": 33.0,
+        "proposed_value": 8.25,
+        "risk_reduction": 0.2794
+      }
+    ],
+    "original_tier": "T2 (Monitor)"
+  },
+  "1789": {
+    "current_score": 0.7861,
+    "simulated_score": 0.0713,
+    "target_tier": "T1 (No action)",
+    "conditions": [
+      "F3894 <= 7.5",
+      "F3887 <= 0.0"
+    ],
+    "actionable_steps": [
+      {
+        "feature": "F3894",
+        "current_value": 30.0,
+        "proposed_value": 7.5,
+        "risk_reduction": 0.5085
+      },
+      {
+        "feature": "F3887",
+        "current_value": 105.0,
+        "proposed_value": 0.0,
+        "risk_reduction": 0.4695
+      },
+      {
+        "feature": "F115",
+        "current_value": 1.0,
+        "proposed_value": 0.25,
+        "risk_reduction": 0.463
+      }
+    ],
+    "original_tier": "T2 (Monitor)"
+  },
+  "1945": {
+    "current_score": 0.9074,
+    "simulated_score": 0.0655,
+    "target_tier": "T1 (No action)",
+    "conditions": [
+      "F531 <= 0.385",
+      "F2956 <= 0.0"
+    ],
+    "actionable_steps": [
+      {
+        "feature": "F531",
+        "current_value": 1.54,
+        "proposed_value": 0.385,
+        "risk_reduction": 0.5799
+      },
+      {
+        "feature": "F2956",
+        "current_value": 64.0,
+        "proposed_value": 0.0,
+        "risk_reduction": 0.4675
+      },
+      {
+        "feature": "F321",
+        "current_value": 1.42,
+        "proposed_value": 0.355,
+        "risk_reduction": 0.3235
+      }
+    ],
+    "original_tier": "T2 (Monitor)"
+  },
+  "2192": {
+    "current_score": 0.7283,
+    "simulated_score": 0.1601,
+    "target_tier": "T1 (No action)",
+    "conditions": [
+      "F531 <= 0.44"
+    ],
+    "actionable_steps": [
+      {
+        "feature": "F531",
+        "current_value": 1.76,
+        "proposed_value": 0.44,
+        "risk_reduction": 0.5682
+      },
+      {
+        "feature": "F2956",
+        "current_value": 74.0,
+        "proposed_value": 0.0,
+        "risk_reduction": 0.4392
+      },
+      {
+        "feature": "F3894",
+        "current_value": 34.0,
+        "proposed_value": 8.5,
+        "risk_reduction": 0.4132
+      }
+    ],
+    "original_tier": "T2 (Monitor)"
+  },
+  "2514": {
+    "current_score": 0.9065,
+    "simulated_score": 0.1139,
+    "target_tier": "T1 (No action)",
+    "conditions": [
+      "F3894 <= 6.75",
+      "F531 <= 0.28"
+    ],
+    "actionable_steps": [
+      {
+        "feature": "F3894",
+        "current_value": 27.0,
+        "proposed_value": 6.75,
+        "risk_reduction": 0.4253
+      },
+      {
+        "feature": "F531",
+        "current_value": 1.12,
+        "proposed_value": 0.28,
+        "risk_reduction": 0.3881
+      },
+      {
+        "feature": "F2956",
+        "current_value": 16.0,
+        "proposed_value": 4.0,
+        "risk_reduction": 0.3771
+      }
+    ],
+    "original_tier": "T2 (Monitor)"
+  },
+  "4289": {
+    "current_score": 0.8536,
+    "simulated_score": 0.0751,
+    "target_tier": "T1 (No action)",
+    "conditions": [
+      "F2956 <= 0.0",
+      "F115 <= 0.235"
+    ],
+    "actionable_steps": [
+      {
+        "feature": "F2956",
+        "current_value": 41.0,
+        "proposed_value": 0.0,
+        "risk_reduction": 0.4598
+      },
+      {
+        "feature": "F115",
+        "current_value": 0.94,
+        "proposed_value": 0.235,
+        "risk_reduction": 0.4043
+      },
+      {
+        "feature": "F3894",
+        "current_value": 33.0,
+        "proposed_value": 8.25,
+        "risk_reduction": 0.4026
+      }
+    ],
+    "original_tier": "T2 (Monitor)"
+  },
+  "4426": {
+    "current_score": 0.6337,
+    "simulated_score": 0.1909,
+    "target_tier": "T1 (No action)",
+    "conditions": [
+      "F115 <= 0.1775"
+    ],
+    "actionable_steps": [
+      {
+        "feature": "F115",
+        "current_value": 0.71,
+        "proposed_value": 0.1775,
+        "risk_reduction": 0.4428
+      },
+      {
+        "feature": "F2956",
+        "current_value": 37.0,
+        "proposed_value": 0.0,
+        "risk_reduction": 0.4108
+      },
+      {
+        "feature": "F3043",
+        "current_value": NaN,
+        "proposed_value": 0.0,
+        "risk_reduction": 0.3974
+      }
+    ],
+    "original_tier": "T2 (Monitor)"
+  },
+  "4438": {
+    "current_score": 0.6245,
+    "simulated_score": 0.1227,
+    "target_tier": "T1 (No action)",
+    "conditions": [
+      "F115 <= 0.25"
+    ],
+    "actionable_steps": [
+      {
+        "feature": "F115",
+        "current_value": 1.0,
+        "proposed_value": 0.25,
+        "risk_reduction": 0.5018
+      },
+      {
+        "feature": "F3043",
+        "current_value": NaN,
+        "proposed_value": 0.0,
+        "risk_reduction": 0.356
+      },
+      {
+        "feature": "F531",
+        "current_value": 1.0,
+        "proposed_value": 0.5,
+        "risk_reduction": 0.3475
+      }
+    ],
+    "original_tier": "T2 (Monitor)"
+  },
+  "4544": {
+    "current_score": 0.6484,
+    "simulated_score": 0.2097,
+    "target_tier": "T1 (No action)",
+    "conditions": [
+      "F3894 <= 8.25"
+    ],
+    "actionable_steps": [
+      {
+        "feature": "F3894",
+        "current_value": 33.0,
+        "proposed_value": 8.25,
+        "risk_reduction": 0.4388
+      },
+      {
+        "feature": "F2956",
+        "current_value": 22.0,
+        "proposed_value": 5.5,
+        "risk_reduction": 0.4064
+      },
+      {
+        "feature": "F115",
+        "current_value": 1.0,
+        "proposed_value": 0.25,
+        "risk_reduction": 0.4041
+      }
+    ],
+    "original_tier": "T2 (Monitor)"
+  },
+  "4751": {
+    "current_score": 0.6528,
+    "simulated_score": 0.1723,
+    "target_tier": "T1 (No action)",
+    "conditions": [
+      "F115 <= 0.25"
+    ],
+    "actionable_steps": [
+      {
+        "feature": "F115",
+        "current_value": 1.0,
+        "proposed_value": 0.25,
+        "risk_reduction": 0.4805
+      },
+      {
+        "feature": "F527",
+        "current_value": 1.0,
+        "proposed_value": 0.0,
+        "risk_reduction": 0.4239
+      },
+      {
+        "feature": "F3043",
+        "current_value": NaN,
+        "proposed_value": 0.0,
+        "risk_reduction": 0.4025
+      }
+    ],
+    "original_tier": "T2 (Monitor)"
+  },
+  "6004": {
+    "current_score": 0.8727,
+    "simulated_score": 0.0899,
+    "target_tier": "T1 (No action)",
+    "conditions": [
+      "F2956 <= 0.0",
+      "F531 <= 0.3275"
+    ],
+    "actionable_steps": [
+      {
+        "feature": "F2956",
+        "current_value": 42.0,
+        "proposed_value": 0.0,
+        "risk_reduction": 0.4897
+      },
+      {
+        "feature": "F531",
+        "current_value": 1.31,
+        "proposed_value": 0.3275,
+        "risk_reduction": 0.4307
+      },
+      {
+        "feature": "F527",
+        "current_value": 0.94,
+        "proposed_value": 0.235,
+        "risk_reduction": 0.3402
+      }
+    ],
+    "original_tier": "T2 (Monitor)"
+  },
+  "6109": {
+    "current_score": 0.857,
+    "simulated_score": 0.0487,
+    "target_tier": "T1 (No action)",
+    "conditions": [
+      "F531 <= 0.4475",
+      "F2956 <= 0.0"
+    ],
+    "actionable_steps": [
+      {
+        "feature": "F531",
+        "current_value": 1.79,
+        "proposed_value": 0.4475,
+        "risk_reduction": 0.5667
+      },
+      {
+        "feature": "F2956",
+        "current_value": 60.0,
+        "proposed_value": 0.0,
+        "risk_reduction": 0.5433
+      },
+      {
+        "feature": "F527",
+        "current_value": 1.13,
+        "proposed_value": 0.0,
+        "risk_reduction": 0.3504
+      }
+    ],
+    "original_tier": "T2 (Monitor)"
+  },
+  "7232": {
+    "current_score": 0.9023,
+    "simulated_score": 0.064,
+    "target_tier": "T1 (No action)",
+    "conditions": [
+      "F115 <= 0.25",
+      "F3894 <= 6.25"
+    ],
+    "actionable_steps": [
+      {
+        "feature": "F115",
+        "current_value": 1.0,
+        "proposed_value": 0.25,
+        "risk_reduction": 0.4731
+      },
+      {
+        "feature": "F3894",
+        "current_value": 25.0,
+        "proposed_value": 6.25,
+        "risk_reduction": 0.4494
+      },
+      {
+        "feature": "F3887",
+        "current_value": 134.0,
+        "proposed_value": 0.0,
+        "risk_reduction": 0.3448
+      }
+    ],
+    "original_tier": "T2 (Monitor)"
+  },
+  "7957": {
+    "current_score": 0.9104,
+    "simulated_score": 0.2228,
+    "target_tier": "T1 (No action)",
+    "conditions": [
+      "F115 <= 0.2075",
+      "F527 <= 0.0"
+    ],
+    "actionable_steps": [
+      {
+        "feature": "F115",
+        "current_value": 0.83,
+        "proposed_value": 0.2075,
+        "risk_reduction": 0.3589
+      },
+      {
+        "feature": "F527",
+        "current_value": 1.11,
+        "proposed_value": 0.0,
+        "risk_reduction": 0.321
+      },
+      {
+        "feature": "F3887",
+        "current_value": 128.0,
+        "proposed_value": 0.0,
+        "risk_reduction": 0.3013
+      }
+    ],
+    "original_tier": "T2 (Monitor)"
+  },
+  "8892": {
+    "current_score": 0.8033,
+    "simulated_score": 0.0843,
+    "target_tier": "T1 (No action)",
+    "conditions": [
+      "F115 <= 0.2325",
+      "F3043 <= 0.0"
+    ],
+    "actionable_steps": [
+      {
+        "feature": "F115",
+        "current_value": 0.93,
+        "proposed_value": 0.2325,
+        "risk_reduction": 0.5054
+      },
+      {
+        "feature": "F3043",
+        "current_value": NaN,
+        "proposed_value": 0.0,
+        "risk_reduction": 0.3973
+      },
+      {
+        "feature": "F3836",
+        "current_value": 456647.34,
+        "proposed_value": 0.0,
+        "risk_reduction": 0.3956
+      }
+    ],
+    "original_tier": "T2 (Monitor)"
+  },
+  "9004": {
+    "current_score": 0.9668,
+    "simulated_score": 0.1501,
+    "target_tier": "T1 (No action)",
+    "conditions": [
+      "F115 <= 0.25",
+      "F3894 <= 7.25"
+    ],
+    "actionable_steps": [
+      {
+        "feature": "F115",
+        "current_value": 1.0,
+        "proposed_value": 0.25,
+        "risk_reduction": 0.3485
+      },
+      {
+        "feature": "F3894",
+        "current_value": 29.0,
+        "proposed_value": 7.25,
+        "risk_reduction": 0.2246
+      },
+      {
+        "feature": "F3887",
+        "current_value": 156.0,
+        "proposed_value": 0.0,
+        "risk_reduction": 0.1786
+      }
+    ],
+    "original_tier": "T2 (Monitor)"
+  },
+  "9007": {
+    "current_score": 0.9663,
+    "simulated_score": 0.1798,
+    "target_tier": "T1 (No action)",
+    "conditions": [
+      "F115 <= 0.25",
+      "F3894 <= 7.25"
+    ],
+    "actionable_steps": [
+      {
+        "feature": "F115",
+        "current_value": 1.0,
+        "proposed_value": 0.25,
+        "risk_reduction": 0.2583
+      },
+      {
+        "feature": "F3894",
+        "current_value": 29.0,
+        "proposed_value": 7.25,
+        "risk_reduction": 0.2539
+      },
+      {
+        "feature": "F527",
+        "current_value": 1.0,
+        "proposed_value": 0.0,
+        "risk_reduction": 0.2119
+      }
+    ],
+    "original_tier": "T2 (Monitor)"
+  },
+  "9013": {
+    "current_score": 0.9584,
+    "simulated_score": 0.1291,
+    "target_tier": "T1 (No action)",
+    "conditions": [
+      "F531 <= 0.445",
+      "F2956 <= 0.0"
+    ],
+    "actionable_steps": [
+      {
+        "feature": "F531",
+        "current_value": 1.78,
+        "proposed_value": 0.445,
+        "risk_reduction": 0.3932
+      },
+      {
+        "feature": "F2956",
+        "current_value": 35.0,
+        "proposed_value": 0.0,
+        "risk_reduction": 0.3924
+      },
+      {
+        "feature": "F3894",
+        "current_value": 32.0,
+        "proposed_value": 8.0,
+        "risk_reduction": 0.3186
+      }
+    ],
+    "original_tier": "T2 (Monitor)"
+  },
+  "9016": {
+    "current_score": 0.9588,
+    "simulated_score": 0.1607,
+    "target_tier": "T1 (No action)",
+    "conditions": [
+      "F3894 <= 7.75",
+      "F115 <= 0.25"
+    ],
+    "actionable_steps": [
+      {
+        "feature": "F3894",
+        "current_value": 31.0,
+        "proposed_value": 7.75,
+        "risk_reduction": 0.308
+      },
+      {
+        "feature": "F115",
+        "current_value": 1.0,
+        "proposed_value": 0.25,
+        "risk_reduction": 0.2631
+      },
+      {
+        "feature": "F2956",
+        "current_value": 24.0,
+        "proposed_value": 6.0,
+        "risk_reduction": 0.2394
+      }
+    ],
+    "original_tier": "T2 (Monitor)"
+  },
+  "9018": {
+    "current_score": 0.9793,
+    "simulated_score": 0.0942,
+    "target_tier": "T1 (No action)",
+    "conditions": [
+      "F531 <= 0.365",
+      "F3894 <= 7.5",
+      "F2956 <= 5.5"
+    ],
+    "actionable_steps": [
+      {
+        "feature": "F531",
+        "current_value": 1.46,
+        "proposed_value": 0.365,
+        "risk_reduction": 0.2273
+      },
+      {
+        "feature": "F3894",
+        "current_value": 30.0,
+        "proposed_value": 7.5,
+        "risk_reduction": 0.1489
+      },
+      {
+        "feature": "F2956",
+        "current_value": 22.0,
+        "proposed_value": 5.5,
+        "risk_reduction": 0.148
+      }
+    ],
+    "original_tier": "T2 (Monitor)"
+  },
+  "9029": {
+    "current_score": 0.9741,
+    "simulated_score": 0.2035,
+    "target_tier": "T1 (No action)",
+    "conditions": [
+      "F115 <= 0.25",
+      "F3894 <= 7.0"
+    ],
+    "actionable_steps": [
+      {
+        "feature": "F115",
+        "current_value": 1.0,
+        "proposed_value": 0.25,
+        "risk_reduction": 0.2354
+      },
+      {
+        "feature": "F3894",
+        "current_value": 28.0,
+        "proposed_value": 7.0,
+        "risk_reduction": 0.2097
+      },
+      {
+        "feature": "F3887",
+        "current_value": 74.0,
+        "proposed_value": 0.0,
+        "risk_reduction": 0.1479
+      }
+    ],
+    "original_tier": "T2 (Monitor)"
+  },
+  "9034": {
+    "current_score": 0.9795,
+    "simulated_score": 0.2317,
+    "target_tier": "T1 (No action)",
+    "conditions": [
+      "F115 <= 0.25",
+      "F3894 <= 5.75"
+    ],
+    "actionable_steps": [
+      {
+        "feature": "F115",
+        "current_value": 1.0,
+        "proposed_value": 0.25,
+        "risk_reduction": 0.2598
+      },
+      {
+        "feature": "F3894",
+        "current_value": 23.0,
+        "proposed_value": 5.75,
+        "risk_reduction": 0.1333
+      },
+      {
+        "feature": "F3043",
+        "current_value": NaN,
+        "proposed_value": 0.0,
+        "risk_reduction": 0.1228
+      }
+    ],
+    "original_tier": "T2 (Monitor)"
+  },
+  "9037": {
+    "current_score": 0.9834,
+    "simulated_score": 0.0869,
+    "target_tier": "T1 (No action)",
+    "conditions": [
+      "F115 <= 0.25",
+      "F527 <= 0.0",
+      "F3894 <= 8.0"
+    ],
+    "actionable_steps": [
+      {
+        "feature": "F115",
+        "current_value": 1.0,
+        "proposed_value": 0.25,
+        "risk_reduction": 0.267
+      },
+      {
+        "feature": "F527",
+        "current_value": 1.0,
+        "proposed_value": 0.0,
+        "risk_reduction": 0.0955
+      },
+      {
+        "feature": "F3894",
+        "current_value": 32.0,
+        "proposed_value": 8.0,
+        "risk_reduction": 0.0904
+      }
+    ],
+    "original_tier": "T2 (Monitor)"
+  },
+  "9039": {
+    "current_score": 0.9903,
+    "simulated_score": 0.0846,
+    "target_tier": "T1 (No action)",
+    "conditions": [
+      "F115 <= 0.25",
+      "F3836 <= 0.0",
+      "F3894 <= 5.25"
+    ],
+    "actionable_steps": [
+      {
+        "feature": "F115",
+        "current_value": 1.0,
+        "proposed_value": 0.25,
+        "risk_reduction": 0.1814
+      },
+      {
+        "feature": "F3836",
+        "current_value": 9476.87,
+        "proposed_value": 0.0,
+        "risk_reduction": 0.0734
+      },
+      {
+        "feature": "F3894",
+        "current_value": 21.0,
+        "proposed_value": 5.25,
+        "risk_reduction": 0.0626
+      }
+    ],
+    "original_tier": "T2 (Monitor)"
+  },
+  "9041": {
+    "current_score": 0.9813,
+    "simulated_score": 0.3139,
+    "target_tier": "T2 (Monitor)",
+    "conditions": [
+      "F527 <= 0.0",
+      "F3043 <= 0.0",
+      "F115 <= 0.205"
+    ],
+    "actionable_steps": [
+      {
+        "feature": "F527",
+        "current_value": 0.96,
+        "proposed_value": 0.0,
+        "risk_reduction": 0.0998
+      },
+      {
+        "feature": "F3043",
+        "current_value": NaN,
+        "proposed_value": 0.0,
+        "risk_reduction": 0.0933
+      },
+      {
+        "feature": "F115",
+        "current_value": 0.82,
+        "proposed_value": 0.205,
+        "risk_reduction": 0.0887
+      }
+    ],
+    "original_tier": "T2 (Monitor)"
+  },
+  "9042": {
+    "current_score": 0.9605,
+    "simulated_score": 0.1891,
+    "target_tier": "T1 (No action)",
+    "conditions": [
+      "F115 <= 0.19",
+      "F531 <= 0.275"
+    ],
+    "actionable_steps": [
+      {
+        "feature": "F115",
+        "current_value": 0.76,
+        "proposed_value": 0.19,
+        "risk_reduction": 0.2609
+      },
+      {
+        "feature": "F531",
+        "current_value": 1.1,
+        "proposed_value": 0.275,
+        "risk_reduction": 0.244
+      },
+      {
+        "feature": "F2956",
+        "current_value": 18.0,
+        "proposed_value": 4.5,
+        "risk_reduction": 0.2333
+      }
+    ],
+    "original_tier": "T2 (Monitor)"
+  },
+  "9052": {
+    "current_score": 0.9765,
+    "simulated_score": 0.1895,
+    "target_tier": "T1 (No action)",
+    "conditions": [
+      "F115 <= 0.25",
+      "F3894 <= 0.0"
+    ],
+    "actionable_steps": [
+      {
+        "feature": "F115",
+        "current_value": 1.0,
+        "proposed_value": 0.25,
+        "risk_reduction": 0.276
+      },
+      {
+        "feature": "F3894",
+        "current_value": 36.0,
+        "proposed_value": 0.0,
+        "risk_reduction": 0.178
+      },
+      {
+        "feature": "F3836",
+        "current_value": 128812.7,
+        "proposed_value": 0.0,
+        "risk_reduction": 0.1471
+      }
+    ],
+    "original_tier": "T2 (Monitor)"
+  },
+  "9053": {
+    "current_score": 0.96,
+    "simulated_score": 0.138,
+    "target_tier": "T1 (No action)",
+    "conditions": [
+      "F531 <= 0.4625",
+      "F2956 <= 5.5"
+    ],
+    "actionable_steps": [
+      {
+        "feature": "F531",
+        "current_value": 1.85,
+        "proposed_value": 0.4625,
+        "risk_reduction": 0.4045
+      },
+      {
+        "feature": "F2956",
+        "current_value": 22.0,
+        "proposed_value": 5.5,
+        "risk_reduction": 0.3218
+      },
+      {
+        "feature": "F3894",
+        "current_value": 29.0,
+        "proposed_value": 7.25,
+        "risk_reduction": 0.2606
+      }
+    ],
+    "original_tier": "T2 (Monitor)"
+  },
+  "9062": {
+    "current_score": 0.9783,
+    "simulated_score": 0.1957,
+    "target_tier": "T1 (No action)",
+    "conditions": [
+      "F2956 <= 6.25",
+      "F115 <= 0.25"
+    ],
+    "actionable_steps": [
+      {
+        "feature": "F2956",
+        "current_value": 25.0,
+        "proposed_value": 6.25,
+        "risk_reduction": 0.1791
+      },
+      {
+        "feature": "F115",
+        "current_value": 1.0,
+        "proposed_value": 0.25,
+        "risk_reduction": 0.1709
+      },
+      {
+        "feature": "F531",
+        "current_value": 1.18,
+        "proposed_value": 0.295,
+        "risk_reduction": 0.1556
+      }
+    ],
+    "original_tier": "T2 (Monitor)"
+  },
+  "9063": {
+    "current_score": 0.9681,
+    "simulated_score": 0.1492,
+    "target_tier": "T1 (No action)",
+    "conditions": [
+      "F115 <= 0.25",
+      "F3894 <= 0.0"
+    ],
+    "actionable_steps": [
+      {
+        "feature": "F115",
+        "current_value": 1.0,
+        "proposed_value": 0.25,
+        "risk_reduction": 0.4195
+      },
+      {
+        "feature": "F3894",
+        "current_value": 73.0,
+        "proposed_value": 0.0,
+        "risk_reduction": 0.2439
+      },
+      {
+        "feature": "F3887",
+        "current_value": 452.0,
+        "proposed_value": 0.0,
+        "risk_reduction": 0.2078
+      }
+    ],
+    "original_tier": "T2 (Monitor)"
+  },
+  "9065": {
+    "current_score": 0.9698,
+    "simulated_score": 0.2451,
+    "target_tier": "T1 (No action)",
+    "conditions": [
+      "F115 <= 0.2425",
+      "F2956 <= 0.0"
+    ],
+    "actionable_steps": [
+      {
+        "feature": "F115",
+        "current_value": 0.97,
+        "proposed_value": 0.2425,
+        "risk_reduction": 0.2169
+      },
+      {
+        "feature": "F2956",
+        "current_value": 74.0,
+        "proposed_value": 0.0,
+        "risk_reduction": 0.18
+      },
+      {
+        "feature": "F527",
+        "current_value": 0.99,
+        "proposed_value": 0.0,
+        "risk_reduction": 0.1732
+      }
+    ],
+    "original_tier": "T2 (Monitor)"
+  },
+  "9072": {
+    "current_score": 0.9856,
+    "simulated_score": 0.1468,
+    "target_tier": "T1 (No action)",
+    "conditions": [
+      "F531 <= 0.3275",
+      "F2956 <= 4.25",
+      "F3894 <= 6.5"
+    ],
+    "actionable_steps": [
+      {
+        "feature": "F531",
+        "current_value": 1.31,
+        "proposed_value": 0.3275,
+        "risk_reduction": 0.1285
+      },
+      {
+        "feature": "F2956",
+        "current_value": 17.0,
+        "proposed_value": 4.25,
+        "risk_reduction": 0.1157
+      },
+      {
+        "feature": "F3894",
+        "current_value": 26.0,
+        "proposed_value": 6.5,
+        "risk_reduction": 0.1143
+      }
+    ],
+    "original_tier": "T3 (Enhanced review)"
+  },
+  "9074": {
+    "current_score": 0.9762,
+    "simulated_score": 0.1568,
+    "target_tier": "T1 (No action)",
+    "conditions": [
+      "F115 <= 0.25",
+      "F3894 <= 0.0"
+    ],
+    "actionable_steps": [
+      {
+        "feature": "F115",
+        "current_value": 1.0,
+        "proposed_value": 0.25,
+        "risk_reduction": 0.2929
+      },
+      {
+        "feature": "F3894",
+        "current_value": 46.0,
+        "proposed_value": 0.0,
+        "risk_reduction": 0.2458
+      },
+      {
+        "feature": "F3887",
+        "current_value": 198.0,
+        "proposed_value": 0.0,
+        "risk_reduction": 0.2292
+      }
+    ],
+    "original_tier": "T2 (Monitor)"
+  },
+  "9076": {
+    "current_score": 0.9771,
+    "simulated_score": 0.1622,
+    "target_tier": "T1 (No action)",
+    "conditions": [
+      "F115 <= 0.25",
+      "F3887 <= 0.0"
+    ],
+    "actionable_steps": [
+      {
+        "feature": "F115",
+        "current_value": 1.0,
+        "proposed_value": 0.25,
+        "risk_reduction": 0.3964
+      },
+      {
+        "feature": "F3887",
+        "current_value": 432.0,
+        "proposed_value": 0.0,
+        "risk_reduction": 0.1875
+      },
+      {
+        "feature": "F3894",
+        "current_value": 60.0,
+        "proposed_value": 0.0,
+        "risk_reduction": 0.1633
+      }
+    ],
+    "original_tier": "T2 (Monitor)"
+  },
+  "9080": {
+    "current_score": 0.9793,
+    "simulated_score": 0.0778,
+    "target_tier": "T1 (No action)",
+    "conditions": [
+      "F115 <= 0.25",
+      "F527 <= 0.0",
+      "F3836 <= 0.0"
+    ],
+    "actionable_steps": [
+      {
+        "feature": "F115",
+        "current_value": 1.0,
+        "proposed_value": 0.25,
+        "risk_reduction": 0.2387
+      },
+      {
+        "feature": "F527",
+        "current_value": 1.0,
+        "proposed_value": 0.0,
+        "risk_reduction": 0.1662
+      },
+      {
+        "feature": "F3836",
+        "current_value": 470522.18,
+        "proposed_value": 0.0,
+        "risk_reduction": 0.1204
+      }
+    ],
+    "original_tier": "T3 (Enhanced review)"
+  }
+}
