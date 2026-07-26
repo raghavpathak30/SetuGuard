@@ -5,6 +5,28 @@ against the actual filesystem/environment on that date unless marked otherwise i
 "UNVERIFIED / TO CONFIRM" section at the end. Read that section before trusting any claim about
 identity/dates/venue._
 
+_Updated: 2026-07-20, same day, second Claude Code session. That session (1) initialized git and
+pushed to GitHub, (2) ran a dead-code audit across all PS1 files and applied the one signed-off
+finding, (3) ran the Week-1 Obfuscapk risk spike (go/no-go — passed) and (4) scaffolded the Fix #3
+batch-YARA false-positive harness. Every claim below from that session is traceable to a command
+actually run in that session, same standard as the rest of this document. Changed sections: 2, 5,
+6, 8, 9._
+
+_Updated: 2026-07-26/27, third Claude Code session (Week 2). Completed the n=50-malicious
+`baseline_v2` re-run (D10, now RESOLVED), built `validation_gate.py` (D4) and validated it against
+live model output (not just synthetic tests — it caught real grounding-hallucination violations),
+built `stress_harness.py` for hostile-input robustness testing, pinned `rag_report.py`'s generation
+`options` (temperature=0, seed=42 — D6, PARTIALLY resolved: verdict/confidence now deterministic,
+`cited_chunk_ids` is not), ran a paired in-memory D2 A/B experiment (null-to-negative result that
+REDIRECTS D1's suspected root cause away from retrieval and toward `SYSTEM_PROMPT`/schema-level
+causes), fixed a live crash in `fix3_fp_harness.py` and used it to measure a seeded n=150 Fix #3
+"before" FP rate (97.9%, corrected accounting), ran the AutoYara (I2) feasibility spike (NO-GO for
+adopting the actual tool; ambiguity flagged, not resolved), corrected a significant D11/corpus-census
+undercount (16 unusable benign files, not 1), found and logged five new frozen-file defects
+(`FROZEN_FILE_FINDINGS.md`, sign-off-gated, only one applied — the temperature/seed pin), and wrote
+`requirements.txt` (D8, now RESOLVED). Every claim below from this session is traceable to a command
+actually run in this session. Changed sections: 2, 4, 5, 6, 8, 9._
+
 ---
 
 ## 1. PROJECT IDENTITY
@@ -43,24 +65,32 @@ spec.
 | PS1 `static_analysis.py` | **DONE** (Week-1 baseline) | Runs standalone; tested against real APKs from both corpora; schema held stable (11/11 top-level keys, correct sub-key types) across 50 real samples in `baseline/` run |
 | PS1 `knowledge_base.py` | **DONE** | 16 hand-written chunks, `CHUNKS` list, covers 14 MITRE IDs required by the build spec plus 2 more (`T1444`, `T1398`) added to ground fields (certificate, boot receiver) that had no other chunk |
 | PS1 `report_prompt.py` | **DONE** | `SYSTEM_PROMPT`, `REPORT_SCHEMA`, `build_user_prompt()` — no pipeline logic, verified |
-| PS1 `rag_report.py` | **DONE** | End-to-end tested against `ollama` (mistral + nomic-embed-text), returns valid JSON matching `REPORT_SCHEMA` |
-| PS1 `yara_gen.py` | **DONE** | Rules verified to actually **compile and match** with the real `yara` CLI (`yara-python` 4.5.1) against one malicious and one benign real sample |
+| PS1 `rag_report.py` | **DONE**, generation now pinned | End-to-end tested against `ollama` (mistral + nomic-embed-text), returns valid JSON matching `REPORT_SCHEMA`. **Week-2 change (sign-off given, one-line edit):** `ollama.chat()` now passes `options={"temperature": 0, "seed": 42}` (Finding 3, `FROZEN_FILE_FINDINGS.md`) — the only edit to any of the six frozen files this session. Verified: verdict+confidence are now bit-for-bit deterministic across repeats; `cited_chunk_ids` is **not** (Finding 4 — that field is schema-unconstrained, see Section 6) |
+| PS1 `yara_gen.py` | **DONE** | Rules verified to actually **compile and match** with the real `yara` CLI (`yara-python` 4.5.1) against one malicious and one benign real sample. **Week-2 finding, not applied:** a NUL byte in a `suspicious_strings` value (from Adobe XMP metadata, very common) crashes `yara.compile()` downstream — Finding 5, `FROZEN_FILE_FINDINGS.md`, spans this file and `static_analysis.py` |
 | PS1 `run_pipeline.py` | **DONE** | Glue entrypoint; chains the three stages by import (no shelling out); writes `out/<pkg>.{features.json,report.json,report.md,yar}` |
-| PS1 `batch_baseline.py` | **DONE** for n=10 malicious + n=40 benign (`baseline/`); **INCOMPLETE** for n=50 malicious + n=40 benign (`baseline_v2/` exists but is **empty** — see below) |
+| PS1 `batch_baseline.py` | **DONE for both `baseline/` (n=10 malicious) and `baseline_v2/` (n=50 malicious nominal / n=46 effective)** | Week-2: rewritten for crash-survivability (incremental flush+fsync per sample to `results.csv`/new `skips.csv`, `heartbeat.log`, pidfile, resume-by-skip) after the original run died with zero output. Re-run to completion under `setsid nohup` — see Section 6 for the (now complete) n=46-malicious confidence-separation result |
+| Dead-code audit (six frozen files + non-frozen scaffolding) | **DONE, one finding applied** | Full pass (unused-import AST scan, grep-every-symbol-across-repo, commented-code/TODO grep) across `static_analysis.py`, `knowledge_base.py`, `report_prompt.py`, `rag_report.py`, `yara_gen.py`, `run_pipeline.py`, `batch_baseline.py`, `parse_fdroid_index.py`. One finding, in a frozen file: unused DEX-list binding `d` at `static_analysis.py:203` (`a, d, dx = AnalyzeAPK(...)`, `d` never referenced again anywhere in the repo — confirmed by grep before editing). Reported in `setuguard_ps1/DEAD_CODE_REPORT.md`, signed off by the user, applied as `a, _, dx = ...` — the only edit made to any of the six frozen files since Week 1 (superseded as "only edit" by the Week-2 temperature/seed pin, above — that's now the second). Verified with a post-edit CLI+import smoke test against a real malicious-corpus sample (exit 0, correct 11-key schema). Non-frozen files had zero dead code — no changes needed there |
+| PS1 `validation_gate.py` (D4) | **NEW, DONE (Week 2)** | Validates-only (never corrects a verdict/rule): `validate_features_schema()`, `validate_report_grounding()` (the D4 grounding-faithfulness check — cited chunk/MITRE ids against `knowledge_base.CHUNKS`' real 16), `validate_indicator_traceability()` (every `$indicator_*` in a rule traces to a real features field). Validated against the one real on-disk artifact (`baseline/one_real_sample.features.json`, PASS) plus synthetic fixtures proving it catches fabricated chunk ids, hallucinated indicators, and schema violations. **Caught real violations from live model output** the same session (see Section 6) — not just synthetic tests. Known gap, not fixed: passes NUL-bearing indicators as "traceable" (provenance-only, no well-formedness check) |
+| PS1 `stress_harness.py` + `_stress_worker.py` (Week 2) | **NEW, DONE** | Feeds `analyze_apk()` 7 hostile/edge-case inputs (truncated APK, zero-byte file, valid-zip-not-APK, non-zip binary, directory, nonexistent path, corpus APK with most dangerous_permissions), each isolated in its own subprocess so a crash/hang can't take down the harness. All 7 resolved cleanly (6 clean exceptions, 1 success) — **zero dirty failures**. Also used ad hoc to diagnose the 27-file unzip-integrity discrepancy (see Section 6/8) |
+| PS1 `d2_negative_chunks.py` + `d2_ab_harness.py` (Week 2) | **NEW, DONE** | 6 negative-evidence chunks (reviewed/revised twice for framing before running — see Section 6), monkeypatched onto `rag_report.CHUNKS` at runtime by a paired A/B harness; **never edited `knowledge_base.py`**. Full result in Section 6 — a null-to-negative result that **redirects** D1's suspected root cause away from retrieval |
 | PS2 (XGBoost/SHAP/graph mule detection) | **NOT STARTED** | Exhaustive `find` for `xgboost`/`mule`/`ps2`/`shap`/`graph`-named files under `~/BOIhackathon` returns nothing but incidental APK filename matches (e.g. `com.eanema.graph89_...apk`, an unrelated F-Droid app) |
 | Bridge (PS1↔PS2 IOC enrichment) | **NOT STARTED** | No files found; cannot meaningfully exist without PS2 |
 | Dashboard/Audit UI | **NOT STARTED** | No files found |
-| Fix #3 (F-Droid + 16-real-bank holdout, FP-rate → 0) | **NOT STARTED** | `banking_holdout_16/` (16 apks) exists and is scrupulously *un-touched* by every script in the repo, but nothing reads it yet; no validation gate exists (explicitly out of scope per every build instruction given so far) |
-| Fix #4 (Obfuscapk survival matrix) | **NOT STARTED** | No `obfuscapk` anywhere; not even the Week-1 "Day 5–6 risk spike" (install it, run it once) has any trace in the repo |
-| Version control | **MISSING** | `git rev-parse --is-inside-work-tree` fails at the filesystem boundary — there is no `.git` anywhere under `/home/raghavp/BOIhackathon`. No commit history exists at all; all project history lives only in Claude Code conversation transcripts |
+| Fix #3 (F-Droid + 16-real-bank holdout, FP-rate → 0) | **"Before" number measured (Week 2), still blocked on D1/D2 by design** | `setuguard_ps1/fix3_fp_harness.py`: Week-2 crash-survivability rewrite (same treatment as `batch_baseline.py`) plus `--sample-n`/`--seed` for reproducible seeded sampling. Hard-refuses `banking_holdout_16/` by path check (re-verified intact). A live NUL-byte crash (Finding 5) was hit, fixed narrowly (distinct `yara_compile:embedded_null` skip reason, verified against repeats), and the run restarted clean. **n=150, seed=7 result: FP rate 142/145 = 97.9%** (corrected accounting — see Section 6/`FIX3_BEFORE_RESULTS.md`); this is an explicitly-labeled BEFORE number, not a result to act on, since it's dominated by D1's always-"suspicious" verdict. Still defaults to `fdroid_benign_apks/`; the wider F-Droid pull and the 16 real banking APKs remain a separate, not-yet-done sourcing step |
+| Fix #4 (Obfuscapk survival matrix) | **Week-1 risk spike DONE — verdict GO** | The previously-skipped Week-1 spike was run: installed `claudiugeorgiu/obfuscapk` (note: the Docker Hub name is `claudiugeorgiu/obfuscapk`, **not** `obfuscapk/obfuscapk`, which doesn't exist) via `podman pull`, ran it against one real trojan sample from `cicmaldroid_banking/` with the lightest single obfuscation transform (`Nop`) plus the `Rebuild`+`NewAlignment`+`NewSignature` steps Obfuscapk requires you to chain explicitly (it does not auto-rebuild/sign after a transform). Output: a valid signed APK (`unzip -t` clean, `file` confirms an APK Signing Block present) that parses cleanly through `static_analysis.py`'s own `analyze_apk()` — the same androguard call path the pipeline uses. Full result in Section 6. **The survival matrix itself — many samples × multiple transforms, checking whether PS1's verdict/confidence/YARA output survives — is NOT started; this was only the go/no-go gate** |
+| AutoYara feasibility spike (I2, Week 2) | **DONE — NO-GO for tool adoption** | `setuguard_ps1/AUTOYARA_SPIKE.md`. Confirmed (fetched, not from memory): Java/Maven, JDK11+ (this machine has JDK 25 already), Apache 2.0, no PyPI package, no Docker image, single 2017-era release — appears abandoned. NO-GO because its input shape (multi-sample, family-labeled, cross-APK biclustering) doesn't fit this pipeline's single-APK shape, not because it's unobtainable. **Unresolved, flagged not resolved:** whether I2 means adopting the actual tool (NO-GO) or building a homegrown single-APK fallback (cheaper, not evaluated) |
+| `FROZEN_FILE_FINDINGS.md` (Week 2) | **NEW — 5 findings logged, 1 applied** | Same report-don't-touch precedent as `DEAD_CODE_REPORT.md`, generalized beyond dead code. Finding 1 (unguarded `manifest.iter()` on possibly-`None` manifest), Finding 2 (`exported_components[].name` can be `None`, violating the frozen `str` contract — 3 occurrences in `baseline_v2`), Finding 4 (`cited_chunk_ids` schema-unconstrained — parked research finding), Finding 5 (NUL-byte over-capture/under-sanitization, `static_analysis.py`+`yara_gen.py` — crashes `yara.compile()`, ~22% prevalence in benign F-Droid samples) are all **sign-off-gated, not applied**. Finding 3 (temperature/seed pin) is the one **applied** this session — see `rag_report.py` row above |
+| `requirements.txt` (D8) | **RESOLVED (Week 2)** | Generated from `python3 -m pip show` output actually run this session — see Section 5 |
+| Version control | **INITIALIZED, pushed** | `.git` exists; remote `origin` = `https://github.com/raghavpathak30/SetuGuard`; branch `main` tracks `origin/main`. 2 commits as of the last push: `aee8497` (initial) and `9695401` (Fix #3 harness + dead-code report). **This session's changes are on branch `raghav/week2-ps1`, not yet committed/pushed as of this documentation pass** — see Section 8/STOP 5 for the staged-file list. `.gitignore` excludes all APK corpora (`*.apk`, `banking_holdout_16/`, `fdroid_benign_apks/`, `cicmaldroid_banking/`, `Banking.tar.gz`), model/embedding/index file patterns, `baseline/`/`baseline_v2/`/`out/`/`fix3_fp_baseline/`/`d2_ab_results/`, the unexplained top-level `logging` binary, and F-Droid scraping data artifacts (`index-v2.json`, `download_log.txt`, the package-list `.txt` files) |
 
 **Known-broken / blunt findings:**
 
-- **The RAG report's categorical verdict has never once been "benign" or "malicious" in any measured run.** Across the 50-sample `baseline/` run (40 benign + 10 malicious), **100% of verdicts were the string `"suspicious"`**, regardless of true label. Confidence *does* separate the classes (benign 0.45–0.75, malicious 0.75–0.85 — see Section 6), but the 3-way enum currently carries almost no signal. This was measured, not fixed (explicit instruction: "do not tune prompts, add validation gates" for these measurement tasks).
-- **The wider n=50-malicious confidence-separation re-run never finished.** `baseline_v2/` was created (`mkdir`'d) but contains **zero files** — the background process (PID 99102, started via `nohup ... &; disown`) was killed when the working session/container was torn down mid-run (only 2 of 90 samples had logged before the log file itself disappeared). The question "does confidence stay separated past n=10 malicious, or does it bleed into the benign range?" is **still open** and needs a straight re-run of `batch_baseline.py` (already configured for `NUM_MALICIOUS=50`, `OUT_DIR=baseline_v2`).
-- One corrupted file exists in the benign corpus: `fdroid_benign_apks/app.fedilab.nitterizeme_35.apk`, truncated at exactly 1,048,576 bytes (a suspiciously round number — almost certainly a cut-off download). `unzip -t` confirms "cannot find zipfile directory." `analyze_apk()` raises cleanly on it (androguard/apkInspector `ValueError: End of central directory record (EOCD) signature not found`); this is bad corpus data, not a pipeline bug, and every harness's try/except-per-stage already logs-and-skips it correctly.
+- **The RAG report's categorical verdict has never once been "benign" or "malicious" in any measured run.** Confirmed FOUR times independently now: `baseline/` (n=50), `baseline_v2/` (n=86 effective), the D2 A/B (n=36), and the Fix #3 before-run (n=113 effective) — **100% "suspicious"** across all of them, regardless of true label or measurement context. Confidence separates the classes at small n but the separation **collapses at wider n** (see Section 6) — the 3-way enum carries almost no signal. Week-2's D2 A/B experiment (paired, in-memory, `knowledge_base.py` never touched) **redirects the suspected root cause away from retrieval (D2) and toward `SYSTEM_PROMPT`/schema-level causes** (D1's other candidates) — see Section 6 for the full result. Still not fixed — explicit team decision required, not a silent patch.
+- **The wider n=50-malicious confidence-separation re-run is now COMPLETE** (Week 2) — `baseline_v2/` was rewritten for crash-survivability and re-run to completion (n=86 effective: 40 benign, 46 malicious after 4 `InvalidInstruction`-bytecode skips). The separation question is answered: **it does not survive** — see Section 6.
+- **Corpus-hygiene correction (Week 2) — CONTEXT.md previously undercounted this by 16x.** The benign corpus does not have "one corrupted file" — it has **16 files that fail `unzip -t`/Python `zipfile`** (only 1 is the known truncated download; the other 15 are structurally-valid-per-`file(1)` APKs that androguard itself also fails to parse for 15/16 of them, raising a clean exception in every case — confirmed via `stress_harness.py`, zero dirty failures). The malicious corpus has 11 similar zip-integrity failures (9/11 of which androguard tolerates fine; 2/11 raise cleanly) **plus a separate, previously-unknown failure mode**: `InvalidInstruction` DEX-bytecode parse errors, hit by 4/50 malicious samples in the `baseline_v2` re-run and again in the D2 A/B and Fix #3 runs. None of this breaks the pipeline (every harness already skip-logs cleanly), but the true unusable-file count across both corpora is materially higher than previously documented.
+- **NUL-byte defect (Week 2, Finding 5, `FROZEN_FILE_FINDINGS.md`) — new, high-prevalence.** `static_analysis.py`'s url-string regex doesn't exclude control characters, so Adobe XMP metadata's trailing NUL byte (extremely common in ordinary image assets) ends up in `suspicious_strings`, then in a generated YARA rule's string literal, then crashes `yara.compile()`. Measured prevalence: **22.1% (32/145)** of successfully-analyzed benign F-Droid samples in the Fix #3 seeded n=150 run. Sign-off-gated, not fixed.
 - YARA rules are generated assuming indicator strings are byte-present in **decompressed** DEX/AXML content (flagged explicitly in `yara_gen.py`'s module docstring) — most APK zip entries are DEFLATE-compressed, so a raw untouched `.apk` file is not guaranteed to byte-match. Ad hoc verification during this project (2 real samples, one malicious one benign) *did* successfully compile-and-match with the real `yara` CLI against the raw `.apk`, but that is not a general guarantee across build toolchains.
-- **No `requirements.txt`, `pyproject.toml`, `Dockerfile`, `Makefile`, or `.ipynb` exists anywhere in the repository.** Reproducibility currently depends entirely on Section 5 of this document plus the installed state of this one machine.
+- ~~No `requirements.txt`...~~ **RESOLVED (Week 2)** — see Section 5/8.
 
 ---
 
@@ -339,10 +369,11 @@ Verified directly on the current machine (`cat /etc/os-release`, `uname -a`, `nv
 | Python | 3.13.5, system interpreter, **no venv** |
 | Ollama server | systemd service `ollama`, confirmed `active` |
 | Ollama models pulled | `mistral:latest` (4.4GB), `nomic-embed-text:latest` (274MB) |
+| Container runtime | `podman` 26.1.5-compat (the `docker` command on this machine is podman under the hood — `docker pull` fails against the podman socket unless invoked as `podman pull`); rootless. Image `docker.io/claudiugeorgiu/obfuscapk:latest` pulled (809MB) for the Fix #4 spike (Section 2/6) |
 
-Pinned dependency versions actually installed (`python3 -m pip list`), since **no
-requirements.txt exists anywhere in the repo** — this table is the reproducibility record until
-one is written:
+Pinned dependency versions actually installed (`python3 -m pip list`). **`setuguard_ps1/requirements.txt`
+now exists (Week 2, D8 resolved)** — generated from this same `pip show` data, so this table and
+that file should stay in sync:
 
 | package | version |
 |---|---|
@@ -353,6 +384,10 @@ one is written:
 | numpy | 2.2.4 |
 | ollama (python client) | 0.6.2 |
 | yara-python | 4.5.1 |
+
+_Minor drift noted 2026-07-20 (second session): `python3 -c "import yara; print(yara.__version__)"`
+now reports `4.5.2` on this machine — one patch version ahead of the table above. Not re-verified
+whether this changes behavior; noted for traceability, not treated as a live bug._
 
 This is a Debian-family "externally managed environment" (PEP 668) — plain `pip install` is
 blocked. All of the above were installed with `--break-system-packages` into
@@ -381,7 +416,12 @@ python3 static_analysis.py <apk> [-o feat.json]
 python3 rag_report.py <feat.json> [-o report.json]
 python3 yara_gen.py <feat.json> <report.json> [-o rule.yar]
 
-# re-run the (currently incomplete) wider measurement batch
+# install from the pinned file directly (Week 2)
+python3 -m pip install --break-system-packages -r requirements.txt
+
+# re-run the wider measurement batch (baseline_v2/ is now complete — see Section 6 —
+# re-running from a clean baseline_v2/ regenerates it; resume-by-skip means a partial
+# baseline_v2/ would need clearing first for a truly fresh run)
 python3 batch_baseline.py        # writes to baseline_v2/ (NUM_MALICIOUS=50 currently configured)
 ```
 
@@ -438,16 +478,179 @@ zero variation across the entire corpus. This was recorded as-is, per explicit i
 tune the prompt or add a validation gate to mask it — it is real Week-1 baseline evidence for the
 Fix #3 FP-rate work.
 
-### `baseline_v2/` — INCOMPLETE (attempted 40 benign + 50 malicious)
+### `baseline_v2/` — COMPLETE as of Week 2 (n=40 benign / n=50 malicious nominal, n=46 malicious effective)
 
-Source: directory exists (`setuguard_ps1/baseline_v2/`), confirmed **empty** — no `results.csv`,
-no `summary.txt`, no `one_real_sample.features.json`. The background run was started to test
-whether the confidence separation above holds past only 10 malicious data points, got at least 2
-samples in (per the last-seen log fragment, both benign apps), and was killed when the working
-session/container ended before it could write any output. **This question is unanswered and
-needs a straight re-run** — the harness is already configured correctly for it
-(`NUM_MALICIOUS = 50`, `OUT_DIR = baseline_v2`), so re-running `python3 batch_baseline.py` should
-just work; budget ~15–25 minutes wall time based on the v1 run's per-apk rate.
+Source: `setuguard_ps1/baseline_v2/{results.csv,skips.csv,summary.txt}`, recomputed directly from
+the CSVs for this document (not from the harness's own `summary.txt`, which is still accurate for
+this particular run but is a general risk pattern worth naming — see the Fix #3 write-up below
+for a case where trusting a harness's own summary actively produced a wrong number).
+Re-run (Week 2) after a full crash-survivability rewrite of `batch_baseline.py` (incremental
+flush+fsync, `skips.csv`, `heartbeat.log`, pidfile, resume-by-skip); ran to completion under
+`setsid nohup`, 1055.9s wall time, mean 12.2s/apk (n=86 successful).
+
+| | benign (n=40) | malicious (n=46 effective, 4 skipped) |
+|---|---|---|
+| verdict | 100% `"suspicious"` | 100% `"suspicious"` |
+| confidence min/p25/median/p75/max | 0.60 / 0.65 / 0.70 / 0.75 / 0.85 | 0.65 / 0.75 / 0.75 / 0.80 / 0.85 |
+
+**The n=10 separation does NOT survive at n=46 — answered, not smoothed.** At n=10 malicious
+(the `baseline/` run above), malicious min (0.75) exactly touched benign max (0.75) — no overlap.
+At n=46, malicious min drops to 0.65, well inside the benign range; benign max (0.85) now equals
+malicious max. Overlap region ≈ [0.65, 0.85] — most of both distributions. 33/40 benign score at
+or above the malicious minimum. This closes D10 (previously open) and answers the question
+CONTEXT.md's prior session left open: **no, confidence separation does not hold at wider n.**
+
+4 malicious samples skipped this run, all `InvalidInstruction` DEX-bytecode parse errors at the
+`static_analysis` stage — a distinct failure mode from the zip-integrity issue described below,
+first observed this session.
+
+**Schema violation found this run (Finding 2, `FROZEN_FILE_FINDINGS.md`), not seen in `baseline/`'s
+n=50:** 3/86 samples had `exported_components[].name = None` (violating the frozen `str`
+contract) — all 11 components in each of those 3 manifests lacked an `android:name` attribute.
+Traces to `static_analysis.py`'s `_resolve_component_name()` falling through to `return name`
+unguarded when the manifest attribute is absent. Sign-off-gated, not fixed — see
+`FROZEN_FILE_FINDINGS.md` Finding 2 for the two options.
+
+### D6 determinism — PARTIALLY resolved (Week 2)
+
+`rag_report.py`'s `ollama.chat()` call previously passed no `options` at all. Confirmed via 3 real
+samples run twice each through `generate_report()`: **verdict changed on 1/3 pairs, confidence
+moved on 3/3** — reproducibility was genuinely broken, not a theoretical risk.
+
+**Fix applied** (sign-off given, one-line edit — the only frozen-file edit this session):
+`options={"temperature": 0, "seed": 42}`. Re-verification (same 3 samples, same test):
+**verdict and confidence are now bit-for-bit deterministic across all 3 pairs.**
+`cited_chunk_ids` is **not** — 1/3 pairs diverged completely (one run cited real MITRE-style ids,
+the other cited literal feature-dict key names like `'exported_components'`). Root cause
+identified (Finding 4, `FROZEN_FILE_FINDINGS.md`): `REPORT_SCHEMA` content-constrains `verdict`
+(enum) and `confidence` (bounded number) via Ollama's schema-guided decoding, but `cited_chunk_ids`
+is typed as "array of arbitrary strings" with no such constraint — the same reason it both
+jitters and hallucinates. **Verdict/confidence are safe to treat as stable measurements now;
+`cited_chunk_ids` is not**, and no downstream measurement this session relied on it.
+
+### D2 A/B experiment — null-to-negative result, REDIRECTS D1's suspected root cause
+
+Full writeup: `setuguard_ps1/D2_AB_RESULTS.md`. Paired, in-memory (`rag_report.CHUNKS`
+monkeypatched at runtime; `knowledge_base.py` never edited), seed 2026, n=20 benign + 20
+malicious (16 effective after 4 more `InvalidInstruction` skips). Arm A = real 16 chunks; Arm B =
+real 16 + 6 reviewed negative-evidence chunks (`d2_negative_chunks.py`) describing normal
+permission/API profiles for messaging, fintech, media/utility-boot, package-management, dual-use
+APIs, and network strings — written to state only what's normal, with no malicious-co-indicator
+language (an earlier draft was rejected on review for smuggling a decision rule this way).
+
+**Headline: verdict never changed — 0/36 samples, either direction, either arm.** This is the
+clearest result: if D1's "always suspicious" verdict came from retrieval imbalance (D2's theory),
+changing what gets retrieved should have moved at least some verdicts. It moved zero.
+**This substantially weakens D2 as *the* root cause of D1** and redirects suspicion toward
+`report_prompt.py`-level candidates this test didn't touch: `SYSTEM_PROMPT`'s explicit hedging
+language, the absence of explicit decision thresholds, and the 3-way enum inviting the safe middle
+option. Confidence moved too, but backwards from D2's prediction — malicious confidence dropped
+more than benign (mean Δ −0.028 vs −0.0075), and separation got measurably *worse* (malicious
+samples at/below the benign max confidence doubled, 7/16→14/16).
+
+**D2↔D7 coupling, logged as the likely mechanism, not acted on:** at fixed `TOP_K=4`, the 6 new
+chunks compete with the original 16 for the same 4 retrieval slots — for a malicious sample this
+can displace a genuinely relevant malicious-framing chunk rather than adding balancing context.
+**Any future D2 revisit needs to travel with a D7 fix (or at least a higher `TOP_K`)** so negative
+chunks add context instead of displacing it. This is a null result for *this specific, cleanly-
+scoped test*, not a general verdict on D2 — no ablation was run, and D1's other candidates remain
+untouched and now more likely.
+
+### D4 grounding check — now backed by MEASURED evidence, not just synthetic tests
+
+`validation_gate.py`'s `validate_report_grounding()` was run against the same 6 live
+`generate_report()` outputs from the D6 determinism check (pre-pin): **4 of 6 runs failed with
+3–7 violations each** — real fabricated chunk ids (`'permissions'`, `'exported_components'`,
+`'suspicious_api_usage'`, full chunk titles instead of ids) caught on the very first live model
+output the gate was ever run against, not a contrived test case. Post-pin, the rate was 5/6 (not
+improved by the determinism fix — grounding-hallucination and run-to-run stability are different
+properties, see D6 above). **D4 went from a nice-to-have Week-2 deliverable to the barrier between
+a hallucinated technique id and a poisoned rule, with real measured evidence it fires in practice.**
+
+### Fix #3 "before" measurement — n=150, seed=7, FP rate 97.9% (corrected)
+
+Full writeup: `setuguard_ps1/FIX3_BEFORE_RESULTS.md`. Explicitly a BEFORE number, not a result —
+dominated by D1's always-"suspicious" verdict, per instruction. `fix3_fp_harness.py` rewritten for
+crash-survivability plus `--sample-n`/`--seed`; hard-refuses `banking_holdout_16/` (re-verified).
+
+A live crash was hit and fixed mid-session: `com.dmouayad.my_quran_233.apk` (a real, ordinary
+F-Droid app) crashed the harness with `ValueError: embedded null character` from
+`yara.compile()` — root-caused to a coupled `static_analysis.py`/`yara_gen.py` defect (Finding 5,
+below). Fixed narrowly in the harness (distinct `yara_compile:embedded_null` skip reason,
+verified against repeated occurrences) and the run **restarted from scratch** (not resumed) so
+all 150 samples share one harness version.
+
+**Corrected accounting (the harness's own auto-generated `summary.txt` undercounts and should not
+be used — it misses that every `yara_compile:*` skip row is *also* a rule-generated-on-benign
+event, since `_check_rule_match()` is only reachable after `generate_yara()` already returned a
+rule):**
+
+| | Count |
+|---|---|
+| Nominal | 150 |
+| Genuine skips (`static_analysis`, zip/EOCD errors) | 5 |
+| NUL-compile skips (rule generated, couldn't compile-test) | **32** |
+| Fully processed | 113 |
+
+**Primary FP rate = 142/145 = 97.9%** (110 `results.csv` rows with `rule_generated=True`, plus all
+32 NUL rows, which are `rule_generated=True` by construction — over the 145 samples that made it
+through `analyze_apk`+`generate_report`). Secondary sub-metric (of rules that could be
+compile-tested, i.e. excluding NUL cases — an explicitly biased subsample): 21/110 = 19.1%
+compiled and matched their own source APK.
+
+**The NUL-skip rate itself is the headline, independent of the FP number: 32/145 = 22.1%** of
+successfully-analyzed benign F-Droid samples hit this defect — systemic, not incidental, per
+Finding 5 below.
+
+Verdict distribution (n=113): 100% `"suspicious"` — the fourth independent confirmation this
+session.
+
+### Finding 5 — coupled `static_analysis.py`/`yara_gen.py` defect: NUL bytes crash YARA compilation
+
+Full detail: `FROZEN_FILE_FINDINGS.md` Finding 5. Adobe XMP metadata (near-ubiquitous in ordinary
+image assets) embeds a trailing NUL byte; `static_analysis.py:82`'s url regex doesn't exclude
+control characters, so it's captured into `suspicious_strings`; `yara_gen.py`'s `_yara_escape()`
+strips `\n`/`\r` and escapes backslash/quote but not NUL, so it flows into the generated rule and
+crashes `yara.compile()`. Measured prevalence 22.1% in the Fix #3 run above. Also checked:
+`validation_gate.validate_indicator_traceability()` passes a NUL-bearing indicator with zero
+violations — it validates provenance, not well-formedness. Two options logged for the team
+(tighten the regex; harden `_yara_escape()`; likely both needed), neither applied.
+
+### AutoYara (I2) feasibility spike — NO-GO for tool adoption, ambiguity unresolved
+
+Full writeup: `setuguard_ps1/AUTOYARA_SPIKE.md`. `FutureComputing4AI/AutoYara`: Java/Maven, JDK11+
+(confirmed available on this machine — JDK 25), Apache 2.0, no PyPI/Docker packaging, appears
+abandoned (single 2017-era release). **NO-GO for adopting the tool** — its input shape (multi-
+sample, family-labeled, cross-APK biclustering) doesn't fit this pipeline's single-APK
+`features → report → rule` shape without a substantial redesign, independent of licensing/
+availability. **Flagged, not resolved:** whether I2 means adopting this tool (NO-GO) or building a
+much cheaper homegrown single-APK fallback for the `<2 indicators` case (not evaluated) — a team
+decision.
+
+### Obfuscapk Fix #4 risk spike — GO (single sample, single transform, not a survival matrix)
+
+Run 2026-07-20 (second session). `claudiugeorgiu/obfuscapk:latest` via `podman run`, against
+`cicmaldroid_banking/00049d038a2abc2d5fe3b190d6cf5c1cb1ba63441defdf136be251c7a00727d8.apk`
+(94,725 bytes, a real trojan sample, first-sorted from the corpus). Obfuscator chain:
+`-o Nop -o Rebuild -o NewAlignment -o NewSignature` — `Nop` is the actual obfuscation transform
+(inserts nop instructions in the smali); `Rebuild`/`NewAlignment`/`NewSignature` are required
+separate steps to get a valid installable APK back out (Obfuscapk does not rebuild or re-sign
+automatically after a transform — that surprised the first attempt, which ran `-o Nop` alone and
+silently produced no output file at all, exit 0, no error).
+
+Result: output APK 115,552 bytes. `unzip -t` reports no errors. `file` identifies it as a proper
+Android package with an APK Signing Block. `analyze_apk()` (the real PS1 stage-1 function, not a
+mock) parses it with no exceptions: `package_name=com.baidu.pay2`, 7 dangerous permissions and 6
+suspicious_apis entries recovered — same shape of output as an unobfuscated sample.
+
+**What this proves and doesn't prove**: proves Obfuscapk installs clean in this environment (via
+podman, not raw pip — it isn't a PyPI package), completes without erroring on a real sample from
+our own malicious corpus, and emits an APK that both `unzip`/`file` and PS1's own androguard-based
+ingest accept as valid. Does **not** prove anything about whether obfuscation changes PS1's
+*verdict* — nobody has yet run the pre-obfuscation and post-obfuscation APK through the full
+`analyze_apk → generate_report → generate_yara` chain and diffed the outputs. That comparison,
+across multiple obfuscators and multiple samples, is the actual "survival matrix" and is still
+unbuilt (Open Item, Section 8).
 
 ---
 
@@ -476,33 +679,83 @@ Ordered by risk to the Aug 27–28 demo (per the user's stated date — see UNVE
    "Week 3 (15–21 Jul)" in that roadmap's calendar. **Highest risk item in the repo.**
 2. **Bridge (PS1↔PS2 linkage) has zero code**, and cannot meaningfully start until PS2 exists.
 3. **Dashboard/Audit UI has zero code.**
-4. **Fix #3 (F-Droid + 16-real-bank holdout FP-rate tuning) not started**, despite being the most
-   directly relevant fix given the measured 100%-"suspicious" categorical-verdict finding
-   (Section 6). The holdout corpus is correctly untouched and ready to use.
-5. **Fix #4 (Obfuscapk survival matrix) not started** — not even the Week-1 "install it, run it
-   once" risk spike has any trace in the repo.
-6. **The wider (n=50-malicious) confidence-separation re-run is incomplete** (`baseline_v2/` is
-   empty). Cheap to fix: just re-run `batch_baseline.py`.
-7. **The verdict enum currently carries near-zero signal** (100% "suspicious" across all 50
-   measured samples). If any planned downstream consumer (Bridge, Dashboard) keys off the literal
-   string rather than the confidence float, it will see no variation at all. This needs an
-   explicit team decision — not something to silently patch mid-session, per repeated user
-   instruction on prior tasks.
-8. **No version control exists anywhere in the repository.** No `.git`, no commit history, no
-   branches. All project history lives only in Claude Code conversation transcripts. Any
-   accidental overwrite or deletion has zero rollback path. For a 4-person team converging on a
-   hard deadline, this is a standing operational risk independent of any code issue.
-9. **No `requirements.txt`/Dockerfile/environment file exists.** Reproducibility currently depends
-   entirely on Section 5 of this document. If the demo machine changes, setup must be redone by
-   hand.
+4. **Fix #3 (F-Droid + 16-real-bank holdout FP-rate tuning): "before" number measured (Week 2),
+   still blocked on D1/D2 by design.** `fix3_fp_harness.py` now has a seeded, reproducible n=150
+   run (`FIX3_BEFORE_RESULTS.md`, FP rate 142/145 = 97.9%, corrected accounting) — but this number
+   is explicitly a BEFORE, not a fix, since it's dominated by D1's always-"suspicious" verdict.
+   Still needs: (a) the wider F-Droid pull, (b) the 16 real banking APKs sourced and pointed at via
+   `--corpus-dir` (never `banking_holdout_16/` directly — the harness refuses that path itself,
+   re-verified intact this session), (c) the actual AFTER run once D1/D2 are addressed by the team,
+   applying the same NUL-exclusion accounting so the two are comparable, and (d) the team decision
+   on D1 itself.
+5. **Fix #4 (Obfuscapk survival matrix): Week-1 risk spike DONE, verdict GO** (Section 2/6). The
+   actual survival matrix — running many samples through multiple obfuscation transforms and
+   measuring whether PS1's verdict/confidence/YARA output survives — is still **not started**.
+   This item is now unblocked, not resolved.
+6. ~~The wider (n=50-malicious) confidence-separation re-run is incomplete~~ **RESOLVED (Week 2).**
+   `baseline_v2/` re-run to completion (n=86 effective). Answer: **separation does not survive** —
+   overlap region ≈[0.65,0.85] at n=46 malicious vs. a clean touch-not-cross at n=10 (Section 6).
+7. **The verdict enum still carries near-zero signal — now confirmed FOUR times independently**
+   (`baseline`, `baseline_v2`, the D2 A/B, the Fix #3 run — 100% "suspicious" every time, n=50+86+
+   36+113). **New this session:** the D2 A/B redirects the suspected root cause away from
+   retrieval (D2) and toward `SYSTEM_PROMPT`/schema-level causes (D1's other candidates) — see
+   Section 6. Still needs an explicit team decision — not something to silently patch, per
+   repeated instruction.
+8. ~~No version control exists anywhere in the repository.~~ **RESOLVED 2026-07-20 (second
+   session).** `.git` initialized, remote `origin` = `https://github.com/raghavpathak30/SetuGuard`,
+   2 commits made and pushed to `main` (`aee8497`, `9695401` — Section 2). `.gitignore` keeps all
+   corpora/models/binaries/scraping-data out. Team members can now `git clone` instead of relying
+   on Claude Code conversation transcripts for project history. **Week-2 session's work is on
+   branch `raghav/week2-ps1`, not yet merged/pushed as of this documentation pass.**
+9. ~~No `requirements.txt`/Dockerfile/environment file exists.~~ **RESOLVED (Week 2).**
+   `setuguard_ps1/requirements.txt` generated from actual `pip show` output. Ollama+models remain a
+   separate, non-pip install (documented in the file's own header).
 10. **YARA-vs-compressed-APK caveat is only spot-checked on 2 samples.** Worth a broader
     validation pass (e.g., against the holdout set, once Fix #3 starts using it) before relying on
     generated rules matching raw APKs live in front of judges.
-11. One corrupted sample (`app.fedilab.nitterizeme_35.apk`, truncated at 1,048,576 bytes) sits in
-    the benign corpus — harmless (fails cleanly, already skip-logged by every harness) but worth
-    deleting/re-downloading so future batch runs don't carry dead weight.
+11. ~~One corrupted sample sits in the benign corpus~~ **CORRECTED, WORSE THAN DOCUMENTED (Week
+    2).** The benign corpus has **16** files (not 1) that fail `unzip -t`/Python `zipfile` — 15 of
+    those also fail androguard parsing (clean exceptions, not dirty failures — confirmed via
+    `stress_harness.py`). The malicious corpus has a separate 11 zip-integrity failures (9/11
+    androguard-tolerant) **plus** a distinct `InvalidInstruction` DEX-bytecode failure mode hit by
+    multiple samples across `baseline_v2`/D2-A/B/Fix#3 runs. None of this breaks the pipeline
+    (every harness skip-logs cleanly) but the true unusable-file count is materially higher than
+    previously documented — worth a corpus cleanup pass before final numbers are reported to
+    judges, so wall-time/sample-count estimates aren't quietly off by ~16-20%.
 12. Team/hackathon identity details (name, venue, dates) are asserted by the user but not found
     anywhere in repo text — low risk, noted for traceability only.
+13. ~~One dead-code finding in a frozen file~~ **RESOLVED 2026-07-20 (second session).**
+    `static_analysis.py:203`'s unused DEX-list binding (`d`) was reported in
+    `setuguard_ps1/DEAD_CODE_REPORT.md`, signed off by the user, and fixed
+    (`a, d, dx = ...` → `a, _, dx = ...`). No other dead code found anywhere in the six frozen
+    files or the two non-frozen scaffolding files (`batch_baseline.py`, `parse_fdroid_index.py`).
+    Noted here only for traceability — not an open item.
+14. **NEW (Week 2) — five frozen-file findings logged in `FROZEN_FILE_FINDINGS.md`, sign-off-gated,
+    only one applied:**
+    - Finding 1: `_extract_exported_components()` calls `.iter()` on a possibly-`None` manifest
+      (`static_analysis.py`) — 2 observed occurrences, clean `AttributeError`, not fixed.
+    - Finding 2: `exported_components[].name` can be `None`, violating the frozen `str` contract —
+      3 occurrences in `baseline_v2`, not fixed.
+    - Finding 3: `rag_report.py`'s generation was unpinned (D6) — **fixed** (temperature=0,
+      seed=42), verdict/confidence now deterministic, `cited_chunk_ids` still isn't.
+    - Finding 4: `cited_chunk_ids` is schema-unconstrained in `report_prompt.py`'s `REPORT_SCHEMA`
+      — the same reason it both hallucinates and jitters. Parked research finding, not fixed.
+    - Finding 5: coupled `static_analysis.py`/`yara_gen.py` NUL-byte defect — crashes
+      `yara.compile()`, measured 22.1% prevalence in benign F-Droid samples (Section 6). Not
+      fixed. Also: `validation_gate.py`'s indicator-traceability check passes NUL-bearing
+      indicators (validates provenance, not well-formedness) — noted, not fixed.
+15. **NEW (Week 2) — D2 A/B experiment result redirects D1's suspected root cause.** A clean,
+    reviewed, paired in-memory test of D2's hypothesis (retrieval imbalance) moved zero verdicts
+    across 36 samples and made confidence separation slightly *worse*. This weakens D2 as *the*
+    cause of D1 and points toward `SYSTEM_PROMPT`/schema-level candidates instead. Also
+    established: **D2 and D7 are coupled** — a fair retrieval-augmentation test needs a `TOP_K`
+    increase or D7's distance-thresholded retrieval fix first, since at fixed `TOP_K=4` new chunks
+    displace old ones rather than adding to them. Full detail: `D2_AB_RESULTS.md`.
+16. **NEW (Week 2) — AutoYara (I2) ambiguity flagged, not resolved.** The go/no-go spike
+    (`AUTOYARA_SPIKE.md`) is a clear NO-GO for adopting the actual `FutureComputing4AI/AutoYara`
+    tool (architectural mismatch — multi-sample family-biclustering vs. this pipeline's single-APK
+    shape), but I2's original intent is ambiguous between "adopt that tool" and "build a homegrown
+    single-APK fallback." Team decision needed on which was meant.
 
 ---
 
@@ -514,18 +767,46 @@ Ordered by risk to the Aug 27–28 demo (per the user's stated date — see UNVE
   chained by import, never by shelling out to each other. **Do not modify these six without
   explicit user sign-off.** Every task given on this project so far has explicitly separated
   "build/modify the six" from "measure/test, read-only" — preserve that boundary.
-- **Measurement/analysis harnesses** (currently just `batch_baseline.py`) live alongside the six
-  files in `setuguard_ps1/` but must say in their own module docstring that they are *not* one of
-  the six, and must not mutate them.
+- **Measurement/analysis harnesses** (`batch_baseline.py`, `fix3_fp_harness.py`, and now
+  `validation_gate.py`, `stress_harness.py`+`_stress_worker.py`, `d2_ab_harness.py`+
+  `d2_negative_chunks.py`) live alongside the six files in `setuguard_ps1/` but must say in their
+  own module docstring that they are *not* one of the six, and must not mutate them.
+- **Any finding in a frozen file — not just dead code — is reported, not fixed, in the same
+  session that finds it.** `DEAD_CODE_REPORT.md`'s pattern generalized (Week 2) into
+  `FROZEN_FILE_FINDINGS.md`: write up file/line/what/why/options there rather than editing the
+  frozen file directly. Once the user signs off on a *specific* finding and its *specific* chosen
+  option, a separate, narrowly-scoped follow-up edit applies exactly that fix and nothing else —
+  precedent: the `static_analysis.py:203` rename (Section 2, Open Item 13) and the Week-2
+  `rag_report.py` temperature/seed pin (Finding 3). Re-verify the finding is still accurate
+  immediately before applying (fresh repo-wide grep / re-run the reproduction), since the codebase
+  may have changed between the report and the sign-off. **After a crash or unexpected behavior in
+  a non-frozen harness, root-cause it before just patching the harness** — Week 2's NUL-byte
+  harness crash traced back to a real, previously-unknown frozen-file defect (Finding 5); patching
+  only the harness's exception handling would have hidden that.
+- **Harness crash-survivability is now the standard, not an exception.** `batch_baseline.py` and
+  `fix3_fp_harness.py` both follow the same Week-2 pattern: incremental flush+fsync per sample to
+  a results CSV, a separate `skips.csv` (not silently folded into the success rows), a
+  `heartbeat.log`, a pidfile, and resume-by-skip. Apply this pattern to any new batch-style
+  harness — the original `baseline_v2` disaster (a killed process losing 100% of its output) is
+  exactly what this prevents.
+- **D2 and D7 are coupled — don't test one without the other.** At fixed `TOP_K` retrieval,
+  augmenting `knowledge_base.py`'s chunk corpus (D2) makes new chunks compete with old ones for the
+  same slots rather than adding to them, which can erode signal for the class you're *not* trying
+  to help. A future D2 revisit needs either a higher `TOP_K` or D7's distance-thresholded retrieval
+  fix to be a fair test — see `D2_AB_RESULTS.md`.
 - **Settings block convention**: every pipeline file keeps a single
   `# ============================== SETTINGS ==============================` block near the top
   holding all tunable constants (regexes, model names, thresholds, directories). No YAML config,
   no env-var-driven config, no logging framework beyond the one documented loguru workaround, no
   plugin system. Preserve this pattern for any new module.
 - **Output directories**: `out/` (per-APK outputs from `run_pipeline.py`, transient/regenerable);
-  `baseline/` (the completed n=10-malicious measurement run — **do not overwrite**, it's the only
-  complete wider-than-one-sample evidence that exists); `baseline_v2/` (the incomplete n=50
-  attempt — currently empty, safe to regenerate by re-running `batch_baseline.py`).
+  `baseline/` (the completed n=10-malicious measurement run — **do not overwrite**, it's the
+  original wider-than-one-sample evidence); `baseline_v2/` (now **complete**, n=46-malicious-
+  effective — regenerable by re-running `batch_baseline.py`, but note it now has real content
+  worth keeping, same do-not-carelessly-overwrite caution as `baseline/`); `fix3_fp_baseline/`
+  (`fix3_fp_harness.py`'s default output dir, regenerable, but the Week-2 n=150/seed=7 run took
+  ~38 min — see `FIX3_BEFORE_RESULTS.md` before blowing it away); `d2_ab_results/`
+  (`d2_ab_harness.py`'s output dir, regenerable). All gitignored.
 - **Never touch `banking_holdout_16/`** in any script. Every harness in this repo has explicitly
   excluded it; it is reserved for the eventual Fix #3 FP-rate validation. Future sessions must
   preserve that exclusion.

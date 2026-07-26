@@ -9,15 +9,30 @@ Samples deterministically (sorted filenames, first N) from:
   - ~/BOIhackathon/cicmaldroid_banking/     (malicious)
 Never touches ~/BOIhackathon/banking_holdout_16/.
 
-Outputs to ~/BOIhackathon/setuguard_ps1/baseline/:
+Crash-survivable by design (Week-2 fix for the baseline_v2 run that died with
+zero output): every sample's outcome (success -> results.csv, failure ->
+skips.csv) is appended and flushed+fsynced immediately, not batched in memory
+and written at the end. A heartbeat.log line is appended per sample so a
+running process can be monitored externally. A pidfile is written at start.
+If results.csv/skips.csv already have rows for a filename, that sample is
+skipped on the next invocation (resume-by-skip), so a killed run can simply be
+re-launched.
+
+Outputs to ~/BOIhackathon/setuguard_ps1/baseline_v2/ (OUT_DIR, unchanged):
   - results.csv                    one row per successfully processed apk
+  - skips.csv                      one row per apk that failed a stage, with reason
+  - heartbeat.log                  one line per sample attempt (success or skip)
+  - batch_baseline.pid             PID of the running process
   - summary.txt                    FP rate, verdict/confidence breakdown, schema
-                                    check, skip-list, timing
+                                    check, skip-list, timing — recomputed from the
+                                    full results.csv/skips.csv on disk, so it is
+                                    correct even after a resume
   - one_real_sample.features.json  a full features.json from one malicious
                                     sample, for the frozen-schema reference
 """
 import csv
 import json
+import os
 import statistics
 import sys
 import time
@@ -34,6 +49,16 @@ MALICIOUS_DIR = Path.home() / "BOIhackathon" / "cicmaldroid_banking"
 NUM_BENIGN = 40
 NUM_MALICIOUS = 50
 OUT_DIR = Path(__file__).parent / "baseline_v2"
+
+RESULTS_CSV = OUT_DIR / "results.csv"
+SKIPS_CSV = OUT_DIR / "skips.csv"
+HEARTBEAT_LOG = OUT_DIR / "heartbeat.log"
+PID_FILE = OUT_DIR / "batch_baseline.pid"
+SAMPLE_FEATURES_JSON = OUT_DIR / "one_real_sample.features.json"
+
+RESULTS_FIELDNAMES = ["filename", "true_label", "verdict", "confidence", "num_suspicious_apis",
+                       "num_suspicious_strings", "num_dangerous_permissions", "rule_written", "time_s"]
+SKIPS_FIELDNAMES = ["filename", "true_label", "stage", "exception"]
 
 # The frozen Week-1 schema this run checks samples against.
 TOP_LEVEL_KEYS = {
@@ -100,29 +125,94 @@ def _percentiles(values):
     return {"min": values[0], "p25": q1, "median": q2, "p75": q3, "max": values[-1]}
 
 
+def _already_processed_filenames():
+    """Filenames with an existing row in results.csv or skips.csv — resume skips these."""
+    done = set()
+    for path, fieldnames in ((RESULTS_CSV, RESULTS_FIELDNAMES), (SKIPS_CSV, SKIPS_FIELDNAMES)):
+        if path.exists() and path.stat().st_size > 0:
+            with open(path, newline="") as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    if row.get("filename"):
+                        done.add(row["filename"])
+    return done
+
+
+def _open_append_csv(path, fieldnames):
+    """Open a CSV for incremental appends, writing the header only if the file is new/empty."""
+    is_new = not path.exists() or path.stat().st_size == 0
+    f = open(path, "a", newline="")
+    writer = csv.DictWriter(f, fieldnames=fieldnames)
+    if is_new:
+        writer.writeheader()
+        f.flush()
+        os.fsync(f.fileno())
+    return f, writer
+
+
+def _heartbeat(hb_file, idx, total, filename, status, elapsed_since_start):
+    hb_file.write(f"{idx}/{total}\t{filename}\t{status}\t{elapsed_since_start:.1f}s\n")
+    hb_file.flush()
+    os.fsync(hb_file.fileno())
+
+
+def _read_all_results():
+    if not RESULTS_CSV.exists():
+        return []
+    with open(RESULTS_CSV, newline="") as f:
+        rows = list(csv.DictReader(f))
+    for r in rows:
+        r["confidence"] = float(r["confidence"])
+        r["time_s"] = float(r["time_s"])
+        r["rule_written"] = r["rule_written"] == "True"
+    return rows
+
+
+def _read_all_skips():
+    if not SKIPS_CSV.exists():
+        return []
+    with open(SKIPS_CSV, newline="") as f:
+        return list(csv.DictReader(f))
+
+
 def main():
     OUT_DIR.mkdir(exist_ok=True)
-    samples = _select_samples()
-    print(f"Selected {len(samples)} samples "
-          f"({sum(1 for _, l in samples if l == 'benign')} benign, "
-          f"{sum(1 for _, l in samples if l == 'malicious')} malicious)", file=sys.stderr)
+    PID_FILE.write_text(str(os.getpid()))
 
-    results = []
-    skip_list = []
+    all_samples = _select_samples()
+    already_done = _already_processed_filenames()
+    remaining = [(p, label) for (p, label) in all_samples if p.name not in already_done]
+
+    print(f"Selected {len(all_samples)} nominal samples "
+          f"({sum(1 for _, l in all_samples if l == 'benign')} benign, "
+          f"{sum(1 for _, l in all_samples if l == 'malicious')} malicious); "
+          f"{len(already_done)} already processed (resume), {len(remaining)} remaining",
+          file=sys.stderr)
+
+    results_f, results_writer = _open_append_csv(RESULTS_CSV, RESULTS_FIELDNAMES)
+    skips_f, skips_writer = _open_append_csv(SKIPS_CSV, SKIPS_FIELDNAMES)
+    hb_f = open(HEARTBEAT_LOG, "a")
+
     anomalies = []
-    sample_feature_json = None
-
     wall_start = time.perf_counter()
 
-    for idx, (path, true_label) in enumerate(samples, start=1):
+    def _write_skip(filename, true_label, stage, exc):
+        row = {"filename": filename, "true_label": true_label, "stage": stage, "exception": repr(exc)}
+        skips_writer.writerow(row)
+        skips_f.flush()
+        os.fsync(skips_f.fileno())
+
+    for idx, (path, true_label) in enumerate(remaining, start=1):
         filename = path.name
         t0 = time.perf_counter()
 
         try:
             features = analyze_apk(str(path))
         except Exception as e:
-            skip_list.append({"filename": filename, "stage": "static_analysis", "exception": repr(e)})
-            print(f"  [{idx}/{len(samples)}] {filename} SKIPPED at static_analysis: {e}", file=sys.stderr)
+            _write_skip(filename, true_label, "static_analysis", e)
+            elapsed = time.perf_counter() - wall_start
+            _heartbeat(hb_f, idx, len(remaining), filename, "SKIP:static_analysis", elapsed)
+            print(f"  [{idx}/{len(remaining)}] {filename} SKIPPED at static_analysis: {e}", file=sys.stderr)
             continue
 
         _validate_schema(features, filename, anomalies)
@@ -130,23 +220,27 @@ def main():
         try:
             report = generate_report(features)
         except Exception as e:
-            skip_list.append({"filename": filename, "stage": "rag_report", "exception": repr(e)})
-            print(f"  [{idx}/{len(samples)}] {filename} SKIPPED at rag_report: {e}", file=sys.stderr)
+            _write_skip(filename, true_label, "rag_report", e)
+            elapsed = time.perf_counter() - wall_start
+            _heartbeat(hb_f, idx, len(remaining), filename, "SKIP:rag_report", elapsed)
+            print(f"  [{idx}/{len(remaining)}] {filename} SKIPPED at rag_report: {e}", file=sys.stderr)
             continue
 
         try:
             rule = generate_yara(features, report)
         except Exception as e:
-            skip_list.append({"filename": filename, "stage": "yara_gen", "exception": repr(e)})
-            print(f"  [{idx}/{len(samples)}] {filename} SKIPPED at yara_gen: {e}", file=sys.stderr)
+            _write_skip(filename, true_label, "yara_gen", e)
+            elapsed = time.perf_counter() - wall_start
+            _heartbeat(hb_f, idx, len(remaining), filename, "SKIP:yara_gen", elapsed)
+            print(f"  [{idx}/{len(remaining)}] {filename} SKIPPED at yara_gen: {e}", file=sys.stderr)
             continue
 
         elapsed = time.perf_counter() - t0
 
-        if true_label == "malicious" and sample_feature_json is None:
-            sample_feature_json = features
+        if true_label == "malicious" and not SAMPLE_FEATURES_JSON.exists():
+            SAMPLE_FEATURES_JSON.write_text(json.dumps(features, indent=2))
 
-        results.append({
+        row = {
             "filename": filename,
             "true_label": true_label,
             "verdict": report["verdict"],
@@ -156,40 +250,53 @@ def main():
             "num_dangerous_permissions": len(features["dangerous_permissions"]),
             "rule_written": rule is not None,
             "time_s": round(elapsed, 3),
-        })
-        print(f"  [{idx}/{len(samples)}] {filename} ({true_label}) -> "
+        }
+        results_writer.writerow(row)
+        results_f.flush()
+        os.fsync(results_f.fileno())
+
+        elapsed_total = time.perf_counter() - wall_start
+        _heartbeat(hb_f, idx, len(remaining), filename, "SUCCESS", elapsed_total)
+        print(f"  [{idx}/{len(remaining)}] {filename} ({true_label}) -> "
               f"{report['verdict']} ({report['confidence']:.2f}) {elapsed:.1f}s", file=sys.stderr)
 
     total_wall_s = time.perf_counter() - wall_start
+    results_f.close()
+    skips_f.close()
+    hb_f.close()
 
-    # ---- results.csv ----
-    fieldnames = ["filename", "true_label", "verdict", "confidence", "num_suspicious_apis",
-                  "num_suspicious_strings", "num_dangerous_permissions", "rule_written", "time_s"]
-    with open(OUT_DIR / "results.csv", "w", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(results)
+    # ---- summary.txt — recomputed from the full on-disk results.csv/skips.csv,
+    # so it is correct whether this run started fresh or resumed a partial one. ----
+    results = _read_all_results()
+    skips = _read_all_skips()
+    true_denominator = len(results) + len(skips)
 
-    # ---- one_real_sample.features.json ----
-    if sample_feature_json is not None:
-        (OUT_DIR / "one_real_sample.features.json").write_text(json.dumps(sample_feature_json, indent=2))
-
-    # ---- summary.txt ----
     lines = []
     lines.append("SetuGuard PS1 — Week 1 baseline measurement (v2: wider malicious sample)")
-    lines.append(f"Sampled: {NUM_BENIGN} benign (sorted-first) + {NUM_MALICIOUS} malicious (sorted-first)")
-    lines.append(f"Processed successfully: {len(results)} / {len(samples)}")
+    lines.append(f"Sampled: {NUM_BENIGN} benign (sorted-first) + {NUM_MALICIOUS} malicious (sorted-first) "
+                 f"= {len(all_samples)} nominal")
+    lines.append(f"Processed successfully: {len(results)} / {true_denominator} attempted "
+                 f"(true denominator; {len(skips)} skipped)")
+    lines.append(f"This run: {len(remaining)} samples attempted this invocation "
+                 f"({len(already_done)} were already done from a prior run)")
     lines.append("")
 
     benign_results = [r for r in results if r["true_label"] == "benign"]
     malicious_results = [r for r in results if r["true_label"] == "malicious"]
+    benign_skips = [s for s in skips if s["true_label"] == "benign"]
+    malicious_skips = [s for s in skips if s["true_label"] == "malicious"]
 
     if benign_results:
         fp_count = sum(1 for r in benign_results if r["verdict"] != "benign")
         fp_rate = fp_count / len(benign_results)
-        lines.append(f"Benign FP rate: {fp_count}/{len(benign_results)} = {fp_rate:.1%}")
+        lines.append(f"Benign FP rate: {fp_count}/{len(benign_results)} = {fp_rate:.1%} "
+                     f"(of {len(benign_results)} successfully processed; {len(benign_skips)} benign skipped)")
     else:
         lines.append("Benign FP rate: N/A (no benign samples processed)")
+    lines.append("")
+
+    lines.append(f"Malicious: {len(malicious_results)} successfully processed, "
+                 f"{len(malicious_skips)} skipped")
     lines.append("")
 
     lines.append("Verdict counts by true_label:")
@@ -235,22 +342,23 @@ def main():
         lines.append("  N/A (need both benign and malicious samples processed)")
     lines.append("")
 
-    lines.append(f"Schema check: {'PASS' if not anomalies else 'FAIL'}")
+    lines.append(f"Schema check (this invocation only, not persisted across resumes): "
+                 f"{'PASS' if not anomalies else 'FAIL'}")
     for a in anomalies:
         lines.append(f"  - {a}")
     lines.append("")
 
-    lines.append(f"Skip-list ({len(skip_list)} skipped):")
-    if skip_list:
-        for s in skip_list:
-            lines.append(f"  - {s['filename']} (stage={s['stage']}): {s['exception']}")
+    lines.append(f"Skip-list ({len(skips)} skipped, true denominator = {true_denominator}):")
+    if skips:
+        for s in skips:
+            lines.append(f"  - {s['filename']} (true_label={s['true_label']}, stage={s['stage']}): {s['exception']}")
     else:
         lines.append("  - none")
     lines.append("")
 
     mean_time = statistics.mean(r["time_s"] for r in results) if results else 0.0
-    lines.append(f"Total wall time: {total_wall_s:.1f}s")
-    lines.append(f"Mean per-apk time: {mean_time:.1f}s (n={len(results)})")
+    lines.append(f"This invocation's wall time: {total_wall_s:.1f}s over {len(remaining)} attempted samples")
+    lines.append(f"Mean per-apk time (all successful results on disk): {mean_time:.1f}s (n={len(results)})")
 
     summary_text = "\n".join(lines)
     (OUT_DIR / "summary.txt").write_text(summary_text)
