@@ -58,6 +58,7 @@ venv/
 # PS2 Datasets & Large Binary Files (>100MB)
 # =====================================================================
 *.csv
+!raw_graph_features.csv
 *.xlsx
 *.crdownload
 baseline_predictions.csv
