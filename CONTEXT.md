@@ -275,11 +275,17 @@ reconstructed purely from `SetuGuard_Development_Roadmap_v2.md` prose, not from 
   retrieved_chunks)` (both in `report_prompt.py`) — both live **only** in that file; no prompt
   logic in `rag_report.py` itself.
 - Structured output: `ollama.chat(model="mistral", messages=[system, user],
-  format=REPORT_SCHEMA)` — Ollama's JSON-schema-constrained decoding, not a hand-parsed regex.
+  format=REPORT_SCHEMA, options={"temperature": 0, "seed": 42})` — Ollama's JSON-schema-constrained
+  decoding, not a hand-parsed regex. **The `options=` argument is a Week-2 addition** (Finding 3,
+  `FROZEN_FILE_FINDINGS.md`; the call had no `options` at all through end of Week 1) — verified to
+  make `verdict`/`confidence` bit-for-bit deterministic across repeated calls on identical input.
   `REPORT_SCHEMA` (json-schema dict, `report_prompt.py:21-42`): `verdict` (enum
-  benign/suspicious/malicious), `confidence` (number 0–1), `rationale` (string),
-  `cited_chunk_ids` (array of string). `generate_report()` adds `retrieved_chunk_ids`,
-  `package_name`, `sha256` on top of the model's raw JSON before returning.
+  benign/suspicious/malicious — content-constrained by the schema, confirmed deterministic post-pin),
+  `confidence` (number 0–1, same), `rationale` (string), `cited_chunk_ids` (array of string — **no
+  enum/content constraint**, confirmed to both hallucinate non-existent ids and remain
+  non-deterministic even post-pin; Finding 4, do not treat this field as reliable). `generate_report()`
+  adds `retrieved_chunk_ids`, `package_name`, `sha256` on top of the model's raw JSON before
+  returning.
 - Both `ollama.embed()` and `ollama.chat()` calls are wrapped in `try/except` that **raise
   loudly** (`RuntimeError`) rather than fabricate a verdict if the Ollama server/model is
   unreachable.
@@ -345,14 +351,24 @@ components (Bridge, PS2 enrichment, Dashboard) are meant to consume. It is repro
 `setuguard_ps1/baseline/one_real_sample.features.json` — a real, pretty-printed example from an
 actual malicious APK — explicitly generated as "the frozen-schema reference" for the Bridge owner.
 **Breaking this schema (renaming a key, changing a type, adding/removing a field) silently
-invalidates that reference file and any downstream code written against it, with no test suite or
-schema-validation harness to catch the break automatically** — `batch_baseline.py`'s schema check
-is a measurement tool run manually, not a CI gate.
+invalidates that reference file and any downstream code written against it, with no CI gate to
+catch the break automatically** — `batch_baseline.py`'s schema check and the Week-2
+`setuguard_ps1/validation_gate.py` (`validate_features_schema()`) are both measurement/gate tools
+run manually, not wired into CI. **The schema has already been observed to break in practice**:
+Finding 2 (`FROZEN_FILE_FINDINGS.md`) — `exported_components[].name` came back `None` on 3/86
+`baseline_v2` samples, violating the documented `str` type, sign-off-gated and not yet fixed. Any
+Bridge/PS2/Dashboard consumer coded strictly against the table above should be aware this can
+happen today.
 
 The `report` dict schema (verdict/confidence/rationale/cited_chunk_ids +
 retrieved_chunk_ids/package_name/sha256, per `rag_report.py:85-90`) and the YARA `meta` block
 format (package/sha256/verdict/confidence/generated_by) are the other two frozen contracts a
-Bridge/Dashboard consumer would need.
+Bridge/Dashboard consumer would need. **Caveat for the `report` contract, confirmed Week 2**: only
+`verdict` and `confidence` are safe to treat as stable/deterministic (post the temperature/seed pin,
+Finding 3); `cited_chunk_ids` is neither reliably grounded (hallucinates ids outside
+`knowledge_base.CHUNKS`) nor deterministic (Finding 4) — **a Bridge/Dashboard consumer should not
+key logic off `cited_chunk_ids`** until that's addressed. `validation_gate.py`'s
+`validate_report_grounding()` is the manual check for the grounding half of this.
 
 ---
 
@@ -664,8 +680,10 @@ unbuilt (Open Item, Section 8).
 | `generate_yara(features, report)` instead of the literally-specified `generate_yara(features, verdict)` | YARA `meta` requires `confidence`, which only lives in the report dict, not in a bare verdict string | Passing `verdict` and `confidence` as two separate positional args | If a downstream caller needs the exact 2-arg signature for some integration reason |
 | FAISS index rebuilt in memory on every `generate_report()` call, no persistence | Corpus is only ~16 chunks — explicit instruction was "no persistence, no cache code" | Precomputing/saving an index file | If the knowledge base grows large enough that per-call embedding cost becomes a real bottleneck |
 | YARA strings assume decompressed DEX/AXML content (flagged in the module docstring, not silently handled) | Matches the literal spec's stated assumption; genuinely correct behavior depends on the scanning engine being zip-aware, which this project doesn't control | Adding zip-extraction logic before rule-writing | If a live demo requires generated rules to match against raw, untouched `.apk` files and broader testing shows failures |
-| No `requirements.txt`/Dockerfile/Makefile written yet | Every build/measurement task given so far was scoped narrowly (six files, then a measurement harness) — writing project scaffolding was never asked for | Writing one proactively | Arguably now — see Open Items #9 |
+| ~~No `requirements.txt`/Dockerfile/Makefile written yet~~ **RESOLVED (Week 2)** | `requirements.txt` written from actual `pip show` output once explicitly scoped as a Week-2 task (D8) | Writing one proactively without being asked | N/A — done |
 | `batch_baseline.py` kept structurally separate from the six frozen pipeline files, even though it imports them | Explicit instruction: "measurement only," must not fold into or modify the six files | Adding a `--batch` mode to `run_pipeline.py` | Never, unless the six-file boundary itself is renegotiated |
+| `rag_report.py`'s `ollama.chat()` pinned to `temperature=0, seed=42` (Week 2) | D6: measured non-determinism directly (verdict flipped on identical input in 1/3 pairs); pinning was needed so any other measurement this session (D2 A/B, Fix #3 before-number) could be trusted as reproducible, not to fix D1/D2's underlying behavior | Leaving generation unpinned and treating every baseline number as noisy | If a future re-verification shows the pin doesn't hold even for verdict/confidence on a wider sample than the 3 tested — currently only spot-checked, not exhaustively proven |
+| D2's negative-evidence chunks tested via runtime monkeypatch of `rag_report.CHUNKS`, never written to `knowledge_base.py` (Week 2) | The whole point of the A/B was to get evidence *before* committing a change to a frozen file that breaks `baseline`/`baseline_v2` comparability | Editing `knowledge_base.py` directly and re-measuring | If the team reviews `D2_AB_RESULTS.md` and decides the (currently null) result doesn't justify a knowledge-base edit at all — which is the current standing situation |
 
 ---
 
@@ -833,10 +851,11 @@ Ordered by risk to the Aug 27–28 demo (per the user's stated date — see UNVE
 - **"ULB" dataset** referenced in the roadmap for PS2's baseline — the roadmap text says only
   "ULB benchmark" without elaboration. This document does not assert it is the Université Libre
   de Bruxelles credit-card-fraud dataset; that would be an inference, not a verified fact.
-- **Why the `baseline_v2` background process was killed** — inferred from environment evidence
-  (process absent from `ps aux`, its log file gone, a ~12-day gap between the last file writes in
-  the repo and this documentation session) to be a session/container teardown, but the actual
-  termination signal or cause was never directly observed.
+- ~~Why the `baseline_v2` background process was killed~~ — **moot as of Week 2**: `baseline_v2`
+  was re-run to completion under crash-survivable conditions (`setsid nohup` + incremental
+  flush/heartbeat/pidfile) and now has real, complete data (Section 6). The original kill's exact
+  cause was still never directly observed, but the practical question ("can we get this data at
+  all") is resolved.
 - The **`logging` file** at the repo top level (6.5MB, identifies as a PostScript document via
   `file(1)`, oddly named) — purpose unknown. Not examined further since it isn't code; flagged
   here only so a future session doesn't assume it's a log file just because of its name.
