@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SetuGuard — Fraud &amp; Malware Detection Console</title>
+<link rel="stylesheet" href="style.css">
+<script src="chart.umd.min.js"></script>
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <span class="logo-badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 4 5v6c0 5 3.4 8.7 8 9 4.6-.3 8-4 8-9V5l-8-3Z"/></svg>
+      </span>
+      <span class="logo-text">SetuGuard</span>
+    </div>
+
+    <nav class="sidebar-nav" id="sidebar-nav">
+      <button class="nav-item active" data-page="dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+        <span>Dashboard</span>
+      </button>
+      <button class="nav-item" data-page="malware">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 4 5v6c0 5 3.4 8.7 8 9 4.6-.3 8-4 8-9V5l-8-3Z"/><path d="m9 12 2 2 4-4"/></svg>
+        <span>Malware Analysis (PS1)</span>
+      </button>
+      <button class="nav-item" data-page="fraud">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.3 3.9 2.7 17a1.9 1.9 0 0 0 1.6 2.9h15.4a1.9 1.9 0 0 0 1.6-2.9L13.7 3.9a1.9 1.9 0 0 0-3.4 0Z"/><path d="M12 9v4"/><path d="M12 16.5h.01"/></svg>
+        <span>Fraud Detection (PS2)</span>
+      </button>
+      <button class="nav-item" data-page="bridge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1.5 1.5"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1.5-1.5"/></svg>
+        <span>IOC Bridge</span>
+      </button>
+      <button class="nav-item" data-page="intel">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <span>IOC Intelligence</span>
+      </button>
+      <button class="nav-item" data-page="yara">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M9 13h6M9 17h6"/></svg>
+        <span>YARA Rules</span>
+      </button>
+      <button class="nav-item" data-page="reports">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="5" width="3" height="13"/></svg>
+        <span>Reports</span>
+      </button>
+      <button class="nav-item" data-page="audit">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+        <span>Audit Trail</span>
+      </button>
+      <button class="nav-item" data-page="compliance">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 4 5v6c0 5 3.4 8.7 8 9 4.6-.3 8-4 8-9V5l-8-3Z"/></svg>
+        <span>Compliance (FREE-AI)</span>
+      </button>
+      <button class="nav-item" data-page="settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg>
+        <span>Settings</span>
+      </button>
+    </nav>
+
+    <button class="upload-apk-btn" id="sidebar-upload-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12"/><path d="m7 8 5-5 5 5"/><path d="M5 21h14"/></svg>
+      Upload APK
+    </button>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main-col">
+
+    <header class="topbar">
+      <button class="icon-btn" id="menu-toggle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+      <div class="topbar-right">
+        <span class="status-chip"><i class="dot online"></i> System Status: <strong>&nbsp;Online</strong></span>
+        <button class="icon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8a6 6 0 0 1 12 0c0 5 2 6 2 6H4s2-1 2-6"/><path d="M10 20a2 2 0 0 0 4 0"/></svg></button>
+        <div class="user-chip">
+          <span class="avatar">A</span>
+          <span>Admin</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="chev"><path d="m6 9 6 6 6-6"/></svg>
+        </div>
+      </div>
+    </header>
+
+    <main class="content" id="content">
+
+      <!-- DASHBOARD -->
+      <section class="page" id="page-dashboard">
+        <div class="page-head">
+          <h1>Dashboard</h1>
+          <p>Overview of malware and fraud detection system</p>
+        </div>
+
+        <div class="stat-grid" id="stat-grid"></div>
+
+        <div class="row-3">
+          <div class="panel wide-panel">
+            <div class="panel-head"><h3>Threat Overview (Session)</h3></div>
+            <canvas id="threat-chart" height="140"></canvas>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><h3>Recent Alerts</h3></div>
+            <div id="recent-alerts" class="alert-list"></div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><h3>System Health</h3></div>
+            <div id="system-health" class="health-list"></div>
+          </div>
+        </div>
+
+        <div class="row-4">
+          <div class="panel">
+            <div class="panel-head"><h3>Top Detected Malware (PS1)</h3></div>
+            <table class="mini-table" id="table-malware"><thead><tr><th>APK Name</th><th>Family</th><th>Confidence</th></tr></thead><tbody></tbody></table>
+            <div class="empty-note" data-for="table-malware">No APKs analysed yet.</div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><h3>Top High Risk Accounts (PS2)</h3></div>
+            <table class="mini-table" id="table-accounts"><thead><tr><th>Account No.</th><th>Risk Tier</th><th>Probability</th></tr></thead><tbody></tbody></table>
+            <div class="empty-note" data-for="table-accounts">No dataset analysed yet.</div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><h3>IOC Types Extracted</h3></div>
+            <table class="mini-table" id="table-ioc"><thead><tr><th>IOC Type</th><th>Count</th></tr></thead><tbody></tbody></table>
+            <div class="empty-note" data-for="table-ioc">No IOCs extracted yet.</div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><h3>YARA Rules (Session)</h3></div>
+            <table class="mini-table" id="table-yara"><thead><tr><th>Rule Name</th><th>Matched</th></tr></thead><tbody></tbody></table>
+            <div class="empty-note" data-for="table-yara">No rules generated yet.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- MALWARE ANALYSIS (PS1) -->
+      <section class="page hidden" id="page-malware">
+        <div class="page-head"><h1>Malware Analysis (PS1)</h1><p>Upload a suspicious APK for real Androguard static analysis.</p></div>
+        <div class="panel">
+          <div class="upload-row">
+            <input type="file" id="apk-input" accept=".apk" hidden>
+            <button class="btn" onclick="document.getElementById('apk-input').click()">Choose APK file</button>
+            <span id="apk-filename" class="filename">No file selected</span>
+            <button class="btn primary" id="apk-analyze-btn" disabled>Analyze APK</button>
+          </div>
+          <div id="apk-status" class="status"></div>
+        </div>
+        <div id="apk-results"></div>
+      </section>
+
+      <!-- FRAUD DETECTION (PS2) -->
+      <section class="page hidden" id="page-fraud">
+        <div class="page-head"><h1>Fraud Detection (PS2)</h1><p>Upload a transaction/account dataset — real XGBoost + SHAP trained on your data.</p></div>
+        <div class="panel">
+          <div class="upload-row">
+            <input type="file" id="csv-input" accept=".csv" hidden>
+            <button class="btn" onclick="document.getElementById('csv-input').click()">Choose CSV file</button>
+            <span id="csv-filename" class="filename">No file selected</span>
+            <input type="text" id="label-col" placeholder="label column (optional, auto-detected)" class="text-input">
+            <button class="btn primary" id="csv-analyze-btn" disabled>Run Data Audit + Train</button>
+          </div>
+          <div id="csv-status" class="status"></div>
+        </div>
+        <div id="csv-results"></div>
+      </section>
+
+      <!-- IOC BRIDGE -->
+      <section class="page hidden" id="page-bridge">
+        <div class="page-head"><h1>IOC Bridge</h1><p>Simulated/demo linkage between the most recently analysed APK and the highest-risk PS2 account.</p></div>
+        <div class="panel">
+          <button class="btn primary" id="bridge-btn">Link demo case</button>
+          <div id="bridge-results"></div>
+        </div>
+      </section>
+
+      <!-- IOC INTELLIGENCE -->
+      <section class="page hidden" id="page-intel">
+        <div class="page-head"><h1>IOC Intelligence</h1><p>All indicators of compromise extracted across this session.</p></div>
+        <div class="panel"><div id="intel-results" class="empty-state">No IOCs extracted yet — run a Malware Analysis first.</div></div>
+      </section>
+
+      <!-- YARA RULES -->
+      <section class="page hidden" id="page-yara">
+        <div class="page-head"><h1>YARA Rules</h1><p>Every rule generated this session, with compile + match validation status.</p></div>
+        <div class="panel"><div id="yara-results" class="empty-state">No rules generated yet — run a Malware Analysis first.</div></div>
+      </section>
+
+      <!-- REPORTS -->
+      <section class="page hidden" id="page-reports">
+        <div class="page-head"><h1>Reports</h1><p>Session summary across both engines.</p></div>
+        <div class="panel"><div id="reports-results" class="empty-state">Nothing to report yet — run an analysis first.</div></div>
+      </section>
+
+      <!-- AUDIT TRAIL -->
+      <section class="page hidden" id="page-audit">
+        <div class="page-head"><h1>Audit Trail</h1><p>Immutable, timestamped log of every action taken in this session.</p></div>
+        <div class="panel"><table class="mini-table" id="table-audit"><thead><tr><th>Time</th><th>Action</th><th>Detail</th></tr></thead><tbody></tbody></table>
+        <div class="empty-note" data-for="table-audit">Nothing logged yet.</div></div>
+      </section>
+
+      <!-- COMPLIANCE -->
+      <section class="page hidden" id="page-compliance">
+        <div class="page-head"><h1>Compliance (RBI FREE-AI)</h1><p>How SetuGuard maps to the RBI FREE-AI principles.</p></div>
+        <div class="panel">
+          <table class="mini-table">
+            <thead><tr><th>Principle</th><th>Mechanism</th></tr></thead>
+            <tbody>
+              <tr><td>Fairness</td><td>Bias check on SHAP feature distributions pre-deployment</td></tr>
+              <tr><td>Reliability</td><td>KS-test drift monitoring + automated retrain alert</td></tr>
+              <tr><td>Explainability</td><td>SHAP waterfall + greedy counterfactual per alert</td></tr>
+              <tr><td>Ethics</td><td>Any LLM component is advisory-only; scoring is fully deterministic</td></tr>
+              <tr><td>Accountability</td><td>Session audit trail + versioned model config</td></tr>
+              <tr><td>Integrity</td><td>Immutable audit trail; account IDs shown only as hashes</td></tr>
+            </tbody>
+          </table>
+          <p class="fine-print">SetuGuard never automatically freezes or blocks an account. Every Tier-4 action requires explicit human approval — this console is a decision-support tool, not a decision-maker.</p>
+        </div>
+      </section>
+
+      <!-- SETTINGS -->
+      <section class="page hidden" id="page-settings">
+        <div class="page-head"><h1>Settings</h1><p>Local console configuration.</p></div>
+        <div class="panel">
+          <label class="settings-label">Backend base URL</label>
+          <input type="text" id="settings-base-url" class="text-input wide" placeholder="http://localhost:5050">
+          <label class="settings-label">Default label column for PS2</label>
+          <input type="text" id="settings-label-col" class="text-input wide" placeholder="e.g. Class">
+          <button class="btn primary" id="settings-save-btn" style="margin-top:14px;">Save</button>
+          <div id="settings-status" class="status"></div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="app-footer">
+      © 2026 SetuGuard. All rights reserved. &nbsp;·&nbsp; Version 1.0.0
+    </footer>
+  </div>
+</div>
+
+<button class="fab" id="fab-scan" title="Quick analyze">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 4 1.5 3.5L20 9l-3.5 1.5L15 14l-1.5-3.5L10 9l3.5-1.5Z"/><path d="M6 15v4M4 17h4"/></svg>
+</button>
+
+<script src="app.js"></script>
+</body>
+</html>

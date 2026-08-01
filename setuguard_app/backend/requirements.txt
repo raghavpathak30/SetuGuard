@@ -1,0 +1,13 @@
+flask
+flask-cors
+androguard
+loguru
+xgboost
+shap
+scikit-learn
+pandas
+numpy
+yara-python
+# Optional, for the real LLM triage stage instead of the rule-based fallback:
+ollama
+faiss-cpu
