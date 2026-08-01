@@ -29,7 +29,7 @@ RANDOM_SEED = 42
 N_TRUE_POSITIVE_CERT = 6
 N_TRUE_POSITIVE_C2 = 4
 N_CONFOUNDER_SUBNET = 10
-N_CONFOUNDER_CERT_ISSUER = 10
+N_CONFOUNDER_WRONG_HASH = 10
 N_TRUE_NEGATIVE = 68
 N_EDGE_CASE_UNSIGNED_APK = 1
 N_EDGE_CASE_ALL_NONE = 1
@@ -127,12 +127,12 @@ def build_synthetic_ground_truth(real_accounts: list) -> dict:
         }
 
     # --- CONFOUNDER: same cert issuer, different hash ---
-    for i in range(N_CONFOUNDER_CERT_ISSUER):
+    for i in range(N_CONFOUNDER_WRONG_HASH):
         acc_id = account_ids[idx]; idx += 1
         ground_truth[acc_id] = {
             "linked_cert_hash": f"decoyhash{i:04d}" + "0" * 48,
             "linked_c2_host": None,
-            "true_label": "CONFOUNDER_CERT_ISSUER",
+            "true_label": "CONFOUNDER_WRONG_HASH",
         }
 
     # --- EDGE CASE: all-None account (zero linkage fields set at all) ---
@@ -217,7 +217,7 @@ def score_results(results: list):
     print("=" * 60)
     print(f"TP: {tp}  FN: {fn}  FP: {fp} (critical cell)  TN: {tn}")
 
-    for label in ("TP_CERT", "TP_C2", "CONFOUNDER_SUBNET", "CONFOUNDER_CERT_ISSUER", "EDGE_ALL_NONE", "EDGE_UNSIGNED_APK"):
+    for label in ("TP_CERT", "TP_C2", "CONFOUNDER_SUBNET", "CONFOUNDER_WRONG_HASH", "EDGE_ALL_NONE", "EDGE_UNSIGNED_APK"):
         subset = [r for r in results if r["true_label"] == label]
         if not subset:
             continue

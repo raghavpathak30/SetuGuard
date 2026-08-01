@@ -149,70 +149,70 @@
     },
     {
       "account_id": "161",
-      "true_label": "CONFOUNDER_CERT_ISSUER",
+      "true_label": "CONFOUNDER_WRONG_HASH",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
       "account_id": "16",
-      "true_label": "CONFOUNDER_CERT_ISSUER",
+      "true_label": "CONFOUNDER_WRONG_HASH",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
       "account_id": "43",
-      "true_label": "CONFOUNDER_CERT_ISSUER",
+      "true_label": "CONFOUNDER_WRONG_HASH",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
       "account_id": "127",
-      "true_label": "CONFOUNDER_CERT_ISSUER",
+      "true_label": "CONFOUNDER_WRONG_HASH",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
       "account_id": "188",
-      "true_label": "CONFOUNDER_CERT_ISSUER",
+      "true_label": "CONFOUNDER_WRONG_HASH",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
       "account_id": "9080",
-      "true_label": "CONFOUNDER_CERT_ISSUER",
+      "true_label": "CONFOUNDER_WRONG_HASH",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
       "account_id": "48",
-      "true_label": "CONFOUNDER_CERT_ISSUER",
+      "true_label": "CONFOUNDER_WRONG_HASH",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
       "account_id": "111",
-      "true_label": "CONFOUNDER_CERT_ISSUER",
+      "true_label": "CONFOUNDER_WRONG_HASH",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
       "account_id": "6",
-      "true_label": "CONFOUNDER_CERT_ISSUER",
+      "true_label": "CONFOUNDER_WRONG_HASH",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
       "account_id": "197",
-      "true_label": "CONFOUNDER_CERT_ISSUER",
+      "true_label": "CONFOUNDER_WRONG_HASH",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
