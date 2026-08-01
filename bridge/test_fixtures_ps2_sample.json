@@ -1,0 +1,6610 @@
+{
+  "metadata": {
+    "system": "SetuGuard PS2 Mule Detection & Interdiction Engine",
+    "total_accounts_scored": 9082,
+    "high_risk_tier3_4_count": 2,
+    "export_timestamp_utc": "2026-07-29T04:52:05.372104+00:00"
+  },
+  "records": [
+    {
+      "alert_id": "822dd909-cd43-47b6-be22-b3dea0b4a288",
+      "account_id_raw": "1",
+      "account_id_hash": "7db93282426506bd",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0285,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "4d4c4fcf-72ad-4800-bee9-03cfccd7fc85",
+      "account_id_raw": "2",
+      "account_id_hash": "f3250bd16ef35050",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0048,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "cd48ca2a-3d9f-4257-8e67-b41cd62567e7",
+      "account_id_raw": "3",
+      "account_id_hash": "062a689e4643e93e",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0085,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "c092d307-8053-47a8-a0c2-67fe63386b26",
+      "account_id_raw": "4",
+      "account_id_hash": "d482140d7d32b672",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0056,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "935f1edd-7caa-46c8-9ab7-93d2f5975d13",
+      "account_id_raw": "5",
+      "account_id_hash": "d9e9e2c85181c29b",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.005,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "744dde5a-9bea-45c1-ad1e-a34e679addae",
+      "account_id_raw": "6",
+      "account_id_hash": "cd87818277de1432",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0047,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "95997d10-ac70-4ed2-9640-b423c6b2e09f",
+      "account_id_raw": "7",
+      "account_id_hash": "5cc14685a5e3e5f0",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0054,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "6d60c678-5cf8-4d9b-a695-32bc6ff65735",
+      "account_id_raw": "8",
+      "account_id_hash": "3672e040896aa8f8",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.005,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "014e7a72-fa83-45f9-86d9-b1502a674d93",
+      "account_id_raw": "9",
+      "account_id_hash": "427b1c5fde55b907",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0049,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "ec87088b-c7fb-4f11-a75b-5409e1d53302",
+      "account_id_raw": "10",
+      "account_id_hash": "84793db821f1f83f",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0044,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "c4abf06e-9687-4e4b-9b45-91ffc95f0720",
+      "account_id_raw": "11",
+      "account_id_hash": "18fe11a0f29677c8",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0042,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "99917c56-17c7-403c-9ea0-c94767a7e7ff",
+      "account_id_raw": "12",
+      "account_id_hash": "1736383d6d5d706b",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0075,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "19e0fec5-16fb-4e51-a9c8-d6b595df4771",
+      "account_id_raw": "13",
+      "account_id_hash": "840793628f2bf998",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0045,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "83787867-4938-4939-8eca-2bcd9c1c4397",
+      "account_id_raw": "14",
+      "account_id_hash": "5f04d07d535b0e6d",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.1033,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "9b716217-e8a1-4e0f-9c4d-770ebb8ef98a",
+      "account_id_raw": "15",
+      "account_id_hash": "88d601d84ea1a31e",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.1908,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "7d43fb4d-cf88-4866-95dc-9c068de17304",
+      "account_id_raw": "16",
+      "account_id_hash": "1a389daa3b251c73",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0045,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "e7076717-0a7d-4d70-a365-04b1c9a92f94",
+      "account_id_raw": "17",
+      "account_id_hash": "5c1ebaba637179e6",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0043,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "d5bc9fb3-b808-494b-9d1c-62020e2d1048",
+      "account_id_raw": "18",
+      "account_id_hash": "d2373d2c7510a01c",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0201,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "5153b7ce-1bb0-49fa-9d12-1fc8cb327030",
+      "account_id_raw": "19",
+      "account_id_hash": "778051ec5e851135",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0052,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "b0d5c99a-90ec-4f70-a595-036b266168d4",
+      "account_id_raw": "20",
+      "account_id_hash": "cacd4260ae0cac9f",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0046,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "0e975697-b69e-4753-a56b-df873002d2a9",
+      "account_id_raw": "21",
+      "account_id_hash": "0d5c87b57f0a15f4",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0056,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "e1106205-088a-4b61-8276-bbaf2f0e599e",
+      "account_id_raw": "22",
+      "account_id_hash": "de5adf3fbfbf7637",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0196,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "3105546f-9961-46e4-b586-a907e4e86260",
+      "account_id_raw": "23",
+      "account_id_hash": "b8961370f901d553",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0068,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "c2f0bf27-88cf-49cc-a3f4-5e8bbe06bafb",
+      "account_id_raw": "24",
+      "account_id_hash": "b57e19ef6941c796",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0128,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "b99ee8e1-e482-44c9-ae96-f826c947eaa5",
+      "account_id_raw": "25",
+      "account_id_hash": "dd84b6fe3e54d380",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0047,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "d8d69c1f-bfb4-41c2-8cec-899f4424c0ef",
+      "account_id_raw": "26",
+      "account_id_hash": "6425a3c96a96a08f",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0048,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "2876928a-19b5-448f-96a3-8f7e44f046c3",
+      "account_id_raw": "27",
+      "account_id_hash": "13fa71d41895d810",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0055,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "d360947c-29e8-4527-a73e-3ed86d5c72ed",
+      "account_id_raw": "28",
+      "account_id_hash": "487635097bf22fcf",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0051,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "cc3f6569-287d-4811-9d22-0e4558e84bc1",
+      "account_id_raw": "29",
+      "account_id_hash": "9710fc0fab11ca75",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0061,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "6a6eef4a-c7d9-46d2-8f89-0b6e69be803c",
+      "account_id_raw": "30",
+      "account_id_hash": "b2ecf2594eb1d4f9",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0046,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "ca9dfe95-2c77-4cc1-aa1c-37565ba1c273",
+      "account_id_raw": "31",
+      "account_id_hash": "0639a274f576349b",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0051,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "21a1ec4c-b6a8-4721-9255-a1ee56ea1e79",
+      "account_id_raw": "32",
+      "account_id_hash": "71a2eed7f1df182e",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0233,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "a238f6df-22b3-4551-81cc-9ced31cf62c0",
+      "account_id_raw": "33",
+      "account_id_hash": "824da9d95eab2d0f",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0051,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "dc0bb578-716f-4fc3-83f9-0555791a806e",
+      "account_id_raw": "34",
+      "account_id_hash": "f663edc379437ebd",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.005,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "fee243f2-f7bf-47e8-9755-55244b6a5592",
+      "account_id_raw": "35",
+      "account_id_hash": "740cfc6e03a4e8fe",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0058,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "785dcb14-bfca-41f4-9a82-629772ce610c",
+      "account_id_raw": "36",
+      "account_id_hash": "2b75d92792cdad75",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0048,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "556c26c5-292a-49d8-ab56-90f45331da86",
+      "account_id_raw": "37",
+      "account_id_hash": "82ff3463b839ae11",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0094,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "74751591-2478-46a8-a782-b79e927098a0",
+      "account_id_raw": "38",
+      "account_id_hash": "3ca92585ab37d2fa",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0061,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "12db547e-3f9c-459d-8533-d921dfde8c3c",
+      "account_id_raw": "39",
+      "account_id_hash": "b6e8c9da8b1dfe2a",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0047,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "2c221ff3-6ad7-4bd3-9d3e-36fb131902b5",
+      "account_id_raw": "40",
+      "account_id_hash": "fb0c3819245dfd18",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0048,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "ffac273c-242b-4e6e-a6a7-fe0d6b902426",
+      "account_id_raw": "41",
+      "account_id_hash": "c3bc723010c84fcb",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.005,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "1b09669e-19d5-44b6-beec-24513b1f84d1",
+      "account_id_raw": "42",
+      "account_id_hash": "7a466fa4accff303",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0276,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "bb2d2c82-768a-408c-b7a0-11c897454655",
+      "account_id_raw": "43",
+      "account_id_hash": "784b641ee47689ca",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0048,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "9050c1a2-a047-4bd0-b691-618839de78b1",
+      "account_id_raw": "44",
+      "account_id_hash": "32c229c6c0a5a329",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0048,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "1c843e79-3da3-49d8-942f-2a4e4c2fc6d8",
+      "account_id_raw": "45",
+      "account_id_hash": "05ae6b5e9f1c84a6",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0052,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "5a459d20-f6b9-40ac-a22c-4704f6d7e4cd",
+      "account_id_raw": "46",
+      "account_id_hash": "92a5293ccf011ea8",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0045,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "58eae2c6-04b6-46e3-a010-f16b7689e4fc",
+      "account_id_raw": "47",
+      "account_id_hash": "40be77a571fef960",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0049,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "d7585d2b-c9b5-4900-8339-6753c77710cb",
+      "account_id_raw": "48",
+      "account_id_hash": "4b3dc57e84ac9cf8",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0045,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "710840b4-87b1-4500-a0fa-022820ab2740",
+      "account_id_raw": "49",
+      "account_id_hash": "b6654bcf0b9df52c",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0048,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "ad021b43-1a4b-47f3-9890-2dbd46ce98c9",
+      "account_id_raw": "50",
+      "account_id_hash": "d9a93571c2d2bdb5",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0064,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "82cbd21b-9444-483a-a4de-dcb5ce682319",
+      "account_id_raw": "51",
+      "account_id_hash": "228a4ae19bcbf914",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0058,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "93fac765-711a-4851-9b42-e47584219f76",
+      "account_id_raw": "52",
+      "account_id_hash": "3173c7e1b906a988",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.006,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "2907b950-9df3-43aa-8d9b-9067621e8c87",
+      "account_id_raw": "53",
+      "account_id_hash": "54d6b1ce185fb60a",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0053,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "babe82fd-4e34-431e-93ae-8fcf09f6e334",
+      "account_id_raw": "54",
+      "account_id_hash": "f0eb1a99b45b5cd3",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0129,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "19df4dbc-602e-476b-9bc3-04ad809ad953",
+      "account_id_raw": "55",
+      "account_id_hash": "b7400ad4e9b8ff30",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0067,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "45949c31-d9d0-4e59-a2f0-a340dad221df",
+      "account_id_raw": "56",
+      "account_id_hash": "b16857ab086766e7",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0043,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "201269b4-fe49-4fa2-93ca-1126b58c4a91",
+      "account_id_raw": "57",
+      "account_id_hash": "b5608b3064c22415",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0046,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "c39344cd-015a-4835-8bf3-a84b87c7de61",
+      "account_id_raw": "58",
+      "account_id_hash": "3d1dc8666273620c",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0043,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "3689fb04-37fc-4249-af47-708af73d685a",
+      "account_id_raw": "59",
+      "account_id_hash": "9ae2c6b57d8ebee4",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0045,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "7032e320-2a8f-4bce-9245-2881c5904a4f",
+      "account_id_raw": "60",
+      "account_id_hash": "a36b5f7f2e52b0b8",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0058,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "aae0d3e6-a51e-42c6-84c6-4e0ccb38f124",
+      "account_id_raw": "61",
+      "account_id_hash": "b4c70511a06fad49",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0604,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "928acfa6-c2dd-4fad-a965-5d97417a8aa4",
+      "account_id_raw": "62",
+      "account_id_hash": "fa32f3dd79e8c494",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0044,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "060042b9-fe1c-481e-a7a9-c68866e288d5",
+      "account_id_raw": "63",
+      "account_id_hash": "10eea5807bed6ab9",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0044,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "b99a90e1-95bd-4944-b852-7470f18ba5d6",
+      "account_id_raw": "64",
+      "account_id_hash": "20851f2ed095ea49",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0066,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "faadf5d3-3fa7-4c06-be3b-02cc00c1f777",
+      "account_id_raw": "65",
+      "account_id_hash": "4e670ee440017591",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0085,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "9806579f-ece1-41c4-99fe-b243cb77c3c6",
+      "account_id_raw": "66",
+      "account_id_hash": "0e895ae4533750d4",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0045,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "4ce1e2dd-7346-4d56-9c87-25d7e5d2a6e5",
+      "account_id_raw": "67",
+      "account_id_hash": "7b52c35f2c9f8160",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0062,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "eeac3cfb-594b-4da0-bcbb-d4c1f0b3ba9e",
+      "account_id_raw": "68",
+      "account_id_hash": "e5f95cc1e210f0d4",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0048,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "b21547bd-66fb-4792-947e-64e3eac59161",
+      "account_id_raw": "69",
+      "account_id_hash": "3f5a988fee3bb4e6",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0044,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "02ac61a1-f2c5-465f-ac2c-5878dbf7d543",
+      "account_id_raw": "70",
+      "account_id_hash": "37d20444b3580c3f",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0053,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "d11c43bf-5a3f-46ed-b8d8-cd6dd7f14427",
+      "account_id_raw": "71",
+      "account_id_hash": "f062e475ca79b291",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0048,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "656f8c30-bea3-420e-9e87-b5c2059e68e1",
+      "account_id_raw": "72",
+      "account_id_hash": "a85098de18d96b44",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0047,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "bb9ec5b5-3951-480a-855a-69b81cb8f0e9",
+      "account_id_raw": "73",
+      "account_id_hash": "1eff8de76a017c82",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0044,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "87d920d9-a204-440f-915c-3420536943eb",
+      "account_id_raw": "74",
+      "account_id_hash": "a77610360b016a56",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0048,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "3ee3e669-ab82-4b59-9d87-488a8df094a9",
+      "account_id_raw": "75",
+      "account_id_hash": "a3f404e49caa9ea6",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0296,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "0cede7da-4948-4d92-94db-187964635565",
+      "account_id_raw": "76",
+      "account_id_hash": "c39f41d992533d29",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.006,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "201eeada-a712-4982-adce-221bdad7aa1e",
+      "account_id_raw": "77",
+      "account_id_hash": "756850cf3006886e",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0053,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "0d11e2e5-72e2-4daa-9b8d-9d27f803aab1",
+      "account_id_raw": "78",
+      "account_id_hash": "be0e10d26cdb5820",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0522,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "a89091be-53a9-4317-9c49-3032ff349b0a",
+      "account_id_raw": "79",
+      "account_id_hash": "6722581e1694e729",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0047,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "8703d731-dc88-418b-b0be-faf687b46073",
+      "account_id_raw": "80",
+      "account_id_hash": "0572ec87a2c8d440",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0047,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "d857a3ae-37ac-4a76-ab05-60d497d1fdd3",
+      "account_id_raw": "81",
+      "account_id_hash": "d6f45f5d65268a89",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0049,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "9a076482-336e-440e-a34b-954f17e79561",
+      "account_id_raw": "82",
+      "account_id_hash": "5f1f28f7d27c646f",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0045,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "4b8c68df-65b0-4272-9813-3edb1f0d9fe7",
+      "account_id_raw": "83",
+      "account_id_hash": "0dfec1a81ee22142",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0085,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "70cb3fcc-5254-405b-a588-03aa82614058",
+      "account_id_raw": "84",
+      "account_id_hash": "dacb40649269e992",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0051,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "273e0e42-f908-4b0d-8cca-5f5c06968200",
+      "account_id_raw": "85",
+      "account_id_hash": "10647f555a665e3f",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0102,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "61013804-5308-4b3c-bf40-cf10052c6ee6",
+      "account_id_raw": "86",
+      "account_id_hash": "c086e3293965addc",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0083,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "d4c9e75b-7f3f-494c-9f01-6ba684a0ffd1",
+      "account_id_raw": "87",
+      "account_id_hash": "b2cb968f5f750bf8",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0063,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "bcd6783c-59f7-4796-9f5f-f78939f5828a",
+      "account_id_raw": "88",
+      "account_id_hash": "6b4a15fd0a4bc929",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.005,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "9c6fa5a2-0aa6-46ea-9d3d-7177d1364cc2",
+      "account_id_raw": "89",
+      "account_id_hash": "f89701c4bf52f20b",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0048,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "ebd637bd-ecbc-4f49-9abc-97a4f289b160",
+      "account_id_raw": "90",
+      "account_id_hash": "9ea289bb3550e010",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0048,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "d7f01d3e-0f0b-429d-bebb-6b72c4e50367",
+      "account_id_raw": "91",
+      "account_id_hash": "b5c33b91b4c1b4f2",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0048,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "f4550020-31e4-43ef-ab51-48d15af86f09",
+      "account_id_raw": "92",
+      "account_id_hash": "bb3804d9ac0cf8bb",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0096,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "4e2b3a2f-3adc-41c5-81e8-d3126b145915",
+      "account_id_raw": "93",
+      "account_id_hash": "724d809570e96dd9",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0048,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "78c91e1a-329f-4d82-b09c-17f80a72b773",
+      "account_id_raw": "94",
+      "account_id_hash": "4f797f7b7c14f708",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0047,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "7203c9c9-59dd-4359-92a3-eb9d1204ccc7",
+      "account_id_raw": "95",
+      "account_id_hash": "7b619e6b5627bf46",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0589,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "869d3558-e83c-4c1b-856e-b6ef64684b8c",
+      "account_id_raw": "96",
+      "account_id_hash": "306463180703c68e",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0042,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "efa3d7e1-6515-4587-9820-80e16ff05f37",
+      "account_id_raw": "97",
+      "account_id_hash": "909851c28fab6556",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0045,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "288daf77-5344-4298-8c01-b4d314de4c34",
+      "account_id_raw": "98",
+      "account_id_hash": "931e47dfded28f40",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0051,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "9fef64c0-7729-4bd5-b1f4-667a19314aa1",
+      "account_id_raw": "99",
+      "account_id_hash": "e0e441b6e1f7bb29",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0048,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "fdcde188-5f22-4496-bc1e-a925ac845142",
+      "account_id_raw": "100",
+      "account_id_hash": "48adceb2a1254b43",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0048,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "9d0174d2-659c-4f52-a2c7-6908267cd74d",
+      "account_id_raw": "101",
+      "account_id_hash": "7360c66a83bcdadb",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0048,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "b73578c8-a2b5-4657-827c-9b30c058eaab",
+      "account_id_raw": "102",
+      "account_id_hash": "3d304a486f3bbf0c",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0045,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "8a795ede-51aa-449e-bf06-839dc742d52e",
+      "account_id_raw": "103",
+      "account_id_hash": "818310618363d960",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0043,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "82c0edee-3aa2-425c-8284-ac9c05b55645",
+      "account_id_raw": "104",
+      "account_id_hash": "565752eafdb48e71",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0053,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "a0b5644f-f07a-4e91-96e3-756e04a5eeac",
+      "account_id_raw": "105",
+      "account_id_hash": "67545011da752da5",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0046,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "894a597b-128e-40be-bde4-03d58780b9d0",
+      "account_id_raw": "106",
+      "account_id_hash": "0e0259932b17c45c",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0056,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "93c7e021-91e3-48a2-8fa6-77ca6f958bf8",
+      "account_id_raw": "107",
+      "account_id_hash": "025b94558224de40",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0055,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "505bea36-a6b0-4e40-baf6-0fad40b6a86e",
+      "account_id_raw": "108",
+      "account_id_hash": "de41186b439b9e25",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0069,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "a9d2867b-8e00-4390-b5ff-1b47ed6f32c2",
+      "account_id_raw": "109",
+      "account_id_hash": "29823f32c3431dff",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0056,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "1d86d0b5-9557-498b-9d6b-8bdc93750553",
+      "account_id_raw": "110",
+      "account_id_hash": "650b120502ce571d",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0121,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "8d8e0240-d8e0-49e7-8222-571547f16ae5",
+      "account_id_raw": "111",
+      "account_id_hash": "57d554298509f435",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0047,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "31ecb720-f588-4a09-825b-0a021a9f72ed",
+      "account_id_raw": "112",
+      "account_id_hash": "fbc18e498329b819",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0048,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "2ff652f7-b09f-4aa2-83e3-b418dc7a6dd8",
+      "account_id_raw": "113",
+      "account_id_hash": "abfe94c3430f7384",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0049,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "3d8db964-7d82-43c9-a13a-392a81f6bc4c",
+      "account_id_raw": "114",
+      "account_id_hash": "7900858f43c74add",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0048,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "142a83bb-6d55-41b9-b674-a4f30688aae4",
+      "account_id_raw": "115",
+      "account_id_hash": "c8f88f46d2ab280f",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0051,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "1dccd41d-3604-474e-a866-919ab8a999d2",
+      "account_id_raw": "116",
+      "account_id_hash": "af965d696180a179",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0082,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "326f2dc8-bb48-403c-8f58-32477addc60d",
+      "account_id_raw": "117",
+      "account_id_hash": "7a85f35a509c4028",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0047,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "284b4452-d711-4609-b40a-d95d19dc5352",
+      "account_id_raw": "118",
+      "account_id_hash": "a7506c69061fc2f1",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0048,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "092482f8-759f-423b-9515-f18a68b936cc",
+      "account_id_raw": "119",
+      "account_id_hash": "e623cdc78c364679",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0051,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "e4e39b09-1900-4e8e-a8a1-d1dfb5b1c9ba",
+      "account_id_raw": "120",
+      "account_id_hash": "0fa008209625fb85",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0048,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "1e5db56e-ae75-433c-a059-f57060321bb7",
+      "account_id_raw": "121",
+      "account_id_hash": "432acbc595735da6",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0203,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "55369d80-e236-47b1-b29a-492dbc3875ca",
+      "account_id_raw": "122",
+      "account_id_hash": "fe3dd35d622ab18e",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0059,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "f5d7ce36-f1ba-4ec7-a1bb-ec574937aeeb",
+      "account_id_raw": "123",
+      "account_id_hash": "a3a4e681a6c45873",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0043,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "bccea19c-aedb-4309-a434-a9c7c2967306",
+      "account_id_raw": "124",
+      "account_id_hash": "60ea8248133fb481",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.005,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "f9963d94-0ea4-4a6b-81d7-79e35f61234c",
+      "account_id_raw": "125",
+      "account_id_hash": "9b13a98a5a30177a",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0048,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "1397df54-6cd6-484d-9948-ae3f5ad07255",
+      "account_id_raw": "126",
+      "account_id_hash": "82249c6b19bf8c58",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.005,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "1f45b187-a994-4da7-a3b0-c7ba61e1fcb2",
+      "account_id_raw": "127",
+      "account_id_hash": "a7782bdcfc1caaa3",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0066,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "da08252f-8f06-4e0c-a895-ce50c5a81bcb",
+      "account_id_raw": "128",
+      "account_id_hash": "74a892efae81e63c",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0049,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "91ceb240-0bd8-44e8-8640-cb4d6dcde8c3",
+      "account_id_raw": "129",
+      "account_id_hash": "d94be86350e52cb9",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0093,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "2facfa00-5670-4c30-b73d-48cfb33be4ac",
+      "account_id_raw": "130",
+      "account_id_hash": "9972f899a3dc4cdd",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0049,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "b6f10bb1-27d1-4b09-912e-2ee36180b322",
+      "account_id_raw": "131",
+      "account_id_hash": "b0c34d2524e2f68e",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.005,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "2b1d3974-a12d-47c2-b9af-382141a50f11",
+      "account_id_raw": "132",
+      "account_id_hash": "9f419188376089f9",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0347,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "5a0d5cef-4118-4c30-a89d-29f5812b7de5",
+      "account_id_raw": "133",
+      "account_id_hash": "3b1e64f78bff5cba",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0049,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "80e6e1b9-8724-4489-8954-b10527b9d956",
+      "account_id_raw": "134",
+      "account_id_hash": "80cab47144367e07",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0051,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "eabc05cb-8b08-452f-bb07-2ce0f0a3a2ab",
+      "account_id_raw": "135",
+      "account_id_hash": "922971c1d41e5138",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0357,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "b333167d-8b78-4810-ae69-1cc5288081e0",
+      "account_id_raw": "136",
+      "account_id_hash": "b83edb2d2d4846ee",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0043,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "755d94de-3e16-452c-9303-e9ca836addfb",
+      "account_id_raw": "137",
+      "account_id_hash": "339d80fb6e81918a",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0071,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "7a6d6d58-f052-4a48-9433-acc76396c1ed",
+      "account_id_raw": "138",
+      "account_id_hash": "e39ccf4b5b2e2617",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0044,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "4b443c38-0f43-4560-a081-a9c460e18a28",
+      "account_id_raw": "139",
+      "account_id_hash": "87ece9a1d4bbbc08",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0044,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "1b72f99f-0f72-4b41-8f39-ad80db66525b",
+      "account_id_raw": "140",
+      "account_id_hash": "2bfc4fa0be759d16",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0048,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "73dda8e4-d548-474d-80ea-77c0af25122a",
+      "account_id_raw": "141",
+      "account_id_hash": "e1f9b033a4b5e807",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0043,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "b7211d2f-3504-4b54-9be5-819fa1443a90",
+      "account_id_raw": "142",
+      "account_id_hash": "aab8042ae7130156",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.005,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "90d401c1-e014-4229-810f-777d157232cb",
+      "account_id_raw": "143",
+      "account_id_hash": "07f57dce5a451c78",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0044,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "b2865d6e-d4d7-4706-99fe-6184ebc6d197",
+      "account_id_raw": "144",
+      "account_id_hash": "9c2a21ede10700a8",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0043,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "8fd77d0a-cdea-4471-8c05-da85d4bcd78c",
+      "account_id_raw": "145",
+      "account_id_hash": "a9e53e830f25902c",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0048,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "00ba1d79-7174-4561-9141-c6c25b42b654",
+      "account_id_raw": "146",
+      "account_id_hash": "f39e56c17ba86294",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0053,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "ab38f52f-0667-4208-8d60-15785c3f55a7",
+      "account_id_raw": "147",
+      "account_id_hash": "97698387558ef607",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0047,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "99979009-7a00-4b7a-a65a-8be8d07e57d6",
+      "account_id_raw": "148",
+      "account_id_hash": "12f2d009e52a59ce",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0048,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "e815b864-2974-4475-8e35-9de5c32b4203",
+      "account_id_raw": "149",
+      "account_id_hash": "630b8542cb0fba21",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0104,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "31cae29b-32b6-474c-96d0-871c8ff50c17",
+      "account_id_raw": "150",
+      "account_id_hash": "3b40af4bd0e3e78d",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0083,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "8d5b9446-64f5-49d9-ac1c-40b72efd595f",
+      "account_id_raw": "151",
+      "account_id_hash": "dd0e19fb128a4170",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0055,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "2ab61a90-1e6a-4030-a546-b1c828a140f1",
+      "account_id_raw": "152",
+      "account_id_hash": "ff37398d43ab1126",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0053,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "c908958d-e798-47ed-92bf-70e99bc7659b",
+      "account_id_raw": "153",
+      "account_id_hash": "c7ddc8256226587a",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0044,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "cc436ed8-6922-4d3d-924c-96a71abe1471",
+      "account_id_raw": "154",
+      "account_id_hash": "20cf282f720077bb",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0045,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "b07378cb-da54-4e68-9c4b-30af60347bb1",
+      "account_id_raw": "155",
+      "account_id_hash": "56a93877371259bf",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0048,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "0569bd42-7274-49f9-b7d9-19360f414b22",
+      "account_id_raw": "156",
+      "account_id_hash": "00317b47de4dc8e1",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0079,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "0abd0664-c881-4a49-b0a9-e252361158b8",
+      "account_id_raw": "157",
+      "account_id_hash": "8d52fad8901d7b29",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0131,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "26482c88-31ee-4d20-b625-0ccae1f37b8e",
+      "account_id_raw": "158",
+      "account_id_hash": "bd438d0ac00decf7",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0045,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "78d895a1-0b64-42e8-b74a-23b17e2dc6cd",
+      "account_id_raw": "159",
+      "account_id_hash": "bf0278f22d24cb9a",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0079,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "7b8696bf-6462-4827-9892-b71f811dec6d",
+      "account_id_raw": "160",
+      "account_id_hash": "9db6da7b5213a553",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0067,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "41226762-1439-4804-9962-418d176bc02c",
+      "account_id_raw": "161",
+      "account_id_hash": "0bf360d98849e9cd",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0287,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "6a51fbe3-4a5e-4c71-9f0a-63028915f63a",
+      "account_id_raw": "162",
+      "account_id_hash": "55597305c1bbf9b8",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0055,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "04971526-1319-49d9-9aff-8e265142ce77",
+      "account_id_raw": "163",
+      "account_id_hash": "587f064985a4cab8",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0043,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "ae80d43d-e047-4371-bf37-53615fe188c3",
+      "account_id_raw": "164",
+      "account_id_hash": "b665d697ec2af6b6",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0051,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "ee7f0e27-735c-4ecc-914e-0c0b126cfd50",
+      "account_id_raw": "165",
+      "account_id_hash": "f6f477f28ea74824",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0184,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "59e68dc9-5949-41a2-b072-e17156912f9b",
+      "account_id_raw": "166",
+      "account_id_hash": "cca41dbe351b2153",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0048,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "ef3ccbd1-c157-4c86-af87-0069adb77b0b",
+      "account_id_raw": "167",
+      "account_id_hash": "0864581a2a12a3ee",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0178,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "5888924a-c1de-4fd1-a7e4-dcb3b8b259c1",
+      "account_id_raw": "168",
+      "account_id_hash": "a36f5a0ea07caebe",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0043,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "dc0c2a08-f68c-4f8c-a64e-dc5cf06d5cb5",
+      "account_id_raw": "169",
+      "account_id_hash": "848079021e8f0719",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0045,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "37745abc-bd88-4778-a1c3-57c3c12ee682",
+      "account_id_raw": "170",
+      "account_id_hash": "4bfd19e6ba5879be",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0057,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "56d6d9ad-0e0e-4553-bf98-fd5009e6be9c",
+      "account_id_raw": "171",
+      "account_id_hash": "47aead55c7ab6a35",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0044,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "6db55e4c-4b8a-47b7-af53-dac29d78e571",
+      "account_id_raw": "172",
+      "account_id_hash": "4102b0264ad6630e",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0044,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "1e6f09bf-debc-49f4-8478-df6650670488",
+      "account_id_raw": "173",
+      "account_id_hash": "3e6e0e9380e8f596",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0045,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "d5b815d5-3c29-4759-bad5-238cdb813849",
+      "account_id_raw": "174",
+      "account_id_hash": "476499602ea178fe",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.005,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "24af58ca-7fc8-41b5-b216-f5d90fb3e00e",
+      "account_id_raw": "175",
+      "account_id_hash": "f881d769d4321814",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.005,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "42c08c87-4523-420b-a6d2-5ef233d82ead",
+      "account_id_raw": "176",
+      "account_id_hash": "808d8fd4ed084f72",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0043,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "49f5a7ce-4874-4d9f-8d54-72f85f211f38",
+      "account_id_raw": "177",
+      "account_id_hash": "e269fab040789175",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0048,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "8a999bf1-0d9f-4e53-8ed4-c0bcf52df0e7",
+      "account_id_raw": "178",
+      "account_id_hash": "a8295b9de43dda1e",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0056,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "220ae220-0f19-453e-b1f8-8868de99f449",
+      "account_id_raw": "179",
+      "account_id_hash": "e0cadd033c7019f1",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0051,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "320dd409-e5d5-4819-86c4-385917d4d31c",
+      "account_id_raw": "180",
+      "account_id_hash": "ebe3368028136dc7",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0098,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "2e1c1fe1-ab56-4913-a7c1-fda886b4792f",
+      "account_id_raw": "181",
+      "account_id_hash": "82e80c26165715aa",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0043,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "87011d07-66e6-4424-93d4-eb0dade65a6d",
+      "account_id_raw": "182",
+      "account_id_hash": "53c50cc01c93a245",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0093,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "6723af61-f162-479b-be83-122429017903",
+      "account_id_raw": "183",
+      "account_id_hash": "c94e107c5d7df798",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0051,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "f940ae9e-5a65-4ced-9917-602b2a36ba94",
+      "account_id_raw": "184",
+      "account_id_hash": "408c6c18d445a6f0",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0154,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "72d73c4e-8e2b-4300-9629-6845cbeec9f4",
+      "account_id_raw": "185",
+      "account_id_hash": "9e53ce5dc1d8526a",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0076,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "75f8a173-e1a0-4b7c-b2a8-276738ac329b",
+      "account_id_raw": "186",
+      "account_id_hash": "0f05ee5a2d976e78",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0044,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "e5786429-0f22-4fef-87e7-3fbf37987ac2",
+      "account_id_raw": "187",
+      "account_id_hash": "63bef5ab5e36f316",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.005,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "895551f1-386f-4d0b-b02c-48594cd5581b",
+      "account_id_raw": "188",
+      "account_id_hash": "c9c472dd71eb0f1d",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0045,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "695747db-0582-477b-920c-94d36979ad0d",
+      "account_id_raw": "189",
+      "account_id_hash": "fe94eb2ffc141f0b",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0049,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "fac18afa-544b-4911-930c-5c72cf0db75c",
+      "account_id_raw": "190",
+      "account_id_hash": "fe90647e702bb095",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0215,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "fb77df61-8811-40a4-a814-113d8be973c4",
+      "account_id_raw": "191",
+      "account_id_hash": "9618275367dc28ac",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0054,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "5ab6e322-47d8-43f4-9f99-22a0993bbc09",
+      "account_id_raw": "192",
+      "account_id_hash": "0333bd004e2491fa",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0046,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "510704ed-2ac2-4be3-9493-43a6d7fd59c0",
+      "account_id_raw": "193",
+      "account_id_hash": "be09127f8386cf1a",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0043,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "74bf7fce-4a1c-4fa2-ab60-37c222ccf46f",
+      "account_id_raw": "194",
+      "account_id_hash": "859f699f44e1a627",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0337,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "a6881107-08fd-440a-9705-d6944b34253d",
+      "account_id_raw": "195",
+      "account_id_hash": "62700f199ff2de88",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0083,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "cfd246d8-d229-48d8-acb9-48faf0722b8e",
+      "account_id_raw": "196",
+      "account_id_hash": "81a0bc636349ea62",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0045,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "491a59a3-8bef-49d1-bbc8-941a044c36ca",
+      "account_id_raw": "197",
+      "account_id_hash": "72491e26a3710878",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0048,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "0680ec92-0ebd-40b1-abff-78f4c7530e61",
+      "account_id_raw": "198",
+      "account_id_hash": "b81342fc4e50ba6e",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0199,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "b90b1b49-4aa8-4b8c-bbc2-31042dde85d2",
+      "account_id_raw": "199",
+      "account_id_hash": "b79716bb0cc7d3da",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.005,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "2a31e97a-409e-428e-a6ea-724ee6c8b517",
+      "account_id_raw": "200",
+      "account_id_hash": "41155897353510e7",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.0043,
+      "risk_tier": "T1",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "No change needed (Safe)",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Low risk \u2014 no action required",
+      "investigator_status": "CLEARED"
+    }
+  ]
+}
