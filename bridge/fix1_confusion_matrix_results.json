@@ -1,4 +1,5 @@
 {
+  "script_version": "v2 (post code-review: real matcher call, independent ground truth, C2 TPs, edge cases)",
   "scores": {
     "tp": 10,
     "fp": 0,
@@ -7,701 +8,701 @@
   },
   "results": [
     {
-      "account_id": "3325",
-      "true_label": "TP",
+      "account_id": "67",
+      "true_label": "TP_CERT",
       "ground_truth_should_link": true,
       "matcher_predicted_link": true,
       "matched_on": "cert_hash"
     },
     {
-      "account_id": "6539",
-      "true_label": "TP",
+      "account_id": "194",
+      "true_label": "TP_CERT",
       "ground_truth_should_link": true,
       "matcher_predicted_link": true,
       "matched_on": "cert_hash"
     },
     {
-      "account_id": "7444",
-      "true_label": "TP",
+      "account_id": "102",
+      "true_label": "TP_CERT",
       "ground_truth_should_link": true,
       "matcher_predicted_link": true,
       "matched_on": "cert_hash"
     },
     {
-      "account_id": "1247",
-      "true_label": "TP",
+      "account_id": "196",
+      "true_label": "TP_CERT",
       "ground_truth_should_link": true,
       "matcher_predicted_link": true,
       "matched_on": "cert_hash"
     },
     {
-      "account_id": "1413",
-      "true_label": "TP",
+      "account_id": "112",
+      "true_label": "TP_CERT",
       "ground_truth_should_link": true,
       "matcher_predicted_link": true,
       "matched_on": "cert_hash"
     },
     {
-      "account_id": "8495",
-      "true_label": "TP",
+      "account_id": "122",
+      "true_label": "TP_CERT",
       "ground_truth_should_link": true,
       "matcher_predicted_link": true,
       "matched_on": "cert_hash"
     },
     {
-      "account_id": "6260",
-      "true_label": "TP",
+      "account_id": "14",
+      "true_label": "TP_C2",
       "ground_truth_should_link": true,
       "matcher_predicted_link": true,
-      "matched_on": "cert_hash"
+      "matched_on": "c2_host"
     },
     {
-      "account_id": "8697",
-      "true_label": "TP",
+      "account_id": "3",
+      "true_label": "TP_C2",
       "ground_truth_should_link": true,
       "matcher_predicted_link": true,
-      "matched_on": "cert_hash"
+      "matched_on": "c2_host"
     },
     {
-      "account_id": "7682",
-      "true_label": "TP",
+      "account_id": "65",
+      "true_label": "TP_C2",
       "ground_truth_should_link": true,
       "matcher_predicted_link": true,
-      "matched_on": "cert_hash"
+      "matched_on": "c2_host"
     },
     {
-      "account_id": "4695",
-      "true_label": "TP",
+      "account_id": "45",
+      "true_label": "TP_C2",
       "ground_truth_should_link": true,
       "matcher_predicted_link": true,
-      "matched_on": "cert_hash"
+      "matched_on": "c2_host"
     },
     {
-      "account_id": "3453",
-      "true_label": "CONFOUNDER",
+      "account_id": "137",
+      "true_label": "CONFOUNDER_SUBNET",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "1765",
-      "true_label": "CONFOUNDER",
+      "account_id": "172",
+      "true_label": "CONFOUNDER_SUBNET",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "7809",
-      "true_label": "CONFOUNDER",
+      "account_id": "129",
+      "true_label": "CONFOUNDER_SUBNET",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "5875",
-      "true_label": "CONFOUNDER",
+      "account_id": "77",
+      "true_label": "CONFOUNDER_SUBNET",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "7370",
-      "true_label": "CONFOUNDER",
+      "account_id": "160",
+      "true_label": "CONFOUNDER_SUBNET",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "3539",
-      "true_label": "CONFOUNDER",
+      "account_id": "169",
+      "true_label": "CONFOUNDER_SUBNET",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "3477",
-      "true_label": "CONFOUNDER",
+      "account_id": "46",
+      "true_label": "CONFOUNDER_SUBNET",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "5938",
-      "true_label": "CONFOUNDER",
+      "account_id": "131",
+      "true_label": "CONFOUNDER_SUBNET",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "569",
-      "true_label": "CONFOUNDER",
+      "account_id": "31",
+      "true_label": "CONFOUNDER_SUBNET",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "2559",
-      "true_label": "CONFOUNDER",
+      "account_id": "4",
+      "true_label": "CONFOUNDER_SUBNET",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "5376",
-      "true_label": "CONFOUNDER",
+      "account_id": "161",
+      "true_label": "CONFOUNDER_CERT_ISSUER",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "3626",
-      "true_label": "CONFOUNDER",
+      "account_id": "16",
+      "true_label": "CONFOUNDER_CERT_ISSUER",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "7955",
-      "true_label": "CONFOUNDER",
+      "account_id": "43",
+      "true_label": "CONFOUNDER_CERT_ISSUER",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "1614",
-      "true_label": "CONFOUNDER",
+      "account_id": "127",
+      "true_label": "CONFOUNDER_CERT_ISSUER",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "2278",
-      "true_label": "CONFOUNDER",
+      "account_id": "188",
+      "true_label": "CONFOUNDER_CERT_ISSUER",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "5061",
-      "true_label": "CONFOUNDER",
+      "account_id": "9080",
+      "true_label": "CONFOUNDER_CERT_ISSUER",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "6406",
-      "true_label": "CONFOUNDER",
+      "account_id": "48",
+      "true_label": "CONFOUNDER_CERT_ISSUER",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "3965",
-      "true_label": "CONFOUNDER",
+      "account_id": "111",
+      "true_label": "CONFOUNDER_CERT_ISSUER",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "2220",
-      "true_label": "CONFOUNDER",
+      "account_id": "6",
+      "true_label": "CONFOUNDER_CERT_ISSUER",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "5833",
-      "true_label": "CONFOUNDER",
+      "account_id": "197",
+      "true_label": "CONFOUNDER_CERT_ISSUER",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "3189",
-      "true_label": "TN",
+      "account_id": "38",
+      "true_label": "EDGE_ALL_NONE",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "8187",
+      "account_id": "123",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "7113",
+      "account_id": "13",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "2310",
+      "account_id": "37",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "2264",
+      "account_id": "154",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "2067",
+      "account_id": "70",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "7544",
+      "account_id": "62",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "6207",
+      "account_id": "198",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "3983",
+      "account_id": "33",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "313",
+      "account_id": "192",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "9052",
+      "account_id": "173",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "4581",
+      "account_id": "61",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "8215",
+      "account_id": "11",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "6667",
+      "account_id": "145",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "907",
+      "account_id": "162",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "1346",
+      "account_id": "53",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "4133",
+      "account_id": "126",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "3533",
+      "account_id": "107",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "3356",
+      "account_id": "74",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "3232",
+      "account_id": "114",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "2353",
+      "account_id": "106",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "7116",
+      "account_id": "96",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "6582",
+      "account_id": "104",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "3833",
+      "account_id": "146",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "1740",
+      "account_id": "44",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "3657",
+      "account_id": "1",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "2916",
+      "account_id": "163",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "810",
+      "account_id": "195",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "3577",
+      "account_id": "17",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "7440",
+      "account_id": "81",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "6022",
+      "account_id": "103",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "4628",
+      "account_id": "39",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "2730",
+      "account_id": "158",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "510",
+      "account_id": "178",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "2027",
+      "account_id": "136",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "9048",
+      "account_id": "79",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "2035",
+      "account_id": "116",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "2932",
+      "account_id": "20",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "8696",
+      "account_id": "15",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "7333",
+      "account_id": "179",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "4085",
+      "account_id": "147",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "1483",
+      "account_id": "181",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "6096",
+      "account_id": "66",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "7840",
+      "account_id": "85",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "3991",
+      "account_id": "176",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "1006",
+      "account_id": "47",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "5860",
+      "account_id": "105",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "3828",
+      "account_id": "80",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "8982",
+      "account_id": "55",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "5947",
+      "account_id": "175",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "4262",
+      "account_id": "86",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "5459",
+      "account_id": "119",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "8979",
+      "account_id": "110",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "906",
+      "account_id": "134",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "5012",
+      "account_id": "143",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "7834",
+      "account_id": "34",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "9050",
+      "account_id": "19",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "8450",
+      "account_id": "141",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "495",
+      "account_id": "124",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "3269",
+      "account_id": "177",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "3867",
+      "account_id": "64",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "5755",
+      "account_id": "84",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "3977",
+      "account_id": "149",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "5640",
+      "account_id": "101",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "882",
+      "account_id": "157",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "8445",
+      "account_id": "73",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "5347",
+      "account_id": "28",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "2785",
+      "account_id": "186",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "4913",
+      "account_id": "113",
       "true_label": "TN",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null
     },
     {
-      "account_id": "1334",
-      "true_label": "TN",
+      "account_id": "UNSIGNED_APK_EDGE_TEST",
+      "true_label": "EDGE_UNSIGNED_APK",
       "ground_truth_should_link": false,
       "matcher_predicted_link": false,
       "matched_on": null

@@ -6605,6 +6605,72 @@
       "rule_validated": true,
       "recommended_action": "Low risk \u2014 no action required",
       "investigator_status": "CLEARED"
+    },
+    {
+      "alert_id": "fc755338-01a1-43fd-bfa8-d448f939ffae",
+      "account_id_raw": "9072",
+      "account_id_hash": "b497e837b02f6653",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.5887,
+      "risk_tier": "T3",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "F531 <= 0.3275 AND F2956 <= 4.25 AND F3894 <= 6.5",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Enhanced review \u2014 assign to fraud desk investigator",
+      "investigator_status": "PENDING_REVIEW"
+    },
+    {
+      "alert_id": "956ebcf8-ec22-42b3-9132-01520b345ec7",
+      "account_id_raw": "9080",
+      "account_id_hash": "6a776f45adc50a8b",
+      "model_version": "v2.0.0-xgb-platt-graph",
+      "risk_score": 0.5875,
+      "risk_tier": "T3",
+      "shap_drivers": [
+        {
+          "feature": "F531",
+          "driver_value": "+0.22"
+        },
+        {
+          "feature": "F2956",
+          "driver_value": "+0.14"
+        },
+        {
+          "feature": "graph_betweenness",
+          "driver_value": "+0.18"
+        }
+      ],
+      "counterfactual": "F115 <= 0.25 AND F527 <= 0.0 AND F3836 <= 0.0",
+      "regulatory_refs": [
+        "I4C-2026-ALERT",
+        "NPCI-MULE-FEED"
+      ],
+      "generated_rules": [
+        "SetuGuard_YARA_Rule_01.yar"
+      ],
+      "rule_validated": true,
+      "recommended_action": "Enhanced review \u2014 assign to fraud desk investigator",
+      "investigator_status": "PENDING_REVIEW"
     }
   ]
 }
