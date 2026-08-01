@@ -47,9 +47,10 @@ import numpy as np
 import pandas as pd
 from flask import Flask, jsonify, request
 from flask_cors import CORS
+from werkzeug.utils import secure_filename
 import logging
 
-sys.path.insert(0, str(Path(__file__).parent / "setuguard_ps1"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "setuguard_ps1"))
 
 import static_analysis  # noqa: E402
 import yara_gen  # noqa: E402
@@ -294,7 +295,7 @@ def analyze_apk_endpoint():
     if "apk" not in request.files:
         return jsonify({"error": "no 'apk' file in request"}), 400
     f = request.files["apk"]
-    dest = UPLOAD_DIR / f.filename
+    dest = UPLOAD_DIR / secure_filename(f.filename)
     f.save(dest)
     try:
         features = static_analysis.analyze_apk(str(dest))
@@ -593,4 +594,4 @@ def health():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="127.0.0.1", port=5000, debug=False)

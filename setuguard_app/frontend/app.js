@@ -106,7 +106,6 @@ apkBtn.addEventListener("click", async () => {
     console.error("APK analysis error", e);
     statusEl.className = "status error";
     statusEl.textContent = `${e.message || e} ` + (state.backendOnline === false ? "(is the backend running? check Settings for the base URL)" : "");
-    statusEl.textContent += ` [url=${api("/api/analyze_apk")}]`;
   } finally {
     apkBtn.disabled = false;
   }
@@ -200,7 +199,6 @@ csvBtn.addEventListener("click", async () => {
     console.error("Dataset analysis error", e);
     statusEl.className = "status error";
     statusEl.textContent = `${e.message || e}`;
-    statusEl.textContent += ` [url=${api("/api/analyze_dataset")}]`;
   } finally {
     csvBtn.disabled = false;
   }
@@ -272,7 +270,7 @@ ALERT   account <span class="k">${esc(d.account_hash)}</span>   tier <span class
     renderDashboard();
   } catch (e) {
     console.error("Bridge error", e);
-    el.innerHTML = `<p class="status error">${esc(e.message || e)} [url=${api("/api/bridge")} ]</p>`;
+    el.innerHTML = `<p class="status error">${esc(e.message || e)}</p>`;
   }
 });
 
