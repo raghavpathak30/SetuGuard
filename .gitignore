@@ -26,6 +26,8 @@ setuguard_ps1/baseline/
 setuguard_ps1/baseline_v2/
 setuguard_ps1/out/
 setuguard_ps1/fix3_fp_baseline/
+setuguard_ps1/fix3_fp_baseline_run.log
+setuguard_ps1/d2_ab_results/
 
 # =====================================================================
 # Unexplained top-level binary (6.5MB, identifies as PostScript, purpose

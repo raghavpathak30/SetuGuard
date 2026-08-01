@@ -75,6 +75,7 @@ def generate_report(features: dict) -> dict:
                 {"role": "user", "content": user_prompt},
             ],
             format=REPORT_SCHEMA,
+            options={"temperature": 0, "seed": 42},
         )
         model_json = json.loads(resp.message.content)
     except Exception as e:

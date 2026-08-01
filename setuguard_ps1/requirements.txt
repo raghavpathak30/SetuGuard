@@ -1,0 +1,29 @@
+# SetuGuard PS1 — pinned dependencies (D8)
+#
+# Generated from `python3 -m pip show <pkg>` output actually run on this machine
+# (Week-2 session, 2026-07-26) — every version below is an installed, verified
+# fact, not a guess. Re-verify with the same command if this drifts.
+#
+# Install (Debian/Parrot "externally-managed-environment", PEP 668 — plain `pip
+# install` is blocked here):
+#
+#   python3 -m pip install --break-system-packages -r requirements.txt
+#
+# Ollama + models are a SEPARATE, non-pip install — this file does not cover them:
+#
+#   systemctl status ollama   # must show 'active'
+#   ollama pull mistral
+#   ollama pull nomic-embed-text
+#
+# Note: `yara-python` installs as 4.5.1 via pip, but this machine's runtime
+# `import yara; yara.__version__` reports 4.5.2 (one patch ahead) — a pre-existing,
+# previously-noted drift (CONTEXT.md), not something this file can pin further;
+# recorded here for traceability.
+
+androguard==4.1.4
+asn1crypto==1.5.1
+faiss-cpu==1.14.3
+loguru==0.7.3
+numpy==2.2.4
+ollama==0.6.2
+yara-python==4.5.1
