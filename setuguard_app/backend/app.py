@@ -239,12 +239,26 @@ def _target_banking_apps(features: dict):
     hits = set()
     haystack = " ".join(
         [s["value"] for s in features["suspicious_strings"]]
-        + [c["name"] for c in features["exported_components"]]
+        # exported_components[].name can be None (FROZEN_FILE_FINDINGS.md Finding 2 —
+        # androguard returns None when a manifest node has no android:name attribute).
+        + [c["name"] for c in features["exported_components"] if c["name"]]
     ).lower()
     for kw in BANKING_APP_KEYWORDS:
         if kw.lower() in haystack:
             hits.add(kw.rstrip("."))
     return sorted(hits)
+
+
+def _safe_field(fn, default, field_name: str):
+    """Run a response-field enrichment helper; on any exception, log it and
+    degrade that one field to `default` instead of failing the whole
+    /api/analyze_apk response. A malformed APK should produce a report with
+    one empty field, not a 500."""
+    try:
+        return fn()
+    except Exception:
+        logging.exception(f"Field enrichment failed for {field_name!r}; degrading to default")
+        return default
 
 
 def _adapt_apk_response(features: dict, report: dict, yar_text, elapsed: float) -> dict:
@@ -291,12 +305,18 @@ def _adapt_apk_response(features: dict, report: dict, yar_text, elapsed: float) 
         "cert_sha256": (features["certificate"] or {}).get("sha256"),
         "risk_score": score,
         "severity": severity,
-        "family_verdict": _family_guess(features, report),
+        "family_verdict": _safe_field(
+            lambda: _family_guess(features, report), "Unknown (enrichment failed)", "family_verdict"),
         "dangerous_permissions": features["dangerous_permissions"],
-        "target_banking_apps": _target_banking_apps(features),
-        "c2_candidates": [s["value"] for s in features["suspicious_strings"] if s["kind"] in ("url", "ip")],
-        "api_iocs": sorted({f"{a['class']}->{a['method']}" for a in features["suspicious_apis"]}),
-        "mitre": _mitre_rows(features),
+        "target_banking_apps": _safe_field(
+            lambda: _target_banking_apps(features), [], "target_banking_apps"),
+        "c2_candidates": _safe_field(
+            lambda: [s["value"] for s in features["suspicious_strings"] if s["kind"] in ("url", "ip")],
+            [], "c2_candidates"),
+        "api_iocs": _safe_field(
+            lambda: sorted({f"{a['class']}->{a['method']}" for a in features["suspicious_apis"]}),
+            [], "api_iocs"),
+        "mitre": _safe_field(lambda: _mitre_rows(features), [], "mitre"),
         "report": {"narrative": narrative or ["No significant findings."], "recommendations": recommendations},
         "yara": {
             "rule_name": f"SetuGuard_{re.sub(r'[^A-Za-z0-9]', '_', features['package_name'] or 'unknown')}",
