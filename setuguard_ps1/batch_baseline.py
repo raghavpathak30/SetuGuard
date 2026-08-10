@@ -18,7 +18,17 @@ If results.csv/skips.csv already have rows for a filename, that sample is
 skipped on the next invocation (resume-by-skip), so a killed run can simply be
 re-launched.
 
-Outputs to ~/BOIhackathon/setuguard_ps1/baseline_v2/ (OUT_DIR, unchanged):
+Optional CLI args (2026-08-10, for the D1 before/after comparison harness):
+  --sample-list <file>  Read (path,label) pairs from this file instead of
+                         glob-sorting BENIGN_DIR/MALICIOUS_DIR. One
+                         "path,label" per line; "#"-prefixed lines ignored.
+                         Default (omitted): unchanged glob-sort-first-N
+                         selection below.
+  --out-dir <dir>       Write results.csv/skips.csv/etc. here instead of the
+                         default baseline_v2/. Default (omitted): unchanged.
+
+Outputs to ~/BOIhackathon/setuguard_ps1/baseline_v2/ (OUT_DIR, unless
+--out-dir overrides it):
   - results.csv                    one row per successfully processed apk
   - skips.csv                      one row per apk that failed a stage, with reason
   - heartbeat.log                  one line per sample attempt (success or skip)
@@ -30,6 +40,7 @@ Outputs to ~/BOIhackathon/setuguard_ps1/baseline_v2/ (OUT_DIR, unchanged):
   - one_real_sample.features.json  a full features.json from one malicious
                                     sample, for the frozen-schema reference
 """
+import argparse
 import csv
 import json
 import os
@@ -73,7 +84,25 @@ EXPORTED_COMPONENT_SCHEMA = {"type": str, "name": str, "intent_actions": list}
 # ========================================================================
 
 
-def _select_samples():
+def _parse_args():
+    p = argparse.ArgumentParser()
+    p.add_argument("--sample-list", type=Path, default=None,
+                    help="Path to a 'path,label' file overriding the default glob-sort selection.")
+    p.add_argument("--out-dir", type=Path, default=None,
+                    help="Override OUT_DIR (default: baseline_v2/ next to this script).")
+    return p.parse_args()
+
+
+def _select_samples(sample_list_path=None):
+    if sample_list_path:
+        samples = []
+        for line in sample_list_path.read_text().splitlines():
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            path_str, label = line.rsplit(",", 1)
+            samples.append((Path(path_str), label))
+        return samples
     benign = sorted(BENIGN_DIR.glob("*.apk"))[:NUM_BENIGN]
     malicious = sorted(MALICIOUS_DIR.glob("*.apk"))[:NUM_MALICIOUS]
     return [(p, "benign") for p in benign] + [(p, "malicious") for p in malicious]
@@ -176,10 +205,21 @@ def _read_all_skips():
 
 
 def main():
+    global OUT_DIR, RESULTS_CSV, SKIPS_CSV, HEARTBEAT_LOG, PID_FILE, SAMPLE_FEATURES_JSON
+
+    args = _parse_args()
+    if args.out_dir:
+        OUT_DIR = args.out_dir
+        RESULTS_CSV = OUT_DIR / "results.csv"
+        SKIPS_CSV = OUT_DIR / "skips.csv"
+        HEARTBEAT_LOG = OUT_DIR / "heartbeat.log"
+        PID_FILE = OUT_DIR / "batch_baseline.pid"
+        SAMPLE_FEATURES_JSON = OUT_DIR / "one_real_sample.features.json"
+
     OUT_DIR.mkdir(exist_ok=True)
     PID_FILE.write_text(str(os.getpid()))
 
-    all_samples = _select_samples()
+    all_samples = _select_samples(args.sample_list)
     already_done = _already_processed_filenames()
     remaining = [(p, label) for (p, label) in all_samples if p.name not in already_done]
 

@@ -1,0 +1,102 @@
+# harness/sample_set_86.txt
+# Explicit, deterministic 86-sample set used for the D1 before/after verdict-distribution
+# comparison (SetuGuard, 2026-08-10). Reproduces batch_baseline.py's _select_samples()
+# exactly: sorted-glob first 40 from fdroid_benign_apks/, sorted-glob first 50 from
+# cicmaldroid_banking/, minus 4 malicious APKs that permanently fail static_analysis
+# (InvalidInstruction / corrupt Dalvik bytecode -- confirmed via setuguard_ps1/baseline_v2/skips.csv,
+# unrelated to RAG/rule-scoring/the D1 inversion). Format: path,label
+#
+# Excluded (4 malicious, permanently unparseable):
+#   020509362bbbfffa005a8aa6fee3d64a18db8c50640e2e03a0bbc86d0d280016.apk
+#   022a1f9bdd22c0275e5a28890daf441aca7f79f833500d2a60c3fcf944fafa63.apk
+#   0343f9de21b43cfaeb21f7ad11871b43449a31b8da6bfeade1d61ad8bcc44e2d.apk
+#   034a3126b9cb2019ffac82e3850fea3349a6606100a8e2ced322450795c1c42f.apk
+#
+# Totals: 40 benign + 46 malicious = 86
+
+/home/raghavp/BOIhackathon/fdroid_benign_apks/InfinityLoop1309.NewPipeEnhanced_110004.apk,benign
+/home/raghavp/BOIhackathon/fdroid_benign_apks/S.N.A.K.E_1000001.apk,benign
+/home/raghavp/BOIhackathon/fdroid_benign_apks/SVS.pdfinspector_9.apk,benign
+/home/raghavp/BOIhackathon/fdroid_benign_apks/a2dp.Vol_169.apk,benign
+/home/raghavp/BOIhackathon/fdroid_benign_apks/ac.mdiq.Podcini.A_66.apk,benign
+/home/raghavp/BOIhackathon/fdroid_benign_apks/ac.mdiq.podcini.X_323.apk,benign
+/home/raghavp/BOIhackathon/fdroid_benign_apks/ac.robinson.mediaphone_65.apk,benign
+/home/raghavp/BOIhackathon/fdroid_benign_apks/ac.stresa.uturn_11.apk,benign
+/home/raghavp/BOIhackathon/fdroid_benign_apks/acab.naiveha.subrosa_7.apk,benign
+/home/raghavp/BOIhackathon/fdroid_benign_apks/acab.naiveha.subrosa_8.apk,benign
+/home/raghavp/BOIhackathon/fdroid_benign_apks/acidburn.stims_5.apk,benign
+/home/raghavp/BOIhackathon/fdroid_benign_apks/acr.browser.lightning_101.apk,benign
+/home/raghavp/BOIhackathon/fdroid_benign_apks/ademar.bitac_8.apk,benign
+/home/raghavp/BOIhackathon/fdroid_benign_apks/ademar.textlauncher_10.apk,benign
+/home/raghavp/BOIhackathon/fdroid_benign_apks/agersant.polaris_415293156.apk,benign
+/home/raghavp/BOIhackathon/fdroid_benign_apks/agrigolo.chubbyclick_28.apk,benign
+/home/raghavp/BOIhackathon/fdroid_benign_apks/agrigolo.opendrummer_3.apk,benign
+/home/raghavp/BOIhackathon/fdroid_benign_apks/ai.agent1c.hitomi.open_6.apk,benign
+/home/raghavp/BOIhackathon/fdroid_benign_apks/ai.privatebydesign.albi_53.apk,benign
+/home/raghavp/BOIhackathon/fdroid_benign_apks/allen.town.focus.mastodon_1630.apk,benign
+/home/raghavp/BOIhackathon/fdroid_benign_apks/allen.town.focus.podcast_70.apk,benign
+/home/raghavp/BOIhackathon/fdroid_benign_apks/alt.nainapps.aer_1735160000.apk,benign
+/home/raghavp/BOIhackathon/fdroid_benign_apks/alt.nainapps.sharepaste.fdroid_1734722268.apk,benign
+/home/raghavp/BOIhackathon/fdroid_benign_apks/amirz.dngprocessor_5.apk,benign
+/home/raghavp/BOIhackathon/fdroid_benign_apks/amirz.rootless.nexuslauncher_30911.apk,benign
+/home/raghavp/BOIhackathon/fdroid_benign_apks/androdns.android.leetdreams.ch.androdns_27.apk,benign
+/home/raghavp/BOIhackathon/fdroid_benign_apks/android.jonas.fakestandby_14.apk,benign
+/home/raghavp/BOIhackathon/fdroid_benign_apks/anonvpn.anon_next.android_22.apk,benign
+/home/raghavp/BOIhackathon/fdroid_benign_apks/anupam.acrylic_19.apk,benign
+/home/raghavp/BOIhackathon/fdroid_benign_apks/app.agneldev.kochitransitgo_1.apk,benign
+/home/raghavp/BOIhackathon/fdroid_benign_apks/app.alextran.immich_3046.apk,benign
+/home/raghavp/BOIhackathon/fdroid_benign_apks/app.areada_13.apk,benign
+/home/raghavp/BOIhackathon/fdroid_benign_apks/app.bitbag_283.apk,benign
+/home/raghavp/BOIhackathon/fdroid_benign_apks/app.cclauncher_1290.apk,benign
+/home/raghavp/BOIhackathon/fdroid_benign_apks/app.clauncher_430.apk,benign
+/home/raghavp/BOIhackathon/fdroid_benign_apks/app.cleartray_343.apk,benign
+/home/raghavp/BOIhackathon/fdroid_benign_apks/app.comaps.fdroid_26060511.apk,benign
+/home/raghavp/BOIhackathon/fdroid_benign_apks/app.crescentcash.src_120.apk,benign
+/home/raghavp/BOIhackathon/fdroid_benign_apks/app.crossword.yourealwaysbe.forkyz_8400000.apk,benign
+/home/raghavp/BOIhackathon/fdroid_benign_apks/app.crossword.yourealwaysbe.forkyzscanner_8.apk,benign
+/home/raghavp/BOIhackathon/cicmaldroid_banking/00049d038a2abc2d5fe3b190d6cf5c1cb1ba63441defdf136be251c7a00727d8.apk,malicious
+/home/raghavp/BOIhackathon/cicmaldroid_banking/000aec00a2b667aaf1224974aba7ee30b4b088e073368c605ee335fb8ee11b54.apk,malicious
+/home/raghavp/BOIhackathon/cicmaldroid_banking/002ca15a26a80f025a45041df9bee5120653393c5ca41bdaca5f79ddda6d2731.apk,malicious
+/home/raghavp/BOIhackathon/cicmaldroid_banking/007556ca146f4b2e9ac6bd51dc66be5130538d514f5aa04d60c1a0b079585ef3.apk,malicious
+/home/raghavp/BOIhackathon/cicmaldroid_banking/0076a7acfa0d6fbcdf0dac7eee15d4ab3659972dfe554092dfaba1f246f7d6f0.apk,malicious
+/home/raghavp/BOIhackathon/cicmaldroid_banking/007cbb5aa78955813e47d9a7c33c2ddd7356192f1e923b10362109110f985b28.apk,malicious
+/home/raghavp/BOIhackathon/cicmaldroid_banking/0084e4fa19aa0434a36129a7cf567c40214550d454d0e6d1b87b0b42e747e84c.apk,malicious
+/home/raghavp/BOIhackathon/cicmaldroid_banking/00a7e3502f9f149fd068f8ffe1f3bb2004385cbcf7957c40db5728444ab96b12.apk,malicious
+/home/raghavp/BOIhackathon/cicmaldroid_banking/00e756152938b434d2d41dbefdbccbcf615b639f8bdd3b1e724813649fc5b97a.apk,malicious
+/home/raghavp/BOIhackathon/cicmaldroid_banking/00f76d4df8c008703ec48228311172e60eb17a2f8ed79cbede350d022a8fd20e.apk,malicious
+/home/raghavp/BOIhackathon/cicmaldroid_banking/010dd1a69a37b88083c93eabe6f539f1c1aabfc6f02c3a132dfd38a0f9cc0b4d.apk,malicious
+/home/raghavp/BOIhackathon/cicmaldroid_banking/01197158a830b73b55e28918f2db8b50b78d9564325535560932d189cf2169c7.apk,malicious
+/home/raghavp/BOIhackathon/cicmaldroid_banking/0127431f16c0f28fd9f3c104b20866ae733dcff4beefd67b6e1bb96c6dd932eb.apk,malicious
+/home/raghavp/BOIhackathon/cicmaldroid_banking/0146c73dcebc9a67726b8255445ea1bae590a8c7e50eb78b2c9880908f018a93.apk,malicious
+/home/raghavp/BOIhackathon/cicmaldroid_banking/01576d7a2a47e63d6b2c977475c850f980d91e22b144de8348065c6389185be6.apk,malicious
+/home/raghavp/BOIhackathon/cicmaldroid_banking/015c7a94adfa26b4279add7a0ab57133a9e5cd2b403b90b4411cb1a7814defdf.apk,malicious
+/home/raghavp/BOIhackathon/cicmaldroid_banking/015cbe3299af787a290a301007cceaadbf47830f90c32401c8c895999702d8a6.apk,malicious
+/home/raghavp/BOIhackathon/cicmaldroid_banking/01859e59a5f7d4afaaf4e912d2a247ab82cb9c4667ad0067a73871a4dc50f76c.apk,malicious
+/home/raghavp/BOIhackathon/cicmaldroid_banking/01c2f0d0c40b5c8086ee8306fa732098c1b71c5d1e7cb5e9969a8a5e14bf4b96.apk,malicious
+/home/raghavp/BOIhackathon/cicmaldroid_banking/01dcb58f06665ddfcc8843c8244a1cdfd956f0fd574ceea118c0a510edc09ec7.apk,malicious
+/home/raghavp/BOIhackathon/cicmaldroid_banking/0201bc29b3b772097a9bdd3de25778920aec9738ccd72bb4e1bacaaddea0b9b9.apk,malicious
+/home/raghavp/BOIhackathon/cicmaldroid_banking/0238bf1c85a9bc2fb7ce389e65288a4511d0c18fe2366a0180aefa1f17c32e82.apk,malicious
+/home/raghavp/BOIhackathon/cicmaldroid_banking/025e50ea6f99b5bcd7bd54dc234c205ece5fa94b09119c53318cfc00991afcdd.apk,malicious
+/home/raghavp/BOIhackathon/cicmaldroid_banking/025eed2000a2833fb64223b991501d78e22e440051e02f466fb5261198d9be45.apk,malicious
+/home/raghavp/BOIhackathon/cicmaldroid_banking/027eb8cdda6757404258914edeb5c4abd3e5e1dbf3eb63bd3774bf7b1d6179a0.apk,malicious
+/home/raghavp/BOIhackathon/cicmaldroid_banking/028b9ac5a13037e4a964f7aed78464a3a923a38334a5e25ddabc176390afe1af.apk,malicious
+/home/raghavp/BOIhackathon/cicmaldroid_banking/02939992e72ab76700664f8357a3484d91b4dcd1d080acdf95fb8992a8ab41a1.apk,malicious
+/home/raghavp/BOIhackathon/cicmaldroid_banking/0297b767436fc1028cf7400a80a46681a3a7573fe81b86bb49fb48c4ca0a41e1.apk,malicious
+/home/raghavp/BOIhackathon/cicmaldroid_banking/02a3ae0d4ee42a2b43eb6d73238705e8ed848e454cfb392bd97ea04d562bf038.apk,malicious
+/home/raghavp/BOIhackathon/cicmaldroid_banking/02af2eef6bef09822756db10f8fcc6e15f6bd034bb1cadd3fbf1737bcf0604db.apk,malicious
+/home/raghavp/BOIhackathon/cicmaldroid_banking/031429ef084d4f4780755b8dff3cd7707a4fa437326edffe8a3f2a477ef50c54.apk,malicious
+/home/raghavp/BOIhackathon/cicmaldroid_banking/032048f2a8854acb8186e288c40815e2b7e05dade1d1dedbc3bea5fae5e1d59b.apk,malicious
+/home/raghavp/BOIhackathon/cicmaldroid_banking/033339a8a880f4f79b9cf6d26b27c4e90bf102653aade35ba660695c252cb763.apk,malicious
+/home/raghavp/BOIhackathon/cicmaldroid_banking/03360863d340eb0c3f6408b8be42846ded9fc8ea9deb08ad6138332bcc69705f.apk,malicious
+/home/raghavp/BOIhackathon/cicmaldroid_banking/03767cf834df7b50898732d7eece35cf82708cc7e83fca277c5f51786f7d2812.apk,malicious
+/home/raghavp/BOIhackathon/cicmaldroid_banking/03c9e4f7e3649c4189dc78b6c32ae963c0a03bb67a04612ce0510e9632762865.apk,malicious
+/home/raghavp/BOIhackathon/cicmaldroid_banking/03e702ca00e39c95b4683fe538cd47eb385cffcc47ab3a6a293908d63801bcf7.apk,malicious
+/home/raghavp/BOIhackathon/cicmaldroid_banking/04205e4d6749cca28254aff8a36043ad47a08e4f131aaf6f8339803af5aba4f2.apk,malicious
+/home/raghavp/BOIhackathon/cicmaldroid_banking/04902eb4daae25cbd619589c2844e636f599923a739cd958c2599ef64b508f56.apk,malicious
+/home/raghavp/BOIhackathon/cicmaldroid_banking/049e8b3228024dca4cfdc26fd9dae76e01f147f7c413e99b2b94e6b9044f0234.apk,malicious
+/home/raghavp/BOIhackathon/cicmaldroid_banking/04cefd50e59b9cc09e188e9652934704e430e0c884200811896b9f19a2d0f89f.apk,malicious
+/home/raghavp/BOIhackathon/cicmaldroid_banking/04d7ec12ce08dad04e7836fca5fac5b87108ae6a7a137275292df4da9cd5007e.apk,malicious
+/home/raghavp/BOIhackathon/cicmaldroid_banking/04eea5b3192bf22d54fc833f3dd4754f866e4d973779944d47990e21d556e97a.apk,malicious
+/home/raghavp/BOIhackathon/cicmaldroid_banking/050d33b65220a312aa5740c62182ec5d5fc45344f3782b05a70cb08890c36082.apk,malicious
+/home/raghavp/BOIhackathon/cicmaldroid_banking/0561f67d81d477d4ef3a3b2a7c52ffe48cfce11c37f5f54bc9b26efd714c8e30.apk,malicious
+/home/raghavp/BOIhackathon/cicmaldroid_banking/05832e6d219af1c1a856ec370c18a7537b5bf63034f1345d063e249469dbff05.apk,malicious

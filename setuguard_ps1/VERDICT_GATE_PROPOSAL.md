@@ -1,5 +1,18 @@
 # Verdict Gate Proposal — Week 2 (D1)
 
+> **SUPERSEDED (2026-08-10) — Section 0's non-determinism numbers below were measured
+> under unpinned sampling and do not reflect current behavior.** Commit `729b9b8` ("Week
+> 2: complete baseline_v2, pin RAG determinism, build D4/D2 harnesses, measure Fix #3
+> before-number", 2026-07-27) added `options={"temperature": 0, "seed": 42}` to
+> `rag_report.py`'s `ollama.chat()` call. Post-pin verification (`FROZEN_FILE_FINDINGS.md`
+> Finding 3) confirms verdict + confidence are now bit-for-bit deterministic across repeats.
+> **The `cited_chunk_ids` instability described below is a separate, still-open issue** —
+> the pin did not fix it (same Finding 3's post-edit result: 1/3 pairs still diverged), and
+> its root cause is documented separately in Finding 4 (`cited_chunk_ids` is
+> schema-unconstrained in `report_prompt.py`'s `REPORT_SCHEMA`). This document is kept as
+> historical record of the pre-pin measurement, not deleted — do not cite its Section 0
+> numbers as current.
+
 **Status: PROPOSAL ONLY. No code was changed to produce or act on this document.** D1's
 verdict behavior is a team decision, not something this session resolves unilaterally. This
 document exists to hand the team measured evidence, candidate options, and their measured
