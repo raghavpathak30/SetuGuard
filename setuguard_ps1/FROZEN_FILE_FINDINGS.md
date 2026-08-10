@@ -260,6 +260,33 @@ supports) — that's a `report_prompt.py`/`REPORT_SCHEMA` change, i.e. touches a
 and needs the same weight of sign-off as Findings 1/2. Filed here so it isn't lost, not queued for
 action this session.
 
+**APPLIED (2026-08-10, sign-off given, narrow one-line-shape edit):** `report_prompt.py:36-41`'s
+`cited_chunk_ids` item schema now reads
+`{"type": "string", "enum": [c["id"] for c in CHUNKS]}`, generated from `knowledge_base.CHUNKS`
+at import time (not hardcoded, so it can't drift if `CHUNKS` changes) — `report_prompt.py` now
+imports `CHUNKS` from `knowledge_base.py`. Nothing else in the file changed (diff verified before
+and after write). Re-verified the finding was still accurate immediately before applying: same
+`baseline_v2_pinned/one_real_sample.features.json` sample, same pinned seed, still produced the
+fabricated `'T1636'` (truncated — the real id is `T1636.004`) both before this edit and in a
+fresh check right before it.
+
+**Post-edit verification result — fabrication eliminated, jitter not fully:**
+
+| Run | cited_chunk_ids | Bad (not in CHUNKS)? |
+|---|---|---|
+| 1 | `T1426, T1582, T1398, T1636.004` | none |
+| 2 | `T1426, T1582, T1398, T1636.004` | none |
+| 3 | `T1406, T1426, T1582, T1623, T1636.004` | none |
+
+Ollama's structured-output decoding **does honor the item-level enum** — 0/3 runs produced an id
+outside the legal 16, versus the pre-fix baseline (1/4 bad, the same `'T1636'` truncation,
+reproducible across repeats). The truncated-id fabrication mode is gone. Citation *jitter* is
+not fully gone, though: run 3 picked a different (still fully valid) subset than runs 1-2 on the
+identical pinned input — the same class of residual llama.cpp/Ollama non-determinism Finding 3
+already documented for this field, just without ever landing on an illegal token now. Grounding
+(`validate_report_grounding()`-equivalent check) is the property this finding actually targeted,
+and it now holds; exact-set stability was never this finding's claim to fix.
+
 ## Finding 5 — coupled two-file defect: control-byte over-capture + under-sanitization poisons rule generation and crashes YARA compilation, `static_analysis.py:82` + `yara_gen.py:35-39`
 
 ```python
@@ -345,5 +372,7 @@ edited to investigate or produce this finding.
   deterministic; `cited_chunk_ids` is not (see Finding 4 for why) — team judged this an acceptable,
   substantively-closed result for measurement purposes, since no downstream measurement reads
   `cited_chunk_ids`.
-- **Finding 4** (`cited_chunk_ids` schema-unconstrained) — parked research finding, **not applied**,
-  touches `report_prompt.py`.
+- **Finding 4** (`cited_chunk_ids` schema-unconstrained) — **applied** (2026-08-10): item schema
+  now has `enum: [the 16 CHUNKS ids]`, generated from `knowledge_base.CHUNKS`. Verified: 0/3
+  post-edit runs produced an id outside the legal 16 (was 1/4, reproducible fabrication,
+  pre-edit). Citation jitter among valid ids persists — not this finding's claim to fix.

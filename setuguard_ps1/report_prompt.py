@@ -3,6 +3,7 @@
 Holds only the prompt/schema contract with the LLM. No pipeline logic lives
 here (no ollama calls, no retrieval) — that's rag_report.py's job.
 """
+from knowledge_base import CHUNKS
 
 # ============================== SETTINGS ==============================
 
@@ -35,7 +36,11 @@ REPORT_SCHEMA = {
         },
         "cited_chunk_ids": {
             "type": "array",
-            "items": {"type": "string"},
+            # Generated from CHUNKS, not hardcoded, so this can't drift from the real
+            # 16 legal ids (FROZEN_FILE_FINDINGS.md Finding 4 — this field previously
+            # had no constraint at all, which is why it both hallucinated ids and
+            # jittered between identical pinned runs).
+            "items": {"type": "string", "enum": [c["id"] for c in CHUNKS]},
         },
     },
     "required": ["verdict", "confidence", "rationale", "cited_chunk_ids"],
