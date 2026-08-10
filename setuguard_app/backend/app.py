@@ -125,9 +125,14 @@ def _rule_based_verdict(features: dict) -> dict:
         "accessibility_service": 0.20, "installed_app_discovery": 0.10,
         "reflection": 0.05,
     }
+    # Score each distinct category once (at its existing weight), not once per
+    # call site — a legitimate app can have many reflection/accessibility call
+    # sites without that repetition itself being more suspicious. Rationale
+    # still lists every individual call site for the analyst.
+    seen_cats = {api["category"] for api in sapis}
+    for cat in seen_cats:
+        score += weight_by_cat.get(cat, 0.08)
     for api in sapis:
-        w = weight_by_cat.get(api["category"], 0.08)
-        score += w
         reasons.append(f"{api['category']} via {api['class']}.{api['method']} (called {api['call_count']}x)")
 
     strs = features["suspicious_strings"]
