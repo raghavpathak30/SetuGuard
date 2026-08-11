@@ -22,21 +22,23 @@ Design notes / honesty about what's real vs. adapted:
   `verdict_source`/`narrative_source` fields and in the report narrative
   itself.
 - PS2 (tanishka's scripts) were built against one specific hackathon dataset
-  (AMLworld, columns literally named F115/F321/...). The frontend, however,
-  is a generic "upload any CSV" tool. So /api/analyze_dataset here is a
-  *generalized* re-implementation of the same idea (leakage audit -> XGBoost
-  + SHAP -> risk tiers) that works on arbitrary tabular data, not a copy of
-  the hardcoded script. If your dataset really is the AMLworld one, this
-  will still work — it just auto-detects columns instead of hardcoding them.
-- Bridge (matcher.py from teammate-b) was an explicitly fake demo script
-  (its own comments say "Fake PS1 output" / "Fake PS2 output"). There is no
-  real device<->account linkage dataset anywhere in any of the five zips.
-  So /api/bridge here does the same IOC-overlap logic teammate-b wrote
-  (cert_hash / c2_host match), but applied to your *actual* last APK result
-  and *actual* last dataset result, with a clearly-labeled synthetic (but
-  deterministic, reproducible) linkage field standing in for the missing
-  real join key. This is the one place in the app that is still a
-  simulation — everything upstream of it (PS1 features, PS2 model) is real.
+  (AMLworld, columns literally named F115/F321/...). Description.xlsx (the
+  organizer's data dictionary) names the bank's 18 approved modelling
+  features precisely — see setuguard_app/backend/ps2_features.py. The model
+  is trained OFFLINE, once, on those 18 features by
+  harness/train_ps2_model.py, which writes a versioned artifact + holdout
+  metrics to models/. /api/analyze_dataset only LOADS that artifact and
+  scores whatever the caller uploads against it — there is no training, no
+  cross-validation, and no SHAP-explainer fitting inside the HTTP request;
+  the only per-request SHAP work is running the already-fitted TreeExplainer
+  forward over the uploaded rows, which is inference, not fitting.
+- Bridge (matcher.py from teammate-b) does real cert_hash / c2_host overlap
+  matching against SYNTHETIC_LINKAGE_GROUND_TRUTH (matcher.py's own
+  docstring explains why that ground truth is synthetic — no real
+  device<->account join key exists in any of the source repos). app.py
+  calls matcher.py's functions directly rather than reimplementing the
+  match; the link is CONDITIONAL — accounts that don't match on cert_hash or
+  c2_host produce no link, not a fabricated one.
 """
 import hashlib
 import io
@@ -57,9 +59,18 @@ from werkzeug.utils import secure_filename
 import logging
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "setuguard_ps1"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "bridge"))
 
 import static_analysis  # noqa: E402
 import yara_gen  # noqa: E402
+import matcher as bridge_matcher  # noqa: E402
+from ps2_features import (  # noqa: E402
+    BANK_FINALIZED_FEATURES,
+    CATEGORICAL_FEATURES,
+    EXCLUDED_ALERT_DERIVED,
+    EXCLUDED_LEAKY_FEATURES,
+    TARGET_COLUMN,
+)
 
 try:
     import yara as yara_engine
@@ -394,82 +405,87 @@ def analyze_apk_endpoint():
 
 
 # ===========================================================================
-# PS2 — mule/fraud (generalized: works on any uploaded CSV, not just AMLworld)
+# PS2 — mule/fraud. Scores against the bank's 18 approved features
+# (BANK_FINALIZED_FEATURES) using a model trained OFFLINE by
+# harness/train_ps2_model.py. No training, no CV, no SHAP-explainer fitting
+# happens in this process's request handlers — only artifact loading
+# (once, at import time, below) and inference.
 # ===========================================================================
 
-def _guess_label_column(df: pd.DataFrame, requested: str | None):
-    if requested and requested in df.columns:
-        return requested
-    candidates = [c for c in df.columns if re.search(r"(fraud|label|target|is_mule|mule|class)", c, re.I)]
-    for c in candidates:
-        vals = df[c].dropna().unique()
-        if len(vals) <= 2:
-            return c
-    for c in df.columns:
-        vals = df[c].dropna().unique()
-        if set(pd.unique(df[c].dropna())) <= {0, 1} and len(vals) == 2:
+MODELS_DIR = Path(__file__).resolve().parents[2] / "models"
+PS2_MODEL_VERSION = "ps2_xgb_v1"
+
+
+def _load_ps2_artifact(version: str = PS2_MODEL_VERSION):
+    from xgboost import XGBClassifier
+
+    model_path = MODELS_DIR / f"{version}.json"
+    metrics_path = MODELS_DIR / f"{version}_metrics.json"
+    if not model_path.exists() or not metrics_path.exists():
+        raise FileNotFoundError(
+            f"PS2 model artifact missing ({model_path} / {metrics_path}). "
+            f"Run `python3 harness/train_ps2_model.py` to generate it."
+        )
+    model = XGBClassifier()
+    model.load_model(str(model_path))
+    metrics = json.loads(metrics_path.read_text())
+    explainer_module = __import__("shap")
+    explainer = explainer_module.TreeExplainer(model)
+    return {
+        "model": model,
+        "metrics": metrics,
+        "explainer": explainer,
+        "encoded_feature_names": metrics["features"]["encoded_feature_names"],
+    }
+
+
+try:
+    PS2_ARTIFACT = _load_ps2_artifact()
+    logging.info(
+        f"PS2 artifact loaded: {PS2_MODEL_VERSION} "
+        f"(holdout AUCPR={PS2_ARTIFACT['metrics']['holdout_metrics']['aucpr']:.4f}, "
+        f"holdout AUROC={PS2_ARTIFACT['metrics']['holdout_metrics']['auroc']:.4f})"
+    )
+except Exception:
+    logging.exception("Failed to load PS2 model artifact at startup — /api/analyze_dataset will error")
+    PS2_ARTIFACT = None
+
+
+def _detect_row_id_column(columns) -> str | None:
+    if "Unnamed: 0" in columns:
+        return "Unnamed: 0"
+    for c in columns:
+        if re.search(r"^(account|customer|user)[_ ]?(id)?$", c, re.I):
             return c
     return None
 
 
-def _normalize_label_series(series: pd.Series) -> pd.Series | None:
-    # Return a Series aligned to the input index, with NA for unmapped/invalid rows.
-    if series.dtype.kind in "biufc":
-        cleaned = pd.to_numeric(series, errors="coerce").replace([np.inf, -np.inf], np.nan)
-        if cleaned.dropna().isin([0, 1]).all():
-            return cleaned.astype(pd.Int64Dtype())
-    text = series.astype(str).str.strip().str.lower()
-    mapping = {"0": 0, "1": 1, "false": 0, "true": 1, "no": 0, "yes": 1, "n": 0, "y": 1}
-    mapped = text.map(mapping)
-    if mapped.dropna().isin([0, 1]).all():
-        return mapped.astype(pd.Int64Dtype())
-    return None
+def _encode_ps2_features(df: pd.DataFrame, present_features: list) -> pd.DataFrame:
+    """Mirrors harness/train_ps2_model.py's encode_features exactly, then
+    reindexes to the trained model's exact column set so an upload with
+    missing/partial columns still produces a matrix the model can score.
+    Missing bank features become NaN (XGBoost's native missing-value
+    handling); missing one-hot category indicators become 0 (the category
+    wasn't observed for that row -> that indicator is false), not
+    fabricated averages."""
+    X = pd.DataFrame(index=df.index)
+    for c in BANK_FINALIZED_FEATURES:
+        if c in present_features:
+            X[c] = df[c]
+        # else: left absent here; reindex below fills it as NaN for numeric
+        # features, matching "missing bank feature -> missing value".
 
+    cat_present = [c for c in CATEGORICAL_FEATURES if c in present_features]
+    if cat_present:
+        X = pd.get_dummies(X, columns=cat_present, dummy_na=False)
 
-def _leakage_audit(df: pd.DataFrame, label_col: str | None):
-    findings, flagged = [], []
-    n = len(df)
-    for c in df.columns:
-        if c == label_col:
-            continue
-        # High-cardinality alone is not evidence of an identifier column: a
-        # continuous measurement (transaction amount, balance) is naturally
-        # ~100% unique too, and is exactly the kind of signal a fraud model
-        # needs. Only flag object/int columns as id-like — those are the
-        # dtypes real identifiers (account numbers, hashes, row indices)
-        # actually come in. Floats are left alone.
-        nunique = df[c].nunique(dropna=True)
-        is_float = pd.api.types.is_float_dtype(df[c])
-        if nunique >= n * 0.98 and n > 20 and not is_float:
-            findings.append({"signal": c, "type": "id_like", "evidence": f"{nunique}/{n} unique values",
-                              "disposition": "excluded (identifier, not predictive)"})
-            flagged.append(c)
-            continue
-        if label_col and pd.api.types.is_numeric_dtype(df[c]) and pd.api.types.is_numeric_dtype(df[label_col]):
-            try:
-                corr = df[[c, label_col]].dropna().corr().iloc[0, 1]
-            except Exception:
-                corr = np.nan
-            if pd.notna(corr) and abs(corr) > 0.9:
-                findings.append({"signal": c, "type": "target_proxy", "evidence": f"|corr with label| = {abs(corr):.2f}",
-                                  "disposition": "excluded (likely leaks the label)"})
-                flagged.append(c)
-    return findings, flagged
-
-
-def _prepare_matrix(df: pd.DataFrame, feature_cols: list):
-    X = df[feature_cols].copy()
-    obj_cols = X.select_dtypes(include="object").columns.tolist()
-    cat_cols = []
-    for c in obj_cols:
-        converted = pd.to_numeric(X[c], errors="coerce")
-        if converted.notna().mean() > 0.5:
-            X[c] = converted
-        else:
-            cat_cols.append(c)
-    if cat_cols:
-        X = pd.get_dummies(X, columns=cat_cols, dummy_na=True)
-    X = X.select_dtypes(include=[np.number]).fillna(0)
+    encoded_names = PS2_ARTIFACT["encoded_feature_names"]
+    dummy_cols = {c for c in encoded_names if any(c.startswith(f"{cat}_") for cat in CATEGORICAL_FEATURES)}
+    X = X.reindex(columns=encoded_names)
+    for c in dummy_cols:
+        X[c] = X[c].fillna(0)
+    numeric_cols = [c for c in encoded_names if c not in dummy_cols]
+    X[numeric_cols] = X[numeric_cols].astype(float)
     return X
 
 
@@ -485,109 +501,98 @@ def _assign_tier(p: float) -> str:
 
 @app.route("/api/analyze_dataset", methods=["POST"])
 def analyze_dataset_endpoint():
+    if PS2_ARTIFACT is None:
+        return jsonify({"error": "PS2 model artifact failed to load at startup — see server log; "
+                                  "run `python3 harness/train_ps2_model.py` and restart"}), 500
     if "dataset" not in request.files:
         return jsonify({"error": "no 'dataset' file in request"}), 400
     f = request.files["dataset"]
     requested_label = request.form.get("label_column") or None
     try:
-        df = pd.read_csv(io.BytesIO(f.read()))
+        raw_bytes = f.read()
+        header = pd.read_csv(io.BytesIO(raw_bytes), nrows=0).columns.tolist()
+
+        present_features = [c for c in BANK_FINALIZED_FEATURES if c in header]
+        missing_features = [c for c in BANK_FINALIZED_FEATURES if c not in header]
+        if not present_features:
+            return jsonify({
+                "error": "dataset has none of the bank's 18 approved feature columns "
+                         f"({', '.join(BANK_FINALIZED_FEATURES)}); this endpoint scores "
+                         "against that fixed schema, see setuguard_app/backend/ps2_features.py"
+            }), 400
+
+        label_col = TARGET_COLUMN if TARGET_COLUMN in header else (
+            requested_label if requested_label in header else None)
+        id_col = _detect_row_id_column(header)
+
+        usecols = list(dict.fromkeys(
+            present_features + ([id_col] if id_col else []) + ([label_col] if label_col else [])
+        ))
+        # Only the columns this endpoint actually uses are parsed — the
+        # uploaded CSV may have thousands of columns (DataSet.csv has
+        # 3,925); reading the rest into a DataFrame would be pure waste.
+        df = pd.read_csv(io.BytesIO(raw_bytes), usecols=usecols)
         if len(df) == 0:
             return jsonify({"error": "dataset is empty"}), 400
 
-        label_col = _guess_label_column(df, requested_label)
-        findings, flagged = _leakage_audit(df, label_col)
-        feature_cols = [c for c in df.columns if c != label_col and c not in flagged]
-        if not feature_cols:
-            return jsonify({"error": "no usable feature columns after leakage audit"}), 400
+        X = _encode_ps2_features(df, present_features)
+        scores = PS2_ARTIFACT["model"].predict_proba(X)[:, 1]
 
-        X = _prepare_matrix(df, feature_cols)
+        prevalence_pct = None
+        if label_col:
+            y = pd.to_numeric(df[label_col], errors="coerce")
+            if y.notna().any():
+                prevalence_pct = round(100 * float(y.mean()), 3)
 
-        n_cv_folds = 0
-        cv_aucpr_mean = None
-        shap_values = None
-        used_shap = False
-
-        if label_col is not None:
-            normalized_label = _normalize_label_series(df[label_col])
-        else:
-            normalized_label = None
-
-        if normalized_label is not None and normalized_label.dropna().nunique() == 2:
-            from sklearn.model_selection import StratifiedKFold
-            from sklearn.metrics import average_precision_score
-            from xgboost import XGBClassifier
-
-            # Use only rows where label is present for training, but predict on full X
-            mask = normalized_label.notna()
-            X_train = X.loc[mask]
-            y = normalized_label.loc[mask].astype(int).values
-
-            # cross-validation on the training subset
-            n_splits = min(5, int(np.bincount(y).min())) if len(np.bincount(y)) > 1 else 0
-            aucprs = []
-            if n_splits >= 2 and len(X_train) >= n_splits:
-                skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=42)
-                for tr, te in skf.split(X_train, y):
-                    m = XGBClassifier(n_estimators=150, max_depth=4, eval_metric="aucpr",
-                                       scale_pos_weight=max(1.0, (y == 0).sum() / max((y == 1).sum(), 1)))
-                    m.fit(X_train.iloc[tr], y[tr])
-                    p = m.predict_proba(X_train.iloc[te])[:, 1]
-                    aucprs.append(average_precision_score(y[te], p))
-                if aucprs:
-                    cv_aucpr_mean = float(np.mean(aucprs))
-                    n_cv_folds = n_splits
-
-            # Train on the labeled subset and predict probabilities over the full feature matrix
-            model = XGBClassifier(n_estimators=150, max_depth=4, eval_metric="aucpr",
-                                   scale_pos_weight=max(1.0, (y == 0).sum() / max((y == 1).sum(), 1)))
-            model.fit(X_train, y)
-            scores = model.predict_proba(X)[:, 1]
-            prevalence_pct = round(100 * y.mean(), 3)
-
-            try:
-                import shap
-                explainer = shap.TreeExplainer(model)
-                shap_values = explainer.shap_values(X)
-                used_shap = True
-            except Exception:
-                shap_values = None
-        else:
-            from sklearn.ensemble import IsolationForest
-            iso = IsolationForest(n_estimators=200, contamination="auto", random_state=42)
-            iso.fit(X)
-            raw = -iso.score_samples(X)
-            scores = (raw - raw.min()) / (raw.max() - raw.min() + 1e-9)
-            prevalence_pct = None
-            findings.append({"signal": "(no label column)", "type": "unsupervised_mode",
-                              "evidence": f"auto-detected label column: {label_col}",
-                              "disposition": "used IsolationForest anomaly scoring instead of XGBoost"})
+        excluded_present = [c for c in header if c in EXCLUDED_LEAKY_FEATURES or c in EXCLUDED_ALERT_DERIVED]
+        findings = []
+        if excluded_present:
+            findings.append({
+                "signal": ", ".join(excluded_present), "type": "excluded_by_design",
+                "evidence": f"{len(excluded_present)} post-resolution/alert-derived column(s) present in upload",
+                "disposition": "ignored — never selected into the model's feature matrix (see EXCLUDED_LEAKY_FEATURES / EXCLUDED_ALERT_DERIVED)",
+            })
+        if missing_features:
+            findings.append({
+                "signal": ", ".join(missing_features), "type": "missing_bank_feature",
+                "evidence": f"{len(missing_features)}/{len(BANK_FINALIZED_FEATURES)} bank-approved feature(s) absent from upload",
+                "disposition": "scored as missing (NaN) — XGBoost's native missing-value handling, not imputed with a guessed value",
+            })
+        if prevalence_pct is not None:
+            findings.append({
+                "signal": label_col, "type": "descriptive_only",
+                "evidence": f"{prevalence_pct}% positive in this upload",
+                "disposition": "reported for context only — NOT a model performance metric; the model's only "
+                                "validated performance numbers are the offline HOLDOUT metrics below, from "
+                                "models/ps2_xgb_v1_metrics.json, since this upload may overlap the model's own training rows",
+            })
 
         tiers = pd.Series([_assign_tier(s) for s in scores])
         tier_counts = {t: int((tiers == t).sum()) for t in ["T1", "T2", "T3", "T4"]}
 
-        id_col = next((c for c in df.columns if re.search(r"(account|customer|user).*(id|hash)", c, re.I)), None)
         account_ids = (
             df[id_col].astype(str) if id_col else
             pd.Series([hashlib.sha256(f"row{i}".encode()).hexdigest()[:12] for i in range(len(df))])
         )
 
         order = np.argsort(-scores)[:15]
+        # SHAP is computed only for the rows actually returned (top 15), and
+        # only here, at request time — this is running the already-fitted
+        # TreeExplainer forward over specific rows (inference), not fitting
+        # a new explainer or background dataset.
+        shap_values_top = PS2_ARTIFACT["explainer"].shap_values(X.iloc[order])
+
         top_alerts = []
-        for i in order:
-            drivers = []
-            if used_shap and shap_values is not None:
-                row_shap = shap_values[i]
-                top_idx = np.argsort(-np.abs(row_shap))[:3]
-                drivers = [{"feature": X.columns[j], "shap": round(float(row_shap[j]), 4)} for j in top_idx]
-            else:
-                z = ((X.iloc[i] - X.mean()) / (X.std() + 1e-9)).abs().sort_values(ascending=False)[:3]
-                drivers = [{"feature": k, "shap": round(float(z[k]) * 0.05, 4)} for k in z.index]
+        for pos, i in enumerate(order):
+            row_shap = shap_values_top[pos]
+            top_idx = np.argsort(-np.abs(row_shap))[:3]
+            drivers = [{"feature": X.columns[j], "shap": round(float(row_shap[j]), 4)} for j in top_idx]
 
             counterfactual = None
             if drivers:
                 top_feat = drivers[0]["feature"]
                 median_val = X[top_feat].median()
-                if not np.isclose(X.iloc[i][top_feat], median_val):
+                if pd.notna(X.iloc[i][top_feat]) and not np.isclose(X.iloc[i][top_feat], median_val):
                     counterfactual = {"condition": f"{top_feat} were at the dataset median ({median_val:.2f})",
                                        "drops_to": round(max(float(scores[i]) - 0.2, 0.0), 3)}
 
@@ -599,17 +604,30 @@ def analyze_dataset_endpoint():
                 "counterfactual": counterfactual,
             })
 
+        holdout_metrics = PS2_ARTIFACT["metrics"]["holdout_metrics"]
         resp = {
-            "cv_aucpr_mean": cv_aucpr_mean,
-            "n_cv_folds": n_cv_folds,
+            "model_version": PS2_ARTIFACT["metrics"]["model_version"],
+            "holdout_aucpr": holdout_metrics["aucpr"],
+            "holdout_auroc": holdout_metrics["auroc"],
+            "metrics_source": "precomputed offline holdout split — see models/ps2_xgb_v1_metrics.json; "
+                               "not computed from this request's upload",
+            # cv_aucpr_mean/n_cv_folds kept for the existing frontend field
+            # names, which read them as "CV AUCPR (n-fold)" — that label is
+            # stale now, but the *value* underneath is the real, honest
+            # holdout AUCPR, not an in-request CV number (n_cv_folds=0
+            # because no CV runs in this process anymore).
+            "cv_aucpr_mean": holdout_metrics["aucpr"],
+            "n_cv_folds": 0,
             "audit": {
                 "n_rows": len(df),
                 "prevalence_pct": prevalence_pct,
-                "flagged_columns": flagged,
+                "flagged_columns": excluded_present,
                 "findings": findings,
                 "label_column_used": label_col,
+                "bank_features_present": present_features,
+                "bank_features_missing": missing_features,
             },
-            "feature_columns": feature_cols,
+            "feature_columns": present_features,
             "tier_counts": tier_counts,
             "top_alerts": top_alerts,
         }

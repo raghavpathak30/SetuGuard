@@ -10,14 +10,15 @@ Banking.tar.gz
 
 # =====================================================================
 # Model weights / embeddings / vector indexes
-# (none currently in-tree; defensive patterns for future PS2/PS1 work)
 # =====================================================================
 *.bin
 *.gguf
 *.faiss
 *.index
-models/
 embeddings/
+# models/ is now tracked: it holds the precomputed PS2 artifact
+# (models/ps2_xgb_v1.json + metrics) that the live backend loads instead
+# of training in-request. See harness/train_ps2_model.py.
 
 # =====================================================================
 # Regenerable measurement / per-run output artifacts
