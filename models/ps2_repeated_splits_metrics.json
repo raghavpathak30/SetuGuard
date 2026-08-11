@@ -1,0 +1,364 @@
+{
+  "n_seeds": 20,
+  "fixed_hyperparameters": {
+    "n_estimators": 200,
+    "max_depth": 4,
+    "learning_rate": 0.05,
+    "subsample": 0.8,
+    "colsample_bytree": 0.8,
+    "eval_metric": "aucpr",
+    "n_jobs": 1
+  },
+  "note": "No hyperparameter search was performed -- identical fixed hyperparameters on every seed; only the stratified 80/20 split's random_state (and the model's own random_state, tied to it) varies.",
+  "per_seed": [
+    {
+      "seed": 0,
+      "aucpr": 0.2558306554538663,
+      "auroc": 0.8497362576346474,
+      "class_counts": {
+        "train": {
+          "total": 7265,
+          "positive": 65
+        },
+        "holdout": {
+          "total": 1817,
+          "positive": 16
+        }
+      }
+    },
+    {
+      "seed": 1,
+      "aucpr": 0.5929445762841674,
+      "auroc": 0.9283384230982787,
+      "class_counts": {
+        "train": {
+          "total": 7265,
+          "positive": 65
+        },
+        "holdout": {
+          "total": 1817,
+          "positive": 16
+        }
+      }
+    },
+    {
+      "seed": 2,
+      "aucpr": 0.28138462021963256,
+      "auroc": 0.8387701277068296,
+      "class_counts": {
+        "train": {
+          "total": 7265,
+          "positive": 65
+        },
+        "holdout": {
+          "total": 1817,
+          "positive": 16
+        }
+      }
+    },
+    {
+      "seed": 3,
+      "aucpr": 0.2831121984947113,
+      "auroc": 0.8706274292059967,
+      "class_counts": {
+        "train": {
+          "total": 7265,
+          "positive": 65
+        },
+        "holdout": {
+          "total": 1817,
+          "positive": 16
+        }
+      }
+    },
+    {
+      "seed": 4,
+      "aucpr": 0.09307017979933457,
+      "auroc": 0.716129927817879,
+      "class_counts": {
+        "train": {
+          "total": 7265,
+          "positive": 65
+        },
+        "holdout": {
+          "total": 1817,
+          "positive": 16
+        }
+      }
+    },
+    {
+      "seed": 5,
+      "aucpr": 0.19029932279815748,
+      "auroc": 0.8514019988895059,
+      "class_counts": {
+        "train": {
+          "total": 7265,
+          "positive": 65
+        },
+        "holdout": {
+          "total": 1817,
+          "positive": 16
+        }
+      }
+    },
+    {
+      "seed": 6,
+      "aucpr": 0.26689943801368543,
+      "auroc": 0.9056426985008328,
+      "class_counts": {
+        "train": {
+          "total": 7265,
+          "positive": 65
+        },
+        "holdout": {
+          "total": 1817,
+          "positive": 16
+        }
+      }
+    },
+    {
+      "seed": 7,
+      "aucpr": 0.3938187044128518,
+      "auroc": 0.8723278734036646,
+      "class_counts": {
+        "train": {
+          "total": 7265,
+          "positive": 65
+        },
+        "holdout": {
+          "total": 1817,
+          "positive": 16
+        }
+      }
+    },
+    {
+      "seed": 8,
+      "aucpr": 0.19359768008505338,
+      "auroc": 0.8536576901721266,
+      "class_counts": {
+        "train": {
+          "total": 7265,
+          "positive": 65
+        },
+        "holdout": {
+          "total": 1817,
+          "positive": 16
+        }
+      }
+    },
+    {
+      "seed": 9,
+      "aucpr": 0.45959584128451286,
+      "auroc": 0.8711132704053304,
+      "class_counts": {
+        "train": {
+          "total": 7265,
+          "positive": 65
+        },
+        "holdout": {
+          "total": 1817,
+          "positive": 16
+        }
+      }
+    },
+    {
+      "seed": 10,
+      "aucpr": 0.27434252506099577,
+      "auroc": 0.9101540810660744,
+      "class_counts": {
+        "train": {
+          "total": 7265,
+          "positive": 65
+        },
+        "holdout": {
+          "total": 1817,
+          "positive": 16
+        }
+      }
+    },
+    {
+      "seed": 11,
+      "aucpr": 0.2640319845372421,
+      "auroc": 0.8713908939478068,
+      "class_counts": {
+        "train": {
+          "total": 7265,
+          "positive": 65
+        },
+        "holdout": {
+          "total": 1817,
+          "positive": 16
+        }
+      }
+    },
+    {
+      "seed": 12,
+      "aucpr": 0.32711637978812325,
+      "auroc": 0.9187604108828429,
+      "class_counts": {
+        "train": {
+          "total": 7265,
+          "positive": 65
+        },
+        "holdout": {
+          "total": 1817,
+          "positive": 16
+        }
+      }
+    },
+    {
+      "seed": 13,
+      "aucpr": 0.23732760381669182,
+      "auroc": 0.8867642976124376,
+      "class_counts": {
+        "train": {
+          "total": 7265,
+          "positive": 65
+        },
+        "holdout": {
+          "total": 1817,
+          "positive": 16
+        }
+      }
+    },
+    {
+      "seed": 14,
+      "aucpr": 0.6003217055135439,
+      "auroc": 0.9332662409772349,
+      "class_counts": {
+        "train": {
+          "total": 7265,
+          "positive": 65
+        },
+        "holdout": {
+          "total": 1817,
+          "positive": 16
+        }
+      }
+    },
+    {
+      "seed": 15,
+      "aucpr": 0.20472856551702345,
+      "auroc": 0.8805177679067184,
+      "class_counts": {
+        "train": {
+          "total": 7265,
+          "positive": 65
+        },
+        "holdout": {
+          "total": 1817,
+          "positive": 16
+        }
+      }
+    },
+    {
+      "seed": 16,
+      "aucpr": 0.22002332261811078,
+      "auroc": 0.7483342587451416,
+      "class_counts": {
+        "train": {
+          "total": 7265,
+          "positive": 65
+        },
+        "holdout": {
+          "total": 1817,
+          "positive": 16
+        }
+      }
+    },
+    {
+      "seed": 17,
+      "aucpr": 0.42524536204382113,
+      "auroc": 0.922994169905608,
+      "class_counts": {
+        "train": {
+          "total": 7265,
+          "positive": 65
+        },
+        "holdout": {
+          "total": 1817,
+          "positive": 16
+        }
+      }
+    },
+    {
+      "seed": 18,
+      "aucpr": 0.22099981063985963,
+      "auroc": 0.8364103275957802,
+      "class_counts": {
+        "train": {
+          "total": 7265,
+          "positive": 65
+        },
+        "holdout": {
+          "total": 1817,
+          "positive": 16
+        }
+      }
+    },
+    {
+      "seed": 19,
+      "aucpr": 0.3510249561354575,
+      "auroc": 0.8956135480288729,
+      "class_counts": {
+        "train": {
+          "total": 7265,
+          "positive": 65
+        },
+        "holdout": {
+          "total": 1817,
+          "positive": 16
+        }
+      }
+    }
+  ],
+  "aucpr_distribution": {
+    "median": 0.2706209815373406,
+    "iqr_25": 0.2207556886344224,
+    "iqr_75": 0.36172339320480607,
+    "min": 0.09307017979933457,
+    "max": 0.6003217055135439,
+    "mean": 0.30678577162584214,
+    "std": 0.12763903674848415
+  },
+  "auroc_distribution": {
+    "median": 0.8718593836757357,
+    "iqr_25": 0.8509855635757912,
+    "iqr_75": 0.9067705441421432,
+    "min": 0.716129927817879,
+    "max": 0.9332662409772349,
+    "mean": 0.8680975846751806,
+    "std": 0.05388168583298021
+  },
+  "seed_0": {
+    "aucpr": 0.2558306554538663,
+    "auroc": 0.8497362576346474
+  },
+  "seed_0_operational_curve": [
+    {
+      "top_fraction_pct": 1.0,
+      "accounts_reviewed": 18,
+      "total_holdout_accounts": 1817,
+      "frauds_caught": 3,
+      "total_holdout_frauds": 16,
+      "recall_pct": 18.8
+    },
+    {
+      "top_fraction_pct": 5.0,
+      "accounts_reviewed": 91,
+      "total_holdout_accounts": 1817,
+      "frauds_caught": 8,
+      "total_holdout_frauds": 16,
+      "recall_pct": 50.0
+    }
+  ],
+  "seed_42_reference": {
+    "note": "train_ps2_model.py's default --seed is 42, not 0 -- this is what actually produced the already-published models/ps2_xgb_v1_metrics.json holdout numbers (aucpr=0.4114011947584679, auroc=0.9571765685730149). Included here, outside the requested seeds 0-19 range, so that specific point estimate can be located honestly rather than assumed to be seed 0.",
+    "aucpr": 0.4114011947584679,
+    "auroc": 0.9571765685730149,
+    "aucpr_percentile_within_seeds_0_19": 80.0,
+    "auroc_percentile_within_seeds_0_19": 100.0
+  },
+  "peak_rss_kb": 274272,
+  "wall_clock_seconds": 4.794
+}
