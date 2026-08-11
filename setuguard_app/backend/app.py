@@ -602,6 +602,18 @@ def analyze_dataset_endpoint():
                 "score": round(float(scores[i]), 3),
                 "shap_drivers": drivers,
                 "counterfactual": counterfactual,
+                # generated_rules/rule_validated were previously hardcoded
+                # identically across all records (ps2/07_ps2_bridge_exporter.py:
+                # every row got "SetuGuard_YARA_Rule_01.yar" / True) -- a
+                # copy-paste of PS1's per-APK YARA-rule concept onto PS2
+                # accounts, where it doesn't map to anything real: there is
+                # no per-account "generated rule" to validate. Rather than
+                # fabricate one, both are explicit nulls with a status
+                # sibling field.
+                "generated_rules": None,
+                "generated_rules_status": "not_computed",
+                "rule_validated": None,
+                "rule_validated_status": "not_computed",
             })
 
         holdout_metrics = PS2_ARTIFACT["metrics"]["holdout_metrics"]
