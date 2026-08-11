@@ -714,3 +714,127 @@ existed in this SESSION_LOG's own prior-session narrative text, corrected here. 
 required a code change for this task. `FROZEN_FILE_FINDINGS.md`, `PS1_Defects_and_Improvements.md`,
 `SetuGuard_Development_Roadmap_v2.md`, `CONTEXT.md`, `idea.txt`, and `setuguard_app/README.md` were
 also checked and contain no such claim.
+
+## 2026-08-11 (continued) — final evidence pass before the report (Tasks 1-5)
+
+Scope: close the recall@k variance hole the same way the AUCPR/AUROC hole was closed; sweep the
+whole repo for positional/row-order leakage given the tail-contiguity finding; retract the
+9072-corroborates-the-bridge framing everywhere it actually appears (not just in the SESSION_LOG);
+document the contiguity fact where a rebuilder would find it; and make sure the committed metrics
+artifacts *and the live API* lead with the distribution, not one favorable seed. No PS1 frozen file
+touched (confirmed via `git log --name-only` over this session's commits). No PS2 hyperparameter
+tuned, and the seed used to produce the shipped artifact (`train_ps2_model.py`'s default, 42) was
+not changed anywhere.
+
+**Task 1 — recall@k across all 20 seeds.** Extended `harness/ps2_repeated_splits.py` so every
+seed's own holdout (not just one) yields recall/precision/lift at top-1%/top-5% by score, using the
+same fixed hyperparameters as before (copied verbatim from `train_ps2_model.py`; no tuning).
+Command: `systemd-run --user --scope -p MemoryMax=4G -p MemoryHigh=3G -- python3
+harness/ps2_repeated_splits.py`. Result (median [IQR], n=20 seeds):
+top 1% (~18 accounts): recall 25.0% [18.8-37.5], precision 22.2% [16.7-33.3], lift 25.2x
+[18.9-37.9]; top 5% (~91 accounts): recall 53.1% [43.8-62.5], precision 9.4% [7.7-11.0], lift 10.6x
+[8.7-12.5]. Wide, reported as wide — top-1% recall alone spans 6.2%-62.5% across seeds. seed=42 (the
+shipped artifact's actual training seed, fixed before this evaluation, not chosen afterward) located
+by percentile in every one of these distributions, not just AUCPR/AUROC: top-1% recall/precision/
+lift all sit at the 55th percentile (close to typical); top-5% recall/precision/lift all sit at the
+90th percentile (a favorable draw, consistent with the AUCPR/AUROC finding, though less extreme at
+top-1%). Full per-seed table with each seed's own operational curve in
+`models/ps2_repeated_splits_metrics.json`. 21 fits, 4.7s wall clock, 270MB peak RSS.
+
+**Task 2 — row-order leakage sweep.** Grepped `harness/`, `setuguard_app/`, `ps2/01-07`, `bridge/`
+for `.head()`/`.tail()`/`nrows`/`skiprows`/literal `.iloc[]` ranges/bracket `[:n]`/`[-n:]` slicing/
+`.sample()` without a seed/`.index` used as a feature or split key/`read_csv` calls that only read
+part of the file. Findings, each individually checked (not pattern-matched and assumed):
+- `ps2/01_data_audit.py`, `02_baseline_model.py`, `05_ulb_validation.py`, `06_graph_features.py`:
+  all `.iloc[train_idx]/.iloc[test_idx]` come from `StratifiedKFold(shuffle=True, random_state=42)`
+  — read the actual `skf.split()` call in each file, not assumed from context. Genuinely shuffled,
+  not a leak.
+- `ps2/06_graph_features.py:109-110`: `sorted_graph_df.iloc[:n_fraud]` assigning top-betweenness
+  nodes to fraud rows — this IS the already-documented `map_graph_features_to_dataset()` leak
+  (`ps2/README.md`, Task F of the prior session). Not a new finding; cited here for completeness
+  since it matched this sweep's `.iloc[]` pattern.
+- `ps2/02_baseline_model.py:207`: `"account_id": df.index` — uses row position as an output
+  identifier (not a model feature; `X` never includes it). This is the actual mechanism behind Task
+  H's finding from the prior session: `df.index` flows unchanged into `baseline_predictions.csv` →
+  `ps2_bridge_payload.json` → `test_fixtures_ps2_sample.json` → `matcher.SYNTHETIC_LINKAGE_
+  GROUND_TRUTH`'s key space, which is why any account ID drawn from the file's tail is fraud. Not a
+  training-time leak (nothing here affects a model's inputs), but it's the structural reason the
+  tail-contiguity fact (Task 4) matters downstream. `ps2/` is declared research-only; not fixed,
+  per instruction — flagged, not silently passed over.
+- `ps2/03_amlworld_risk_spike.py`, `04_dice_counterfactuals.py`: positional-looking calls
+  (`.sample(frac=..., random_state=seed)`, `.head(10)` on a score-sorted frame) checked directly —
+  operate on the external AMLworld Kaggle dataset or on score-sorted output, not on `DataSet.csv`
+  row order. Not a leak.
+- `bridge/dice_practice.py:35`: `X.iloc[[1]]` — checked what `X` is: an 8-row hand-typed toy
+  dataframe ("fake toy dataset (stand-in for real PS2 data)", the file's own comment), not
+  `DataSet.csv`. Not a leak.
+- **Live path — confirmed clean, not by assumption**: `harness/train_ps2_model.py` and
+  `harness/ps2_repeated_splits.py`'s `train_test_split(X, y, test_size=..., random_state=..., 
+  stratify=y)` calls were checked against sklearn's actual source
+  (`inspect.getsource`/signature, not the function name): `shuffle` defaults to `True`, and
+  the docstring states shuffle must be `True` for `stratify` to be used at all — genuinely
+  randomized. `setuguard_app/backend/app.py`'s `/api/analyze_dataset` uses a detected id column
+  only as a display label (`account_hash`), never as a model input (`_encode_ps2_features` only
+  ever pulls `BANK_FINALIZED_FEATURES`). `bridge/matcher.py`'s matching is IOC-based (cert_hash/
+  C2 host), not positional. No `nrows`/`skiprows`/positional-row-limiting read anywhere in the live
+  path. **No code change was needed or made in the live path this task — reported as clean, with
+  what was checked, not left silent.**
+
+**Task 3 — retraction.** See the dedicated correction entry above ("retracting the '9072
+corroborates the bridge' framing") for the full writeup: swept `.py`/`.md` repo-wide for
+"independently confirmed", "9072", "coincidence", "corroborat", and "accuracy" near confusion-matrix
+code; the only occurrences of the retracted framing were in this SESSION_LOG's own prior entries
+(corrected via that new entry, prior entries left unedited, per instruction); the live application
+(`app.py`'s `/api/bridge` note, `matcher.py`'s comments, `confusion_matrix_validation.py` in full)
+never made the claim in the first place, so no source file needed a change for this task.
+
+**Task 4 — documented in `ps2/README.md`**: all 81 fraud rows occupy indices 9002-9082
+contiguously, row order encodes the target, and every reported PS2 result comes from a genuinely
+shuffled stratified split (cross-referencing Task 2's sklearn-source check).
+
+**Task 5 — metrics artifacts and the live API now lead with the distribution.**
+`models/ps2_repeated_splits_metrics.json` gets a new `"headline"` block (median [IQR] for AUCPR,
+AUROC, and all four Task-1 recall/precision/lift figures) positioned first in the file, before the
+raw per-seed table and the `seed_42_reference` block. `models/ps2_xgb_v1_metrics.json` (the
+single-split artifact) gets a new `"single_split_caveat"` field pointing at the distribution file —
+added by editing `train_ps2_model.py` and re-running it; the model artifact itself is confirmed
+byte-identical (md5) and `holdout_metrics` numerically unchanged, only the new field was added.
+
+The live API had its own uncaught instance of this exact problem: `/api/analyze_dataset` was
+returning the single seed=42 `holdout_aucpr`/`cv_aucpr_mean` (0.4114) with zero distribution
+context — literally the number the dashboard's "CV AUCPR" stat tile displays to a judge.
+`app.py` now loads the repeated-splits file at startup (optional, falls back with a clear note if
+absent) and reports the **20-seed median** as the headline `holdout_aucpr`/`cv_aucpr_mean`, carrying
+the full distribution (`holdout_aucpr_distribution`/`holdout_auroc_distribution`) and the
+single-split reference (`holdout_single_split_reference`, seed noted explicitly) alongside rather
+than dropping them. Verified via `harness/browser_smoke.js --label task5_verify`: PASS, zero console
+errors, and the dashboard's CV AUCPR tile now visibly reads "0.271" instead of "0.411"
+(`harness/browser_evidence/task5_verify/02_dataset.png`).
+
+Grepped the repo for the literal strings `0.4114` and `0.9572` (all file types, then narrowed to
+`.py` after confirming no `.md`/`.js` hits beyond `SESSION_LOG.md` itself). Every occurrence and its
+disposition: `setuguard_app/backend/app.py` was a live headline number — fixed, as above.
+`models/ps2_xgb_v1_metrics.json` is a legitimate per-seed data point (it IS seed 42's own
+`holdout_metrics`) — left in place, now pointing at the distribution via `single_split_caveat`.
+`models/ps2_repeated_splits_metrics.json`'s `seed_42_reference` block and
+`harness/ps2_repeated_splits.py`'s docstring/note string: legitimate, already correctly labeled as
+"this seed's numbers, located by percentile" — left as-is. `SESSION_LOG.md`'s own prior entries
+(this session's earlier "Task C" and "Task H" writeups): historical record of what was measured and
+reported at the time — per the same not-rewriting-old-entries principle established in Task 3, left
+as originally written rather than edited; flagged here as a judgment call applied consistently
+across both tasks, not decided differently in each.
+
+**What was not done, and why:**
+- `ps2/01-07` were not modified anywhere in this session — declared research-only, checked and
+  reported on (Task 2), not fixed, per explicit instruction.
+- No hyperparameter was tuned, and `train_ps2_model.py`'s default seed (42, the one that produced
+  the shipped artifact) was not changed — the whole point of this session was to characterize its
+  variance honestly, not to pick a different, better-looking seed.
+- SESSION_LOG.md's own prior entries were not rewritten (Tasks 3 and 5 both touch this) —
+  corrections were appended instead, consistent with the instruction given for Task 3 and extended
+  to Task 5 by the same reasoning.
+
+Commits this session (in order): `9432612` (Task 1), Task 2 (report-only, no commit), `0d12997`
+(Task 3), `1f1ad44` (Task 4), `81c73ab` (Task 5). This entry is the tenth in the file. Backend was
+started/stopped repeatedly for measurement during this session and is not left running at session
+end; the real `ollama.service` was not touched this session.
