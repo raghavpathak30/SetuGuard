@@ -1,0 +1,21 @@
+{
+  "chartInfo": {
+    "chartGlobalDefined": true,
+    "chartVersion": "4.4.4",
+    "canvasVisible": true,
+    "canvasWidth": 384,
+    "canvasHeight": 179
+  },
+  "consoleMsgs": [],
+  "pageErrors": [],
+  "failedRequests": [],
+  "allRequestUrls": [
+    "file:///home/raghavp/BOIhackathon/setuguard_app/frontend/index.html",
+    "file:///home/raghavp/BOIhackathon/setuguard_app/frontend/style.css",
+    "file:///home/raghavp/BOIhackathon/setuguard_app/frontend/chart.umd.js",
+    "file:///home/raghavp/BOIhackathon/setuguard_app/frontend/app.js",
+    "http://127.0.0.1:5000/"
+  ],
+  "externalRequests": [],
+  "hasErrors": false
+}
