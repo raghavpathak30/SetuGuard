@@ -31,6 +31,11 @@ setuguard_ps1/fix3_fp_baseline/
 setuguard_ps1/fix3_fp_baseline_run.log
 setuguard_ps1/d2_ab_results/
 harness/measure_run.log
+harness/feature_cache/
+harness/extract_run*.log
+harness/process_large_outliers*.log
+harness/sample_set_716_normal.txt
+harness/sample_set_716_large.txt
 
 # =====================================================================
 # Unexplained top-level binary (6.5MB, identifies as PostScript, purpose
