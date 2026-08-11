@@ -1,0 +1,6 @@
+[PASS] F3912 (FRAUD_SUSPECTED, EXCLUDED_LEAKY_FEATURES) -- raised: Excluded leaky/alert-derived feature(s) present in the loaded matrix: ['F3912']. This must never happen -- check BANK_FINALIZED_FEATURES / usecols.
+[PASS] F3906 (STATUS_CHANGE_AFTER_WD, EXCLUDED_ALERT_DERIVED) -- raised: Excluded leaky/alert-derived feature(s) present in the loaded matrix: ['F3906']. This must never happen -- check BANK_FINALIZED_FEATURES / usecols.
+[PASS] F2230 (MNTH, EXCLUDED_ALERT_DERIVED) -- raised: Excluded leaky/alert-derived feature(s) present in the loaded matrix: ['F2230']. This must never happen -- check BANK_FINALIZED_FEATURES / usecols.
+[PASS] control: BANK_FINALIZED_FEATURES only, no excluded column -- did not raise
+
+ALL CASES PASSED -- the guard raises loudly on every excluded feature tested, and does not raise on a clean BANK_FINALIZED_FEATURES-only column list.

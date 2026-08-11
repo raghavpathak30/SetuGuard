@@ -57,18 +57,31 @@ def load_dataset(csv_path: Path) -> pd.DataFrame:
     # that only ever touches the bank's 18 approved features + target.
     df = pd.read_csv(csv_path, usecols=usecols)
 
+    assert_no_excluded_features(df.columns)
+    missing = set(usecols) - set(df.columns)
+    if missing:
+        raise RuntimeError(f"Expected column(s) missing from {csv_path}: {sorted(missing)}")
+    return df
+
+
+def assert_no_excluded_features(columns) -> None:
+    """The actual guard, factored out of load_dataset() so it can be called
+    directly -- both by load_dataset() itself (against whatever usecols
+    happened to read) and by harness/test_leakage_assert.py (against a
+    hand-built column list that deliberately includes a leaky feature,
+    bypassing usecols entirely -- usecols already makes it structurally
+    impossible for load_dataset()'s own CSV read to ever include an
+    excluded column, so testing *through* load_dataset() would only prove
+    usecols works, not that this guard does). Raises loudly; never drops
+    a column silently."""
     excluded = set(EXCLUDED_LEAKY_FEATURES) | set(EXCLUDED_ALERT_DERIVED)
-    present_excluded = excluded & set(df.columns)
+    present_excluded = excluded & set(columns)
     if present_excluded:
         raise RuntimeError(
             f"Excluded leaky/alert-derived feature(s) present in the loaded "
             f"matrix: {sorted(present_excluded)}. This must never happen -- "
             f"check BANK_FINALIZED_FEATURES / usecols."
         )
-    missing = set(usecols) - set(df.columns)
-    if missing:
-        raise RuntimeError(f"Expected column(s) missing from {csv_path}: {sorted(missing)}")
-    return df
 
 
 def encode_features(df: pd.DataFrame) -> pd.DataFrame:
