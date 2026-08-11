@@ -40,12 +40,14 @@ Design notes / honesty about what's real vs. adapted:
 """
 import hashlib
 import io
+import ipaddress
 import json
 import re
 import sys
 import time
 import traceback
 from pathlib import Path
+from urllib.parse import urlparse
 
 import numpy as np
 import pandas as pd
@@ -105,6 +107,30 @@ BANKING_APP_KEYWORDS = [
 # PS1 — malware
 # ===========================================================================
 
+def _url_host_is_bare_ip(url: str) -> bool:
+    """True if url's host is a literal IPv4/IPv6 address rather than a domain name."""
+    try:
+        host = urlparse(url).hostname
+    except ValueError:
+        return False
+    if not host:
+        return False
+    try:
+        ipaddress.ip_address(host)
+        return True
+    except ValueError:
+        return False
+
+
+def _url_has_nonstandard_port(url: str) -> bool:
+    """True if url declares an explicit port other than 80/443."""
+    try:
+        port = urlparse(url).port
+    except ValueError:
+        return False
+    return port is not None and port not in (80, 443)
+
+
 def _rule_based_verdict(features: dict) -> dict:
     """Deterministic, weighted evidence scorer. This is SetuGuard's
     authoritative source of verdict + confidence for /api/analyze_apk — not
@@ -123,28 +149,37 @@ def _rule_based_verdict(features: dict) -> dict:
     weight_by_cat = {
         "dynamic_code_loading": 0.20, "sms_control": 0.20, "device_admin": 0.15,
         "accessibility_service": 0.20, "installed_app_discovery": 0.10,
-        "reflection": 0.05,
     }
     # Score each distinct category once (at its existing weight), not once per
     # call site — a legitimate app can have many reflection/accessibility call
     # sites without that repetition itself being more suspicious. Rationale
     # still lists every individual call site for the analyst.
-    seen_cats = {api["category"] for api in sapis}
+    # "reflection" is excluded from scoring entirely (measured separation
+    # -20.9: fires more on benign apps than malicious) but call sites are
+    # still listed in the rationale text below.
+    seen_cats = {api["category"] for api in sapis if api["category"] != "reflection"}
     for cat in seen_cats:
         score += weight_by_cat.get(cat, 0.08)
     for api in sapis:
         reasons.append(f"{api['category']} via {api['class']}.{api['method']} (called {api['call_count']}x)")
 
     strs = features["suspicious_strings"]
-    ip_url = [s for s in strs if s["kind"] in ("url", "ip")]
+    # Narrowed from "any url/ip string" (measured separation -20.7, backwards)
+    # to only bare-IP hosts and explicit non-standard ports. A plain
+    # https://domain.tld/... string contributes nothing.
+    bare_ips = [s for s in strs if s["kind"] == "ip"]
+    flagged_urls = [
+        s for s in strs
+        if s["kind"] == "url" and (_url_host_is_bare_ip(s["value"]) or _url_has_nonstandard_port(s["value"]))
+    ]
+    ip_url = bare_ips + flagged_urls
     if ip_url:
         score += min(len(ip_url) * 0.05, 0.20)
         reasons.append(f"{len(ip_url)} embedded URL/IP string(s), e.g. {ip_url[0]['value']}")
 
     cert = features["certificate"]
-    if cert.get("self_signed"):
-        score += 0.05
-        reasons.append("self-signed signing certificate")
+    # self_signed excluded entirely (measured separation +0.1: fires on ~99%
+    # of all apps regardless of label, carries no information).
     if cert.get("is_debug"):
         score += 0.05
         reasons.append("debug-signed certificate")
