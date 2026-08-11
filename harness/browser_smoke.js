@@ -1,0 +1,251 @@
+/*
+ * harness/browser_smoke.js -- NON-FROZEN. Headless-Chromium dashboard smoke
+ * test. Not part of the shipped app; nothing here runs in production.
+ *
+ * Starts the Flask backend fresh, loads setuguard_app/frontend/index.html in
+ * headless Chromium (via Playwright), and drives four flows end to end:
+ *   1. APK analysis (matching-cert APK, so bridge step 3 has something to match)
+ *   2. Dataset analysis (real DataSet.csv)
+ *   3. Bridge, expected to MATCH (last_apk = the matching-cert APK from step 1)
+ *   4. APK analysis with a different (non-matching) APK, then Bridge again,
+ *      expected to produce ZERO links
+ *
+ * Captures every console message, every uncaught page exception, and every
+ * failed/non-2xx network request, per step. Screenshots each step's rendered
+ * result to harness/browser_evidence/<label>/. Exits non-zero if any
+ * console 'error' message or uncaught exception occurred in any step.
+ *
+ * Usage:
+ *   node harness/browser_smoke.js [--label ollama_up] [--skip-second-apk]
+ *
+ * --skip-second-apk lets Task B re-run just the APK+bridge-match path
+ * without needing the second (non-matching) APK for a degradation check.
+ */
+const { chromium } = require("playwright");
+const { spawn } = require("child_process");
+const path = require("path");
+const fs = require("fs");
+const http = require("http");
+
+const REPO_ROOT = path.resolve(__dirname, "..");
+const BACKEND_DIR = path.join(REPO_ROOT, "setuguard_app", "backend");
+const FRONTEND_INDEX = path.join(REPO_ROOT, "setuguard_app", "frontend", "index.html");
+const MATCHING_APK = path.join(REPO_ROOT, "cicmaldroid_banking",
+  "007556ca146f4b2e9ac6bd51dc66be5130538d514f5aa04d60c1a0b079585ef3.apk");
+const NONMATCHING_APK = path.join(REPO_ROOT, "cicmaldroid_banking",
+  "00049d038a2abc2d5fe3b190d6cf5c1cb1ba63441defdf136be251c7a00727d8.apk");
+const DATASET_CSV = path.join(REPO_ROOT, "DataSet.csv");
+
+const args = process.argv.slice(2);
+const labelIdx = args.indexOf("--label");
+const LABEL = labelIdx >= 0 ? args[labelIdx + 1] : "default";
+const SKIP_SECOND_APK = args.includes("--skip-second-apk");
+
+const EVIDENCE_DIR = path.join(REPO_ROOT, "harness", "browser_evidence", LABEL);
+fs.mkdirSync(EVIDENCE_DIR, { recursive: true });
+
+function waitForHealth(url, timeoutMs) {
+  const deadline = Date.now() + timeoutMs;
+  return new Promise((resolve, reject) => {
+    const tryOnce = () => {
+      const req = http.get(url, (res) => {
+        res.resume();
+        if (res.statusCode === 200) return resolve();
+        retry();
+      });
+      req.on("error", retry);
+      req.setTimeout(2000, () => { req.destroy(); retry(); });
+    };
+    const retry = () => {
+      if (Date.now() > deadline) return reject(new Error(`backend did not become healthy within ${timeoutMs}ms`));
+      setTimeout(tryOnce, 500);
+    };
+    tryOnce();
+  });
+}
+
+async function startBackend() {
+  const proc = spawn("python3", ["app.py"], {
+    cwd: BACKEND_DIR,
+    stdio: ["ignore", "pipe", "pipe"],
+  });
+  const logPath = path.join(EVIDENCE_DIR, "backend_stdout_stderr.log");
+  const logStream = fs.createWriteStream(logPath);
+  proc.stdout.pipe(logStream);
+  proc.stderr.pipe(logStream);
+  await waitForHealth("http://127.0.0.1:5000/", 30000);
+  return proc;
+}
+
+function stopBackend(proc) {
+  return new Promise((resolve) => {
+    if (!proc || proc.killed) return resolve();
+    proc.once("exit", resolve);
+    proc.kill("SIGTERM");
+    setTimeout(() => { try { proc.kill("SIGKILL"); } catch (_) {} resolve(); }, 5000);
+  });
+}
+
+class StepRecorder {
+  constructor(page, stepName) {
+    this.page = page;
+    this.stepName = stepName;
+    this.console = [];
+    this.pageErrors = [];
+    this.failedRequests = [];
+    this.badResponses = [];
+    this._onConsole = (msg) => this.console.push({ type: msg.type(), text: msg.text() });
+    this._onPageError = (err) => this.pageErrors.push(String(err && err.stack ? err.stack : err));
+    this._onRequestFailed = (req) => this.failedRequests.push({
+      url: req.url(), method: req.method(),
+      failure: req.failure() ? req.failure().errorText : "unknown",
+    });
+    this._onResponse = (res) => {
+      if (!res.ok()) this.badResponses.push({ url: res.url(), status: res.status() });
+    };
+    page.on("console", this._onConsole);
+    page.on("pageerror", this._onPageError);
+    page.on("requestfailed", this._onRequestFailed);
+    page.on("response", this._onResponse);
+  }
+  detach() {
+    this.page.off("console", this._onConsole);
+    this.page.off("pageerror", this._onPageError);
+    this.page.off("requestfailed", this._onRequestFailed);
+    this.page.off("response", this._onResponse);
+  }
+  hasErrors() {
+    return this.console.some((c) => c.type === "error") || this.pageErrors.length > 0;
+  }
+  summary() {
+    return {
+      step: this.stepName,
+      console: this.console,
+      pageErrors: this.pageErrors,
+      failedRequests: this.failedRequests,
+      badResponses: this.badResponses,
+      hasErrors: this.hasErrors(),
+    };
+  }
+}
+
+async function runStep(page, stepName, fn) {
+  const rec = new StepRecorder(page, stepName);
+  let error = null;
+  try {
+    await fn();
+  } catch (e) {
+    error = String(e && e.stack ? e.stack : e);
+  }
+  const shotPath = path.join(EVIDENCE_DIR, `${stepName}.png`);
+  await page.screenshot({ path: shotPath, fullPage: true });
+  rec.detach();
+  const summary = rec.summary();
+  summary.screenshot = shotPath;
+  summary.stepThrew = error;
+  return summary;
+}
+
+async function main() {
+  console.log(`[browser_smoke] label=${LABEL} skip_second_apk=${SKIP_SECOND_APK}`);
+  console.log(`[browser_smoke] starting backend...`);
+  const backendProc = await startBackend();
+  console.log(`[browser_smoke] backend healthy, pid=${backendProc.pid}`);
+
+  const browser = await chromium.launch({ headless: true });
+  const page = await browser.newPage();
+  await page.goto("file://" + FRONTEND_INDEX);
+
+  const results = [];
+
+  // ---- Step 1: APK analysis (matching-cert APK) ----
+  results.push(await runStep(page, "01_apk_matching", async () => {
+    await page.click('.nav-item[data-page="malware"]');
+    await page.setInputFiles("#apk-input", MATCHING_APK);
+    await page.waitForSelector("#apk-analyze-btn:not([disabled])", { timeout: 10000 });
+    await page.click("#apk-analyze-btn");
+    await page.waitForSelector("#apk-analyze-btn:not([disabled])", { timeout: 60000 });
+    await page.waitForFunction(
+      () => document.getElementById("apk-results").innerHTML.trim().length > 0
+        || document.getElementById("apk-status").classList.contains("error"),
+      { timeout: 5000 }
+    );
+  }));
+
+  // ---- Step 2: Dataset analysis ----
+  results.push(await runStep(page, "02_dataset", async () => {
+    await page.click('.nav-item[data-page="fraud"]');
+    await page.setInputFiles("#csv-input", DATASET_CSV);
+    await page.waitForSelector("#csv-analyze-btn:not([disabled])", { timeout: 10000 });
+    await page.click("#csv-analyze-btn");
+    await page.waitForSelector("#csv-analyze-btn:not([disabled])", { timeout: 30000 });
+    await page.waitForFunction(
+      () => document.getElementById("csv-results").innerHTML.trim().length > 0
+        || document.getElementById("csv-status").classList.contains("error"),
+      { timeout: 5000 }
+    );
+  }));
+
+  // ---- Step 3: Bridge, expect MATCH ----
+  results.push(await runStep(page, "03_bridge_match", async () => {
+    await page.click('.nav-item[data-page="bridge"]');
+    await page.click("#bridge-btn");
+    await page.waitForFunction(
+      () => document.getElementById("bridge-results").innerHTML.trim().length > 0,
+      { timeout: 15000 }
+    );
+  }));
+  const bridgeMatchHtml = await page.$eval("#bridge-results", (el) => el.innerText);
+  fs.writeFileSync(path.join(EVIDENCE_DIR, "03_bridge_match.txt"), bridgeMatchHtml);
+
+  if (!SKIP_SECOND_APK) {
+    // ---- Step 4: APK analysis (non-matching APK) ----
+    results.push(await runStep(page, "04_apk_nonmatching", async () => {
+      await page.click('.nav-item[data-page="malware"]');
+      await page.setInputFiles("#apk-input", NONMATCHING_APK);
+      await page.waitForSelector("#apk-analyze-btn:not([disabled])", { timeout: 10000 });
+      await page.click("#apk-analyze-btn");
+      await page.waitForSelector("#apk-analyze-btn:not([disabled])", { timeout: 60000 });
+      await page.waitForFunction(
+        () => document.getElementById("apk-results").innerHTML.trim().length > 0
+          || document.getElementById("apk-status").classList.contains("error"),
+        { timeout: 5000 }
+      );
+    }));
+
+    // ---- Step 5: Bridge, expect ZERO links ----
+    results.push(await runStep(page, "05_bridge_nomatch", async () => {
+      await page.click('.nav-item[data-page="bridge"]');
+      await page.click("#bridge-btn");
+      await page.waitForFunction(
+        () => document.getElementById("bridge-results").innerHTML.trim().length > 0,
+        { timeout: 15000 }
+      );
+    }));
+    const bridgeNoMatchHtml = await page.$eval("#bridge-results", (el) => el.innerText);
+    fs.writeFileSync(path.join(EVIDENCE_DIR, "05_bridge_nomatch.txt"), bridgeNoMatchHtml);
+  }
+
+  await browser.close();
+  await stopBackend(backendProc);
+
+  const reportPath = path.join(EVIDENCE_DIR, "console_report.json");
+  fs.writeFileSync(reportPath, JSON.stringify(results, null, 2));
+
+  console.log("\n===== FULL CONSOLE / ERROR REPORT =====");
+  console.log(JSON.stringify(results, null, 2));
+  console.log(`\n[browser_smoke] evidence written to ${EVIDENCE_DIR}`);
+
+  const anyErrors = results.some((r) => r.hasErrors || r.stepThrew);
+  if (anyErrors) {
+    console.error("[browser_smoke] FAIL -- console error, uncaught exception, or step threw");
+    process.exit(1);
+  }
+  console.log("[browser_smoke] PASS -- zero console errors, zero uncaught exceptions across all steps");
+  process.exit(0);
+}
+
+main().catch((e) => {
+  console.error("[browser_smoke] FATAL", e);
+  process.exit(2);
+});

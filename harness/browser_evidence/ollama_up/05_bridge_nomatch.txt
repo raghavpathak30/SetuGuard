@@ -1,0 +1,9 @@
+unified_dashboard / case_view
+
+ALERT   account    tier  (null)   status: PENDING REVIEW
+  linked_apk        family:    severity: 
+  shared_ioc     
+  yara_rule         validated: null
+  recommended    
+
+// Matching is on certificate hash / C2 host overlap only (matched APK indicators, not a malice verdict) against 15 scored account(s). 0 matches -- no account in this dataset run shares a certificate hash or C2 host with this APK. This is the expected result for most APK/dataset pairs: the ground-truth linkage table (matcher.SYNTHETIC_LINKAGE_GROUND_TRUTH) is a small, explicitly synthetic stand-in since no real device<->account join key exists in any of the source repos.

@@ -1,0 +1,9 @@
+{
+  "name": "setuguard-browser-smoke",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Non-frozen: headless-browser dashboard smoke test harness, not part of the shipped app.",
+  "dependencies": {
+    "playwright": "1.47.2"
+  }
+}

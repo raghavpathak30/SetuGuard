@@ -66,6 +66,12 @@ venv/
 *.cache
 
 # =====================================================================
+# Node (harness/browser_smoke.js's Playwright dependency) -- package.json
+# / package-lock.json are tracked, the installed tree is not.
+# =====================================================================
+node_modules/
+
+# =====================================================================
 # PS2 Datasets & Large Binary Files (>100MB)
 # =====================================================================
 *.csv
