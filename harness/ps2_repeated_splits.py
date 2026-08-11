@@ -4,19 +4,33 @@ harness/train_ps2_model.py, which this script imports from and does not
 duplicate).
 
 A single 80/20 holdout has only 16 positives -- each one is 6.25% of
-recall, so the single seed=42 point estimate (holdout AUCPR 0.4114, AUROC
-0.9572, in models/ps2_xgb_v1_metrics.json) carries real sampling noise from
+recall, so a single point estimate (e.g. the shipped artifact's holdout
+AUCPR 0.4114 / AUROC 0.9572, models/ps2_xgb_v1_metrics.json, produced by
+train_ps2_model.py's default seed=42) carries real sampling noise from
 which 16 of the 81 frauds happened to land in that one holdout. This script
 does NOT tune anything -- identical pipeline, identical fixed
 hyperparameters (copied verbatim from train_ps2_model.py) on every run; only
 the stratified 80/20 split's random_state (and, tied to it, the model's own
-random_state, exactly as train_ps2_model.py does for its single seed=42 run)
+random_state, exactly as train_ps2_model.py does for its single-seed run)
 varies, seeds 0-19. Reports the resulting AUCPR/AUROC distribution across
-those 20 independent holdouts, and locates seed 0 inside it.
+those 20 independent holdouts.
 
-From the seed=0 holdout specifically, also reports the operational curve a
-fraud analyst actually cares about: reviewing the top-1%/top-5% of holdout
-accounts by predicted score, how many of the holdout's 16 frauds are caught.
+For EVERY seed's own holdout (not just one), also reports the operational
+curve a fraud analyst actually cares about: reviewing the top-1%/top-5% of
+that holdout's accounts by predicted score -- recall (frauds caught / total
+frauds), precision (frauds caught / accounts reviewed), and lift over the
+holdout's own base rate (precision / (total_frauds / total_accounts)) --
+and aggregates recall/precision/lift into their own median/IQR/min/max
+distributions across the 20 seeds, exactly as done for AUCPR/AUROC. A
+single seed's 3/16 or 8/16 count carries the same sampling noise as a
+single seed's AUCPR does; this reports the same 3/16-shaped numbers as a
+distribution instead of a single draw.
+
+seed=42 (the trainer's actual default, fixed before evaluation -- not
+selected afterward for looking good) is run separately, outside the 0-19
+range, and located by percentile within every one of the distributions
+above -- AUCPR, AUROC, recall@1%, recall@5%, precision@1%, precision@5%,
+lift@1%, lift@5%.
 
 Usage:
     python3 harness/ps2_repeated_splits.py [--csv DataSet.csv] [--out models/ps2_repeated_splits_metrics.json]
@@ -76,18 +90,24 @@ def operational_curve(y_hold: np.ndarray, scores: np.ndarray, fractions=(0.01, 0
     n = len(scores)
     order = np.argsort(-scores)
     total_positive = int(y_hold.sum())
+    base_rate = total_positive / n if n else None
     rows = []
     for frac in fractions:
         k = max(1, round(n * frac))
         top_k_idx = order[:k]
         caught = int(y_hold[top_k_idx].sum())
+        precision = caught / k if k else None
+        recall = caught / total_positive if total_positive else None
+        lift = (precision / base_rate) if (precision is not None and base_rate) else None
         rows.append({
             "top_fraction_pct": round(frac * 100, 2),
             "accounts_reviewed": k,
             "total_holdout_accounts": n,
             "frauds_caught": caught,
             "total_holdout_frauds": total_positive,
-            "recall_pct": round(100 * caught / total_positive, 1) if total_positive else None,
+            "recall_pct": round(100 * recall, 1) if recall is not None else None,
+            "precision_pct": round(100 * precision, 1) if precision is not None else None,
+            "lift_x": round(lift, 2) if lift is not None else None,
         })
     return rows
 
@@ -104,15 +124,18 @@ def main():
     X = encode_features(df)
     y = df[TARGET_COLUMN].astype(int)
 
+    fractions = (0.01, 0.05)
     per_seed = []
-    seed0_holdout = None
     for seed in range(args.n_seeds):
-        row, holdout_arrays = run_one_split(X, y, seed)
+        row, (y_hold, scores) = run_one_split(X, y, seed)
+        row["operational_curve"] = operational_curve(y_hold, scores, fractions)
         per_seed.append(row)
-        if seed == 0:
-            seed0_holdout = holdout_arrays
-        print(f"seed={seed:2d}  AUCPR={row['aucpr']:.4f}  AUROC={row['auroc']:.4f}  "
-              f"holdout_pos={row['class_counts']['holdout']['positive']}")
+        oc_str = "  ".join(
+            f"top{r['top_fraction_pct']}%: {r['frauds_caught']}/{r['total_holdout_frauds']} "
+            f"caught (recall={r['recall_pct']}% prec={r['precision_pct']}% lift={r['lift_x']}x)"
+            for r in row["operational_curve"]
+        )
+        print(f"seed={seed:2d}  AUCPR={row['aucpr']:.4f}  AUROC={row['auroc']:.4f}  {oc_str}")
 
     aucprs = np.array([r["aucpr"] for r in per_seed])
     aurocs = np.array([r["auroc"] for r in per_seed])
@@ -128,43 +151,68 @@ def main():
             "std": float(np.std(a)),
         }
 
-    y_hold0, scores0 = seed0_holdout
-    op_curve = operational_curve(y_hold0, scores0)
+    def percentile_of(value, arr):
+        return float((arr < value).mean() * 100)
 
-    seed0_row = next(r for r in per_seed if r["seed"] == 0)
+    # Per-fraction (1%, 5%) distributions of recall/precision/lift across
+    # all 20 seeds -- same treatment as AUCPR/AUROC, so a single seed's
+    # "3/16 caught" is reported as one draw from a distribution, not as if
+    # it were the number.
+    op_distributions = {}
+    for frac in fractions:
+        frac_pct = round(frac * 100, 2)
+        recalls = np.array([next(r for r in row["operational_curve"] if r["top_fraction_pct"] == frac_pct)["recall_pct"] for row in per_seed])
+        precisions = np.array([next(r for r in row["operational_curve"] if r["top_fraction_pct"] == frac_pct)["precision_pct"] for row in per_seed])
+        lifts = np.array([next(r for r in row["operational_curve"] if r["top_fraction_pct"] == frac_pct)["lift_x"] for row in per_seed])
+        op_distributions[f"top_{frac_pct}pct"] = {
+            "recall_pct_distribution": dist(recalls),
+            "precision_pct_distribution": dist(precisions),
+            "lift_x_distribution": dist(lifts),
+        }
 
-    # models/ps2_xgb_v1_metrics.json (the previously-reported 0.4114/0.9572)
-    # was trained with train_ps2_model.py's DEFAULT seed, which is 42, not 0.
-    # Run seed=42 too so that specific already-published number can be
-    # located honestly, instead of assuming it corresponds to seed 0.
-    seed42_row, _ = run_one_split(X, y, 42)
-    seed42_aucpr_percentile = float((aucprs < seed42_row["aucpr"]).mean() * 100)
-    seed42_auroc_percentile = float((aurocs < seed42_row["auroc"]).mean() * 100)
+    # seed=42: train_ps2_model.py's DEFAULT seed, fixed before evaluation
+    # (not selected afterward for looking good) -- this is what actually
+    # produced the shipped artifact's holdout numbers. Run separately,
+    # outside the 0-19 range, and located by percentile in every
+    # distribution above, not assumed to be any particular seed in 0-19.
+    seed42_row, (y_hold42, scores42) = run_one_split(X, y, 42)
+    seed42_row["operational_curve"] = operational_curve(y_hold42, scores42, fractions)
+    seed42_percentiles = {
+        "aucpr": round(percentile_of(seed42_row["aucpr"], aucprs), 1),
+        "auroc": round(percentile_of(seed42_row["auroc"], aurocs), 1),
+    }
+    for r in seed42_row["operational_curve"]:
+        frac_pct = r["top_fraction_pct"]
+        key = f"top_{frac_pct}pct"
+        recalls = np.array([next(rr for rr in row["operational_curve"] if rr["top_fraction_pct"] == frac_pct)["recall_pct"] for row in per_seed])
+        precisions = np.array([next(rr for rr in row["operational_curve"] if rr["top_fraction_pct"] == frac_pct)["precision_pct"] for row in per_seed])
+        lifts = np.array([next(rr for rr in row["operational_curve"] if rr["top_fraction_pct"] == frac_pct)["lift_x"] for row in per_seed])
+        seed42_percentiles[f"{key}_recall"] = round(percentile_of(r["recall_pct"], recalls), 1)
+        seed42_percentiles[f"{key}_precision"] = round(percentile_of(r["precision_pct"], precisions), 1)
+        seed42_percentiles[f"{key}_lift"] = round(percentile_of(r["lift_x"], lifts), 1)
 
     out = {
         "n_seeds": args.n_seeds,
         "fixed_hyperparameters": FIXED_HYPERPARAMETERS,
         "note": "No hyperparameter search was performed -- identical fixed hyperparameters "
                 "on every seed; only the stratified 80/20 split's random_state (and the "
-                "model's own random_state, tied to it) varies.",
+                "model's own random_state, tied to it) varies. seed=42 is train_ps2_model.py's "
+                "hardcoded default, fixed before any of this evaluation ran, not chosen "
+                "afterward because it scored well.",
         "per_seed": per_seed,
         "aucpr_distribution": dist(aucprs),
         "auroc_distribution": dist(aurocs),
-        "seed_0": {
-            "aucpr": seed0_row["aucpr"],
-            "auroc": seed0_row["auroc"],
-        },
-        "seed_0_operational_curve": op_curve,
+        "operational_curve_distributions": op_distributions,
         "seed_42_reference": {
-            "note": "train_ps2_model.py's default --seed is 42, not 0 -- this is what actually "
+            "note": "train_ps2_model.py's default --seed is 42 -- this is what actually "
                     "produced the already-published models/ps2_xgb_v1_metrics.json holdout "
                     "numbers (aucpr=0.4114011947584679, auroc=0.9571765685730149). Included here, "
-                    "outside the requested seeds 0-19 range, so that specific point estimate can "
-                    "be located honestly rather than assumed to be seed 0.",
+                    "outside the requested seeds 0-19 range, and located by percentile in every "
+                    "distribution above rather than assumed to sit anywhere in particular.",
             "aucpr": seed42_row["aucpr"],
             "auroc": seed42_row["auroc"],
-            "aucpr_percentile_within_seeds_0_19": round(seed42_aucpr_percentile, 1),
-            "auroc_percentile_within_seeds_0_19": round(seed42_auroc_percentile, 1),
+            "operational_curve": seed42_row["operational_curve"],
+            "percentiles_within_seeds_0_19": seed42_percentiles,
         },
         "peak_rss_kb": resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,
         "wall_clock_seconds": round(time.perf_counter() - t0, 3),
@@ -173,15 +221,19 @@ def main():
 
     print(f"\nAUCPR distribution: {json.dumps(out['aucpr_distribution'], indent=2)}")
     print(f"AUROC distribution: {json.dumps(out['auroc_distribution'], indent=2)}")
-    print(f"\nseed=0: AUCPR={seed0_row['aucpr']:.4f}  AUROC={seed0_row['auroc']:.4f}")
+    print(f"\nOperational curve distributions (across seeds 0-19):")
+    print(json.dumps(op_distributions, indent=2))
     print(f"\nseed=42 (train_ps2_model.py's actual default, already published as "
           f"ps2_xgb_v1_metrics.json): AUCPR={seed42_row['aucpr']:.4f} "
-          f"({seed42_aucpr_percentile:.0f}th pct of seeds 0-19)  "
-          f"AUROC={seed42_row['auroc']:.4f} ({seed42_auroc_percentile:.0f}th pct of seeds 0-19)")
-    print(f"\nseed=0 operational curve:")
-    for r in op_curve:
-        print(f"  top {r['top_fraction_pct']}% ({r['accounts_reviewed']}/{r['total_holdout_accounts']} accounts): "
-              f"{r['frauds_caught']}/{r['total_holdout_frauds']} frauds caught ({r['recall_pct']}% recall)")
+          f"({seed42_percentiles['aucpr']:.0f}th pct of seeds 0-19)  "
+          f"AUROC={seed42_row['auroc']:.4f} ({seed42_percentiles['auroc']:.0f}th pct of seeds 0-19)")
+    for r in seed42_row["operational_curve"]:
+        frac_pct = r["top_fraction_pct"]
+        key = f"top_{frac_pct}pct"
+        print(f"  top {frac_pct}%: {r['frauds_caught']}/{r['total_holdout_frauds']} caught, "
+              f"recall={r['recall_pct']}% ({seed42_percentiles[key + '_recall']:.0f}th pct)  "
+              f"precision={r['precision_pct']}% ({seed42_percentiles[key + '_precision']:.0f}th pct)  "
+              f"lift={r['lift_x']}x ({seed42_percentiles[key + '_lift']:.0f}th pct)")
     print(f"\nPeak RSS: {out['peak_rss_kb'] / 1024:.1f} MB, wall clock {out['wall_clock_seconds']}s")
     print(f"Written to {args.out}")
 
