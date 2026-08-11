@@ -652,12 +652,30 @@ def analyze_dataset_endpoint():
 
 # ===========================================================================
 # Bridge — IOC linkage between the last PS1 run and the last PS2 run.
-# Real join logic (cert_hash / c2_host overlap), same idea as teammate-b's
-# matcher.py, but there is no genuine device<->account linkage dataset
-# anywhere in the provided repos, so the specific IOC string shared between
-# the two sides is synthesized deterministically (sha256 of package+account)
-# rather than pulled from real shared telemetry. Flagged in `note` below.
+# Matching itself is bridge/matcher.py's real code (extract_ioc_from_ps1 +
+# match_account_to_apk), called here rather than reimplemented. A link is
+# CONDITIONAL: cert_hash / c2_host are IOCs, not verdicts, and
+# match_account_to_apk only returns a result when one actually overlaps
+# matcher.SYNTHETIC_LINKAGE_GROUND_TRUTH -- which is itself deliberately
+# small (matcher.py's own docstring: no real device<->account join key
+# exists in any of the source repos). Zero matches is the expected, correct
+# result for most APK/dataset pairs, not an error.
 # ===========================================================================
+
+_ACTION_BY_SEVERITY = {
+    "CRITICAL": "Immediate debit freeze on account + device quarantine.",
+    "HIGH": "Enhanced review of account; restrict device via MDM.",
+    "MEDIUM": "Monitor both account and device for 30 days.",
+    "LOW": "Log for audit trail only.",
+}
+
+
+def _shared_ioc_string(matched_on: str, apk_ioc: dict, account_id: str) -> str:
+    if matched_on == "cert_hash":
+        return f"cert_hash:{apk_ioc.get('cert_hash')}"
+    ground = bridge_matcher.SYNTHETIC_LINKAGE_GROUND_TRUTH.get(account_id, {})
+    return f"c2_host:{ground.get('c2_host')}"
+
 
 @app.route("/api/bridge", methods=["POST"])
 def bridge_endpoint():
@@ -668,33 +686,53 @@ def bridge_endpoint():
     if not ds or not ds["top_alerts"]:
         return jsonify({"error": "run /api/analyze_dataset at least once before bridging"}), 400
 
-    top_alert = ds["top_alerts"][0]
-    shared_seed = f"{apk['package']}|{top_alert['account_hash']}"
-    shared_ioc = "cert_sha256:" + hashlib.sha256(shared_seed.encode()).hexdigest()[:16]
+    apk_ioc = bridge_matcher.extract_ioc_from_ps1(apk["raw_features"])
 
-    action_by_severity = {
-        "CRITICAL": "Immediate debit freeze on account + device quarantine.",
-        "HIGH": "Enhanced review of account; restrict device via MDM.",
-        "MEDIUM": "Monitor both account and device for 30 days.",
-        "LOW": "Log for audit trail only.",
-    }
+    links = []
+    for alert in ds["top_alerts"]:
+        match = bridge_matcher.match_account_to_apk(alert["account_hash"], apk_ioc)
+        if match is None:
+            continue
+        matched_on = match["matched_on"]
+        links.append({
+            "account_hash": alert["account_hash"],
+            "tier": alert["tier"],
+            "score": alert["score"],
+            "linked_apk_package": apk["package"],
+            "family": apk["family_verdict"].split(" (")[0],
+            "severity": apk["severity"],
+            "matched_on": matched_on,
+            "shared_ioc": _shared_ioc_string(matched_on, apk_ioc, alert["account_hash"]),
+            "yara_rule": apk["yara"]["rule_name"],
+            "yara_validated": apk["yara"]["validated"],
+            "recommended_action": _ACTION_BY_SEVERITY.get(apk["severity"], "Review manually."),
+        })
+
+    note = (
+        f"Matching is on certificate hash / C2 host overlap only (matched APK indicators, not a "
+        f"malice verdict) against {len(ds['top_alerts'])} scored account(s). "
+        + (f"{len(links)} match(es) found." if links else
+           "0 matches -- no account in this dataset run shares a certificate hash or C2 host with "
+           "this APK. This is the expected result for most APK/dataset pairs: the ground-truth "
+           "linkage table (matcher.SYNTHETIC_LINKAGE_GROUND_TRUTH) is a small, explicitly synthetic "
+           "stand-in since no real device<->account join key exists in any of the source repos.")
+    )
 
     resp = {
-        "account_hash": top_alert["account_hash"],
-        "tier": top_alert["tier"],
-        "score": top_alert["score"],
-        "linked_apk_package": apk["package"],
-        "family": apk["family_verdict"].split(" (")[0],
-        "severity": apk["severity"],
-        "shared_ioc": shared_ioc,
-        "yara_rule": apk["yara"]["rule_name"],
-        "yara_validated": apk["yara"]["validated"],
-        "recommended_action": action_by_severity.get(apk["severity"], "Review manually."),
-        "note": ("Linkage key is synthesized (no real device<->account join data exists in the "
-                 "source repos — PS1 and PS2 were built independently against different corpora). "
-                 "Everything else in this record (the APK verdict and the account risk score) is real, "
-                 "computed output from the actual PS1/PS2 pipelines run above."),
+        "matched": len(links) > 0,
+        "match_count": len(links),
+        "links": links,
+        "note": note,
     }
+    # Back-compat top-level fields for the existing single-record frontend
+    # template: mirror the first (highest-score) link when one exists, else
+    # explicit nulls -- the template interpolates these directly and
+    # stringifies null/undefined safely, so this renders an empty-but-valid
+    # bridge result rather than throwing.
+    first = links[0] if links else {}
+    for key in ("account_hash", "tier", "score", "linked_apk_package", "family", "severity",
+                "shared_ioc", "yara_rule", "yara_validated", "recommended_action"):
+        resp[key] = first.get(key)
     return jsonify(resp)
 
 
