@@ -27,6 +27,38 @@ undercount (16 unusable benign files, not 1), found and logged five new frozen-f
 `requirements.txt` (D8, now RESOLVED). Every claim below from this session is traceable to a command
 actually run in this session. Changed sections: 2, 4, 5, 6, 8, 9._
 
+> **THIS DOCUMENT IS STALE AS OF 2026-08-12 AND WAS NOT REWRITTEN TO MATCH — READ THIS BOX BEFORE
+> TRUSTING ANYTHING BELOW ABOUT VERDICT BEHAVIOR, GIT STATE, OR "PS1 IS THE ONLY UI."**
+>
+> Everything above this box describes the state as of the **2026-07-26/27** session, when the only
+> way to run PS1 was `run_pipeline.py`/`batch_baseline.py` against a single APK or a batch script,
+> and the RAG/Mistral stage's own verdict was authoritative (the D1 "always suspicious" defect this
+> whole document is chasing). **Three sessions since then are not reflected in the prose below**:
+>
+> - **A new component exists that this document has zero awareness of**: `setuguard_app/` — a
+>   Flask backend (`setuguard_app/backend/app.py`) and frontend, serving PS1 through
+>   `POST /api/analyze_apk` (plus PS2/Bridge endpoints, generalized re-implementations — see the
+>   backend's own module docstring for what's real vs. adapted). This is the actual demo surface,
+>   not `run_pipeline.py`.
+> - **D1 is no longer "always suspicious"/unaddressed.** `app.py`'s `_rule_based_verdict()` is now
+>   the sole, structural, deterministic source of `verdict`/`confidence`/`risk_score` for
+>   `/api/analyze_apk` — the LLM/RAG stage supplies narrative rationale only and cannot change the
+>   verdict, with or without Ollama reachable. This directly contradicts several claims below
+>   (Section 2's "Known-broken" bullets, Section 8 item 7) that the verdict enum "carries near-zero
+>   signal" — that was true of the old LLM-authoritative path and is not true of the current one.
+> - Everything since 2026-08-10 (the D1 inversion itself; a `banking_holdout_16` measurement
+>   showing the *new* problem — the rule-based scorer initially flagged 16/16 real banks as
+>   non-benign; a per-term discriminative-power diagnosis; and this session's `reflection`/
+>   `self_signed`/url-ip scorer-v2 pruning, gated on a 668-of-716-sample AUC measurement) is
+>   documented in **`SESSION_LOG.md`**, not here. Treat `SESSION_LOG.md` as the current, accurate
+>   record for all of that; this file was not restructured to absorb it, since doing so properly
+>   would mean rewriting most of Sections 2/3/4/6/8 to a standard this pass didn't have time for
+>   before the 17 August deadline. Specific claims below that are now flatly wrong are flagged
+>   inline with a `SUPERSEDED 2026-08-12` marker and a pointer to `SESSION_LOG.md`; claims not
+>   flagged (the Androguard/androguard-quirks material in Section 4, the environment/corpus facts
+>   in Section 5, PS2/Bridge/Dashboard being unstarted) are believed still accurate, since none of
+>   the three sessions since touched them.
+
 ---
 
 ## 1. PROJECT IDENTITY
@@ -81,9 +113,18 @@ spec.
 | AutoYara feasibility spike (I2, Week 2) | **DONE — NO-GO for tool adoption** | `setuguard_ps1/AUTOYARA_SPIKE.md`. Confirmed (fetched, not from memory): Java/Maven, JDK11+ (this machine has JDK 25 already), Apache 2.0, no PyPI package, no Docker image, single 2017-era release — appears abandoned. NO-GO because its input shape (multi-sample, family-labeled, cross-APK biclustering) doesn't fit this pipeline's single-APK shape, not because it's unobtainable. **Unresolved, flagged not resolved:** whether I2 means adopting the actual tool (NO-GO) or building a homegrown single-APK fallback (cheaper, not evaluated) |
 | `FROZEN_FILE_FINDINGS.md` (Week 2) | **NEW — 5 findings logged, 1 applied** | Same report-don't-touch precedent as `DEAD_CODE_REPORT.md`, generalized beyond dead code. Finding 1 (unguarded `manifest.iter()` on possibly-`None` manifest), Finding 2 (`exported_components[].name` can be `None`, violating the frozen `str` contract — 3 occurrences in `baseline_v2`), Finding 4 (`cited_chunk_ids` schema-unconstrained — parked research finding), Finding 5 (NUL-byte over-capture/under-sanitization, `static_analysis.py`+`yara_gen.py` — crashes `yara.compile()`, ~22% prevalence in benign F-Droid samples) are all **sign-off-gated, not applied**. Finding 3 (temperature/seed pin) is the one **applied** this session — see `rag_report.py` row above |
 | `requirements.txt` (D8) | **RESOLVED (Week 2)** | Generated from `python3 -m pip show` output actually run this session — see Section 5 |
-| Version control | **INITIALIZED, pushed** | `.git` exists; remote `origin` = `https://github.com/raghavpathak30/SetuGuard`; branch `main` tracks `origin/main`. 2 commits as of the last push: `aee8497` (initial) and `9695401` (Fix #3 harness + dead-code report). **This session's changes are on branch `raghav/week2-ps1`, not yet committed/pushed as of this documentation pass** — see Section 8/STOP 5 for the staged-file list. `.gitignore` excludes all APK corpora (`*.apk`, `banking_holdout_16/`, `fdroid_benign_apks/`, `cicmaldroid_banking/`, `Banking.tar.gz`), model/embedding/index file patterns, `baseline/`/`baseline_v2/`/`out/`/`fix3_fp_baseline/`/`d2_ab_results/`, the unexplained top-level `logging` binary, and F-Droid scraping data artifacts (`index-v2.json`, `download_log.txt`, the package-list `.txt` files) |
+| Version control | **INITIALIZED, pushed** — **SUPERSEDED 2026-08-12, see note** | `.git` exists; remote `origin` = `https://github.com/raghavpathak30/SetuGuard`. As of 2026-07-26/27: branch `main` tracked `origin/main`, 2 commits (`aee8497`, `9695401`), Week-2 work sat on an unmerged `raghav/week2-ps1` branch. **That branch state is stale — do not rely on it.** All work since (D1 inversion, `setuguard_app/`, this session's scorer-v2 pruning) has landed as individual commits directly on `main`; run `git log --oneline -10` for the real current state rather than trusting a commit count here. `.gitignore` has grown since (now also excludes `harness/feature_cache/`, `harness/extract_run*.log`, and the scorer-v2 split sample lists — see `SESSION_LOG.md`'s 2026-08-12 entry) |
 
 **Known-broken / blunt findings:**
+
+> **SUPERSEDED 2026-08-12** — the four bullets below describe the RAG/Mistral stage's *own*
+> verdict, which was authoritative at the time. As of the 2026-08-10 "D1 inversion"
+> (`setuguard_app/backend/app.py`'s `_rule_based_verdict()`), the LLM no longer produces the
+> served verdict at all — a deterministic rule-based scorer does, and it does use all three
+> labels. The "always suspicious" defect described here is fixed, not by tuning the prompt (as
+> this section implies is the only path) but by removing the LLM from the verdict path entirely.
+> See `SESSION_LOG.md`'s 2026-08-10 entries. Left unedited below for historical accuracy about
+> what Weeks 1–2 actually measured.
 
 - **The RAG report's categorical verdict has never once been "benign" or "malicious" in any measured run.** Confirmed FOUR times independently now: `baseline/` (n=50), `baseline_v2/` (n=86 effective), the D2 A/B (n=36), and the Fix #3 before-run (n=113 effective) — **100% "suspicious"** across all of them, regardless of true label or measurement context. Confidence separates the classes at small n but the separation **collapses at wider n** (see Section 6) — the 3-way enum carries almost no signal. Week-2's D2 A/B experiment (paired, in-memory, `knowledge_base.py` never touched) **redirects the suspected root cause away from retrieval (D2) and toward `SYSTEM_PROMPT`/schema-level causes** (D1's other candidates) — see Section 6 for the full result. Still not fixed — explicit team decision required, not a silent patch.
 - **The wider n=50-malicious confidence-separation re-run is now COMPLETE** (Week 2) — `baseline_v2/` was rewritten for crash-survivability and re-run to completion (n=86 effective: 40 benign, 46 malicious after 4 `InvalidInstruction`-bytecode skips). The separation question is answered: **it does not survive** — see Section 6.
@@ -675,7 +716,7 @@ unbuilt (Open Item, Section 8).
 | Decision | Why | What was rejected | What would force a revisit |
 |---|---|---|---|
 | Accessibility abuse detected from the manifest, not DEX xref-matching | A benign hello-world app fired 23 `AccessibilityEvent` hits + 41 reflection hits — DEX-matching is too noisy | Matching `AccessibilityEvent`-family methods directly like the other 8 categories | If manifest-only detection proves too coarse (misses apps that register accessibility services dynamically at runtime) |
-| `reflection` category kept despite being explicitly "weak" | Required by spec (T1406 coverage); dual-use nature stated up front rather than hidden | Dropping reflection entirely to cut noise | If it never contributes to a true positive once wider/holdout data is measured |
+| `reflection` category kept despite being explicitly "weak" — **SUPERSEDED 2026-08-12: the revisit condition in the next column was met.** Wider measurement (668-sample, seed=42) found `reflection` fires *more* on benign apps than malware (measured separation −20.9pts) in the scorer built on top of this feature (`app.py`'s `_rule_based_verdict()`, not this file). Removed from that scorer's scoring entirely (rationale text still lists call sites) — see `SESSION_LOG.md`'s 2026-08-12 entry. **This row is about `static_analysis.py`'s feature extraction, which still extracts and reports `reflection` API calls unchanged — only the downstream scorer stopped weighting them.** | Required by spec (T1406 coverage); dual-use nature stated up front rather than hidden | Dropping reflection entirely to cut noise | If it never contributes to a true positive once wider/holdout data is measured |
 | `generate_yara` gates on `report["verdict"] == "benign"` (hard invariant), not just the indicator-count threshold | A real, genuinely benign F-Droid app (`a2dp.Vol`, an audio player) organically racked up 10 indicators (READ_PHONE_STATE + RECEIVE_BOOT_COMPLETED + a GitHub URL, etc.) — proving "benign apps naturally have <2 indicators" false | Relying on the count threshold alone, as the literal spec text implied | This is load-bearing for the "benign apps don't yield malware rules" guarantee — would need explicit team sign-off to relax |
 | `generate_yara(features, report)` instead of the literally-specified `generate_yara(features, verdict)` | YARA `meta` requires `confidence`, which only lives in the report dict, not in a bare verdict string | Passing `verdict` and `confidence` as two separate positional args | If a downstream caller needs the exact 2-arg signature for some integration reason |
 | FAISS index rebuilt in memory on every `generate_report()` call, no persistence | Corpus is only ~16 chunks — explicit instruction was "no persistence, no cache code" | Precomputing/saving an index file | If the knowledge base grows large enough that per-call embedding cost becomes a real bottleneck |
@@ -713,12 +754,16 @@ Ordered by risk to the Aug 27–28 demo (per the user's stated date — see UNVE
 6. ~~The wider (n=50-malicious) confidence-separation re-run is incomplete~~ **RESOLVED (Week 2).**
    `baseline_v2/` re-run to completion (n=86 effective). Answer: **separation does not survive** —
    overlap region ≈[0.65,0.85] at n=46 malicious vs. a clean touch-not-cross at n=10 (Section 6).
-7. **The verdict enum still carries near-zero signal — now confirmed FOUR times independently**
-   (`baseline`, `baseline_v2`, the D2 A/B, the Fix #3 run — 100% "suspicious" every time, n=50+86+
-   36+113). **New this session:** the D2 A/B redirects the suspected root cause away from
-   retrieval (D2) and toward `SYSTEM_PROMPT`/schema-level causes (D1's other candidates) — see
-   Section 6. Still needs an explicit team decision — not something to silently patch, per
-   repeated instruction.
+7. **SUPERSEDED 2026-08-12.** The verdict enum's near-zero-signal problem, confirmed four times
+   independently as of this Week-2 session (`baseline`, `baseline_v2`, D2 A/B, Fix #3), was a
+   property of the *LLM's own* verdict. The 2026-08-10 "D1 inversion" removed the LLM from the
+   verdict path entirely — `app.py`'s `_rule_based_verdict()` is now the sole, deterministic
+   source of verdict/confidence, and it does use all three labels with real separation (though a
+   *different* problem was then found and is still being worked: on `banking_holdout_16`, the
+   scorer initially ranked real banking apps at or above malware; this session's scorer-v2 pruning
+   improved that gap without closing it — gate AUC 0.3841→0.4113, still ≤0.5). See
+   `SESSION_LOG.md`'s 2026-08-10 and 2026-08-12 entries and `docs/evidence/2026-08-12_scorer_v2.md`.
+   Left below for historical accuracy about what was true as of Week 2.
 8. ~~No version control exists anywhere in the repository.~~ **RESOLVED 2026-07-20 (second
    session).** `.git` initialized, remote `origin` = `https://github.com/raghavpathak30/SetuGuard`,
    2 commits made and pushed to `main` (`aee8497`, `9695401` — Section 2). `.gitignore` keeps all
