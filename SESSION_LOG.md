@@ -481,3 +481,195 @@ Commits: `59603b6` (Description.xlsx), `2581e4a` (Task 1: offline trainer + arti
 endpoint), `752772e` (Task 2: null generated_rules/rule_validated), `d9070c7` (Task 3: real bridge
 matching). Backend was started/stopped repeatedly for measurement during this session and is not
 left running at session end.
+
+## 2026-08-11 (continued) — pre-submission hardening pass (Tasks A-H)
+
+Scope: real-browser verification (the previous entry's frontend check was field/type-checking +
+a standalone Node template reproduction, not an actual browser — this session closes that gap),
+Ollama-down degradation proof, PS2 variance/operational-recall reporting, killing the last
+fabricated number (counterfactual), a leakage-assert negative test, a ps2/ provenance README, a
+Chart.js vendoring check, and a provenance question about the bridge's one ground-truth entry.
+No PS1 frozen file was touched (confirmed via `git log --name-only` over this session's commits
+against `setuguard_ps1/`); no FROZEN_FILE_FINDINGS.md entry needed. No PS2 hyperparameter was
+tuned anywhere in this session.
+
+**Task A — headless-browser dashboard smoke test.** Installed Playwright 1.47.2 + Chromium local
+to `harness/node_modules` (gitignored) and `~/.cache/ms-playwright` (outside the repo) — no system
+packages touched; `--with-deps` needed sudo and wasn't available, but headless Chromium launched
+fine without it. `harness/browser_smoke.js` (non-frozen) starts the Flask backend fresh, loads
+`setuguard_app/frontend/index.html` via `file://` in headless Chromium, and drives APK analysis →
+dataset analysis → bridge (matching APK, expect 1 link) → APK analysis (non-matching APK) →
+bridge (expect 0 links), capturing every console message, uncaught page exception, failed
+request, and non-2xx response per step, screenshotting each, and exiting non-zero on any console
+error or uncaught exception. Run under `systemd-run --user --scope -p MemoryMax=6G -p
+MemoryHigh=5G`. Result: **PASS**, zero console errors, zero uncaught exceptions, zero failed/non-
+2xx requests across all 5 steps — verbatim `console_report.json` + 5 screenshots + backend log
+committed under `harness/browser_evidence/ollama_up/`. The bridge-match screenshot independently
+confirms account "9072" / `cert_hash` rendering correctly in an actually-rendered page (not just
+the API JSON) — visible in `03_bridge_match.png`.
+
+**Task B — Ollama-down degradation path.** Could not stop the real `ollama.service` — it's a
+systemd system service owned by user `ollama`, `sudo -n systemctl stop ollama` failed (password
+required, no passwordless sudo), and there's no non-root way to signal a process owned by another
+user. Used the `ollama` Python client's documented `OLLAMA_HOST` env var instead, pointed at a
+closed local port (`127.0.0.1:19999`, confirmed nothing listening), forwarded to the spawned Flask
+child via `systemd-run --setenv`. Verified this is not merely similar to but the *same failure
+path* as a stopped service: `OLLAMA_HOST=http://127.0.0.1:19999 python3 -c "import ollama;
+ollama.embed(...)"` raises the identical wrapped `ConnectionError` app.py's `_try_llm_narrative()`
+catches via a bare `except Exception` — disclosed here rather than asserted silently. Re-ran
+`browser_smoke.js --label ollama_down --skip-second-apk`: **PASS**, zero console errors. Confirmed
+both visually (screenshot) and via a direct follow-up API call: `verdict_source` stayed
+`rule_based`, `narrative_source` became `"unavailable"`, verdict/confidence/severity/risk_score
+identical to the Ollama-up run (malicious, 0.88, CRITICAL, 88) since neither depends on the LLM,
+narrative visibly degraded to "Note: Ollama/mistral unreachable..." instead of crashing, response
+time 1.24s (no hang/retry storm). Real Ollama was never touched, so "restart and confirm normal
+operation returns" reduces to Task A's `ollama_up` evidence (same backend/APK, default env,
+`narrative_source: ollama_rag`) — not re-run redundantly.
+
+**Task C — PS2 repeated-holdout variance + operational curve.** `harness/ps2_repeated_splits.py`
+(non-frozen) runs 20 stratified 80/20 splits, seeds 0-19, identical pipeline and identical fixed
+hyperparameters copied verbatim from `train_ps2_model.py` — no hyperparameter search. Only the
+split's (and, tied to it, the model's own) `random_state` varies. Result: holdout AUCPR median
+**0.271** (IQR 0.221-0.362, min 0.093, max 0.600, n=20); holdout AUROC median **0.872** (IQR
+0.851-0.907, min 0.716, max 0.933). Wide, reported as wide.
+
+**Correction to this task's stated premise**: the already-published 0.4114/0.9572 in
+`models/ps2_xgb_v1_metrics.json` did **not** come from seed 0 — checked the file directly
+(`"seed": 42`); `train_ps2_model.py`'s default `--seed` is 42, not 0. Ran seed 42 explicitly as a
+reference point outside the 0-19 range and confirmed it reproduces the published numbers exactly
+(byte-identical: 0.4114011947584679 / 0.9571765685730149 — also a correctness check that this
+script's pipeline matches the original trainer's). **Seed 42 sits at the 80th percentile of the
+seeds-0-19 AUCPR distribution and the 100th percentile (best) of the AUROC distribution** — the
+previously reported point estimate is a favorable draw, not a representative one, consistent with
+the standing hypothesis that the stricter-eval-scored-higher result was a variance artifact.
+
+Operational curve, seed=0's holdout (1,817 accounts, 16 fraud): reviewing the top 1% by score (18
+accounts) catches 3/16 frauds (18.8% recall); top 5% (91 accounts) catches 8/16 (50.0% recall).
+Full per-seed table in `models/ps2_repeated_splits_metrics.json`. 21 fits total, 4.8s wall clock,
+268MB peak RSS.
+
+**Task D — killed the hardcoded counterfactual.** `"drops_to": round(max(score - 0.2, 0.0), 3)`
+was a flat, arbitrary subtraction with no relationship to the model or the specific feature's real
+effect size. Nulled using the exact precedent already established for `generated_rules`/
+`rule_validated`: value → `null`, sibling `counterfactual_status: "not_computed"`. Verified via
+`browser_smoke.js --label ollama_up_taskD` that the frontend's existing null-safe ternary renders
+"—" for every row instead of throwing — PASS, confirmed in the screenshot.
+
+Feasibility check (not implemented — decision deferred, per instruction): a real,
+non-approximated counterfactual is cheap now that `shap_drivers` is real per-record, since the
+trained model is already loaded in-process. The honest version is a literal re-score, not a
+SHAP-value subtraction: copy the row, set the top SHAP driver's feature to the dataset median (or
+search for the tier-boundary-crossing value), call `model.predict_proba()` on the modified row —
+one extra inference call per `top_alert` (15 rows), not an approximation. What it would be
+entitled to claim: "if only this one feature had this other value, holding everything else in the
+row fixed, the model would output this score" — a real, verifiable statement about the model's own
+behavior. What it would **not** be entitled to claim: that the account holder can actually cause
+that feature to change (no actionability/plausibility check, unlike DiCE-style counterfactuals);
+that it's the minimal or optimal change (only the single top-SHAP feature examined, not jointly
+optimized); that the resulting row is internally consistent (changing one ratio feature in
+isolation may be incompatible with correlated features held fixed in the same row); or that the
+number is stable across model refits — Task C's seed-variance results apply to this model exactly
+as much as to its headline metrics.
+
+**Task E — negative test proving the leakage assert fires.** Factored the inline exclusion check
+out of `load_dataset()` into a standalone `assert_no_excluded_features(columns)` (no behavior
+change — re-ran the trainer post-refactor, byte-identical holdout metrics). This wasn't cosmetic:
+`load_dataset()`'s own `df.columns` can never contain a leaky column regardless of the source
+CSV's contents, because pandas' `usecols` filters at read time — testing *through* `load_dataset()`
+would only prove `usecols` works, not that the guard itself catches a leaky column when
+hypothetically handed one. `harness/test_leakage_assert.py` builds hand-constructed column lists
+that deliberately include an excluded feature and calls the guard directly. Four cases, all
+**PASS**: F3912 (`FRAUD_SUSPECTED`, `EXCLUDED_LEAKY_FEATURES`), F3906 (`STATUS_CHANGE_AFTER_WD`,
+one of the 12 `EXCLUDED_ALERT_DERIVED` legacy-rule-engine flags), F2230 (`MNTH`,
+`EXCLUDED_ALERT_DERIVED`), and a control (`BANK_FINALIZED_FEATURES` alone, confirms the guard
+isn't trigger-happy). Output committed verbatim to `harness/test_leakage_assert_output.txt`.
+
+**Task F — `ps2/README.md`** written (5 short paragraphs): `01-07` are offline research artifacts
+behind the leakage audit, produce no number in the report/demo; the shipping model is
+`harness/train_ps2_model.py` → `models/ps2_xgb_v1.json`, served inference-only; `06_graph_features.py`
+assigns graph features using the target label (cited the exact line —
+`fraud_mask = combined_df[target_col] == 1` inside `map_graph_features_to_dataset()`) and the
+"mules sit at network bridges" conclusion is withdrawn; `07_ps2_bridge_exporter.py` hardcoded
+`shap_drivers`/`generated_rules`/`rule_validated` identically across all 9,082 records and is dead
+code in the live path.
+
+**Task G — Chart.js vendoring: premise was stale.** `setuguard_app/frontend/chart.umd.js` (Chart.js
+4.4.4, 205KB minified) was already vendored and `index.html` already references it via a local
+`<script src="chart.umd.js">` tag, not a CDN URL — traced to commit `5e4d6fe`, predating this
+session. No vendoring action taken. What *was* missing: verification that it actually works with
+zero network dependency in a real browser — `browser_smoke.js`'s steps all navigate away from the
+dashboard before attaching listeners, so none of Task A/B/D's evidence covers the dashboard's
+*initial* render, where `renderDashboard()` creates the chart synchronously during page load,
+before any step-level listener exists. `harness/verify_chartjs.js` (non-frozen, ad-hoc) closes
+that gap: listeners attached before `page.goto()`. Result: **PASS** — `window.Chart` defined
+(version "4.4.4"), canvas visibly drawn into, zero console/page errors, and the only non-`file://`
+request is the dashboard's own health check to `127.0.0.1:5000` (checked every request's hostname,
+not skimmed) — zero requests to any external host. Screenshot + `report.json` in
+`harness/browser_evidence/chartjs_vendored/`.
+
+**Task H — provenance of `SYNTHETIC_LINKAGE_GROUND_TRUTH`'s one entry ("9072"). Report only, no
+code changed.** Traced via `git log --follow -- bridge/matcher.py` and reading every commit's full
+diff:
+
+- The entry (account `"9072"`, `cert_hash` = the real cert SHA-256 of a real analyzed APK) was
+  introduced in commit `79e3a39` ("Fix: reproducible test fixture (Raghav's input-path blocker)...").
+  `bridge/confusion_matrix_validation.py`'s docstring independently confirms the APK side's
+  provenance: `REFERENCE_APK_ANALYSIS` is explicitly "the real analyzed sample Raghav sent" —
+  i.e. the PS1 owner supplied a real APK's real static-analysis output to the Bridge author.
+- The account-ID side is less clear. The same commit appended exactly two new records to
+  `bridge/test_fixtures_ps2_sample.json` — accounts `"9072"` and `"9080"` — on top of an existing
+  fixture (from `fdcb1b8`) that was simply the first 200 sequential account IDs ("1".."200"), not
+  a curated sample. Only `"9072"` of the two new accounts was then hand-wired into
+  `SYNTHETIC_LINKAGE_GROUND_TRUTH`. No comment, docstring, or commit message anywhere states *why*
+  `"9072"` (vs. `"9080"`, vs. any other account) was the one chosen.
+- **Directly checked both accounts' true fraud label in `DataSet.csv`: both `"9072"` and `"9080"`
+  are fraud (`F3924=1`).** Investigating why, found something that reframes the whole question:
+  **all 81 fraud rows in `DataSet.csv` are perfectly contiguous at the tail of the file — indices
+  9002-9082, no gaps, no interleaving with non-fraud rows anywhere in that range.** (Checked
+  directly: `df[df.F3924==1]['idx'].tolist()` is exactly `[9002, 9003, ..., 9082]`.) Since
+  `ps2_bridge_payload.json`'s `account_id_raw` is literally `df.index` with no shuffling, *any*
+  record grabbed from near the end of that export is fraud with near-certainty — 81 of the last ~82
+  rows are fraud. Picking "a couple more accounts past the first 200" from that region of the file
+  would land on fraud regardless of whether the fraud label was ever consulted.
+- Separately, `bridge/confusion_matrix_validation.py` (a larger, methodologically distinct
+  validation exercise, same PR) builds its own 100-account ground truth via
+  `random.seed(42); random.shuffle(account_ids)` over real PS2 IDs, assigning the known-good
+  cert_hash/C2 to the first few *after* shuffling — explicitly, per its own docstring, "avoids a
+  trivially-true-by-construction test." This shows the team's stated practice elsewhere leans
+  against label-based cherry-picking, but that script's ground truth is a separate, local
+  construction — it does not feed `SYNTHETIC_LINKAGE_GROUND_TRUTH`.
+- **Conclusion, stated as a conclusion and not stronger than the evidence supports**: it cannot be
+  determined from the repo whether "9072" was chosen because its fraud label was already known, or
+  for an unrelated reason (e.g. simply the next two IDs past the original 200-row fixture) with the
+  fraud match discovered afterward. The two are not distinguishable from available evidence. What
+  *can* be said: given the tail-clustering fact above, landing on a fraud account from that region
+  of the file was near-unavoidable regardless of intent, which weakens (without fully resolving)
+  the concern that the match is meaningful evidence of anything beyond "the demo fixture was built
+  from the tail of a label-sorted file." The prior session's phrase "independently confirmed real
+  fraud" is not false — this session verified `F3924=1` for account 9072 by an entirely separate
+  method (direct pandas read of `DataSet.csv`, not by reading `matcher.py`) — but it should not be
+  read as strong evidence of the bridge matcher's quality, given how easy that outcome was to reach
+  by construction. The tail-clustering itself is a new, previously-undocumented data-quality fact
+  about `DataSet.csv` worth keeping in mind for any future work that assumes row order carries no
+  information.
+
+**Discrepancies flagged against this task's brief, not silently resolved:**
+- The brief states data lives at `data/DataSet.csv`; it is still at the repo root
+  (`DataSet.csv`), matching `train_ps2_model.py`'s existing default path. Used the actual location;
+  did not move the 116MB file.
+- The brief assumed Chart.js was still CDN-loaded (Task G) and that the published 0.4114/0.9572
+  came from seed 0 (Task C) — both checked against the repo and found otherwise; corrected rather
+  than silently complied with.
+
+**What was not done, and why:**
+- No PS2 hyperparameter was tuned anywhere in this session, per instruction — Task C's 20-seed
+  study exists to characterize variance, not to pick a better-looking seed.
+- Task D's real counterfactual was scoped, not implemented, per explicit instruction ("I decide").
+- The real `ollama.service` was never stopped (no root) — Task B's degradation proof used an
+  env-var redirect verified to hit the identical exception path; disclosed above, not glossed over.
+
+Commits this session (in order): `077ad92` (Task A), `0fabb77` (Task B), `b455d7f` (Task C),
+`e060321` (Task D), `581a6c7` (Task E), `bbfa58e` (Task F), `b901014` (Task G). Task H is
+report-only, no commit. This entry is the eighth. Backend was started/stopped repeatedly for
+measurement and is not left running at session end; the real `ollama.service` was never modified
+and is unaffected by anything in this session.
