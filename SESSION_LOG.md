@@ -372,3 +372,112 @@ new `[0.41, 0.41, 0.41]`. Both identical. Pass.
 Commits: `89077ef` (harness + sample set), `b3ff83b` (scorer deletions), plus this entry and the
 evidence files (commit to follow). Backend process from the 2026-08-10 session was not touched
 this session — status unknown, not verified.
+
+## 2026-08-11 — PS2 + Bridge integration into the live API (Tasks 1-4)
+
+Scope per instruction: fix eight established defects in `/api/analyze_dataset` (in-request
+training/CV, hardcoded `shap_drivers`/`generated_rules`/`rule_validated`, unconditional bridge
+linking, unused `matcher.py`) using a newly-provided data dictionary (`Description.xlsx`, copied
+to `data/Description.xlsx` and committed — 140KB exception carved out of the blanket `*.xlsx`
+gitignore rule). PS1 (`setuguard_ps1/`), the frontend, and the three API endpoint paths were not
+touched, per instruction; `_rule_based_verdict()` untouched and still the sole PS1 score/verdict
+source. `ps2/06_graph_features.py` (label-leakage graph features) was not used or referenced.
+
+**Verified against the data dictionary before writing code**: Description.xlsx's
+`Bank_Finalized_Variables` column names exactly the 18 features + target (F3924/FRAUD_TGT) the
+brief specified, confirmed byte-for-byte against DataSet.csv's actual columns/dtypes (9,082 rows,
+81 fraud/9,001 non-fraud — matches brief exactly). Two of the 18 (F3889 ACCT_OPN_DAYS, F3891
+CUST_OCCP) are category codes, not numbers, confirmed via dtype inspection, not assumed.
+
+**Task 1** — `setuguard_app/backend/ps2_features.py` defines `BANK_FINALIZED_FEATURES` /
+`EXCLUDED_LEAKY_FEATURES` / `EXCLUDED_ALERT_DERIVED` / `CATEGORICAL_FEATURES`, each comment-cited
+to the dictionary row it came from; imported by both the trainer and the live backend so they
+can't drift apart. `harness/train_ps2_model.py` (non-frozen, docstring says so) loads only the 19
+needed columns via `usecols` (never the full 3,925-column/116MB `DataSet.csv`), asserts no
+excluded feature is present in the loaded matrix (raises, doesn't silently drop), does a
+stratified 80/20 holdout split (train: 65 positive/7,200 negative; holdout: 16 positive/1,801
+negative — exact counts, small-positive-class caveat reported per instruction), trains XGBoost,
+computes SHAP on the training set (mean(|SHAP|) feature-importance artifact), and writes
+`models/ps2_xgb_v1.json` + `models/ps2_xgb_v1_metrics.json` (holdout AUCPR **0.4114**, holdout
+AUROC **0.9572** — both HOLDOUT, labeled as such everywhere they're surfaced; in-sample train
+AUCPR 0.9885 kept in the metrics file only, under a key literally named
+`..._DO_NOT_REPORT_AS_HOLDOUT`, never returned by the API). Determinism verified by running twice
+end-to-end and diffing every metric (identical). Peak RSS 400MB, 4s wall clock — small enough that
+the `systemd-run` memory-cap wrapper mandated by the brief for long-running jobs wasn't needed;
+noted rather than applied blindly.
+
+`/api/analyze_dataset` now loads that artifact once at process import time and never trains,
+cross-validates, or fits a SHAP explainer inside a request — the only per-request SHAP work is
+running the already-fitted `TreeExplainer` forward over the 15 rows actually returned (inference,
+not fitting). Endpoint p50 on a real `DataSet.csv` upload, measured both ways before editing code:
+**~7.6s → ~0.66s** (n=4 old / n=4 new), peak RSS **~1.9GB → ~0.66GB** (`VmHWM`) — the RSS drop is
+mostly `usecols` no longer parsing all 3,925 columns into a DataFrame just to leakage-audit and
+one-hot-encode columns nobody asked for.
+
+**Task 2** — `shap_drivers` was fixed as a side effect of Task 1 (every top_alert now carries its
+own real per-record `TreeExplainer` output — confirmed non-identical across records, unlike the
+prior hardcoded-fallback defect). `generated_rules`/`rule_validated` were traced to
+`ps2/07_ps2_bridge_exporter.py`, which hardcoded `["SetuGuard_YARA_Rule_01.yar"]` / `true`
+identically across all 9,082 exported records — a copy-paste of PS1's per-APK YARA concept onto
+PS2 accounts, where there's no real per-account "generated rule" to validate. No honest
+sub-30-minute way to compute either, so both are now explicit `null` with a `"*_status":
+"not_computed"` sibling field on every `top_alert`, never a repeated fabricated constant.
+
+**Task 3** — `/api/bridge` now imports and calls `bridge/matcher.py`'s real
+`extract_ioc_from_ps1()` + `match_account_to_apk()` against every scored account, instead of
+synthesizing its own `shared_ioc` and linking unconditionally to `top_alerts[0]`. Verified against
+real data both directions: analyzing `cicmaldroid_banking/007556ca....apk` (cert_sha256
+`d6e80c1de6423814bb8b8e4de46d9eb84d7eaa5cadfd5c8116918e4922e070d6`, matching
+`matcher.SYNTHETIC_LINKAGE_GROUND_TRUTH`'s only entry, keyed `"9072"`) against a fresh
+`DataSet.csv` scoring produced exactly 1 link on account `"9072"` — independently confirmed real
+fraud (`F3924=1`) in the source data and ranked into the model's own top-5 alerts by score, not a
+coincidence set up after the fact. A different APK against the same scoring run produced 0 links.
+Both paths return HTTP 200; the zero-match response carries `"links": []`, `"matched": false`, and
+null-but-safe top-level compat fields for the frontend's existing single-record template — traced
+the exact JS template (`app.js`'s bridge handler) and confirmed via a standalone Node
+reproduction that it stringifies `null`/`undefined` without throwing, so the empty state renders
+rather than erroring. Grepped for the literal phrase "malicious APK indicators" to fix per
+instruction; found no occurrence anywhere in the repo. New bridge narrative text uses "matched APK
+indicators" throughout.
+
+**Task 4** — full stack exercised against real inputs, backend started fresh each time:
+
+| Endpoint | Input | HTTP | p50 (n=3) | Notes |
+|---|---|---|---|---|
+| `/api/analyze_apk` | real APK (491KB, cicmaldroid_banking) | 200 | ~9.86s | Ollama reachable this session — real RAG narrative (`narrative_source: ollama_rag`), `verdict_source` stayed `rule_based` (frozen D1 invariant, confirmed) |
+| `/api/analyze_dataset` | `DataSet.csv` (9,082 rows) | 200 | ~0.66s | holdout AUCPR/AUROC surfaced, prevalence labeled descriptive-only |
+| `/api/bridge` (match) | same APK + dataset run above | 200 | ~0.0025s | 1 link, account "9072", `matched_on: cert_hash` |
+| `/api/bridge` (no-match) | different APK, same dataset run | 200 | ~0.0025s | 0 links, `matched: false`, note explains why |
+
+All three response schemas checked field-by-field against what `frontend/app.js` actually reads
+(not just "looks plausible") — every field the frontend accesses is present with the expected
+type in real responses; the bridge empty-state template was checked by extracting and running the
+literal template string, not by inspection alone. Frontend files themselves were not opened in a
+browser this session (no browser tool available) — field/type verification stands in for that,
+flagged as the one unclosed loop in Task 4's brief ("whether the frontend renders... without
+console errors").
+
+**What was not done, and why:**
+
+- The hardcoded `-0.2` counterfactual (established defect #4) was not fixed — not assigned to
+  Tasks 1-4, left alone per "no scope creep."
+- `models/` is no longer gitignored (was a blanket, comment-flagged-as-unused pattern); the
+  artifact itself (276KB) is now committed since the live endpoint depends on it existing.
+- The `import matcher as bridge_matcher` line landed in the Task 1 commit (added alongside the
+  `ps2_features` import in one edit, before Task 3's usage existed) rather than Task 3's — a minor
+  commit-hygiene wrinkle, not a functional issue; noted rather than rewriting history to fix it.
+- `ps2/07_ps2_bridge_exporter.py` and `ps2_bridge_payload.json` (the actual source of the
+  hardcoded `generated_rules`/`rule_validated`/`shap_drivers` defect, per investigation) were not
+  edited — confirmed they're not in the live request path (`/api/bridge` scores from
+  `STATE["last_dataset"]`, never calls `matcher.load_ps2_accounts()` against that file), so fixing
+  the live schema in `app.py` was the in-scope, load-bearing fix; the offline exporter is dead
+  code in the current architecture, consistent with established defect #1's framing of `ps2/` as
+  research artifacts separate from the canonical `app.py` implementation.
+- Real Ollama latency (~9.9s of the ~9.86s p50) is now the dominant cost on `/api/analyze_apk`,
+  unrelated to anything touched this session — flagged for awareness, not fixed (PS1/Ollama stage
+  is frozen/out of scope).
+
+Commits: `59603b6` (Description.xlsx), `2581e4a` (Task 1: offline trainer + artifact-loading
+endpoint), `752772e` (Task 2: null generated_rules/rule_validated), `d9070c7` (Task 3: real bridge
+matching). Backend was started/stopped repeatedly for measurement during this session and is not
+left running at session end.
