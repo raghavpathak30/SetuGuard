@@ -1,0 +1,84 @@
+{
+  "title": "SetuGuard scorer-v2: feature pruning + holdout ranking gate",
+  "date": "2026-08-12",
+  "sample_set": {
+    "file": "harness/sample_set_716.txt",
+    "builder": "harness/build_sample_set_716.py",
+    "seed": 42,
+    "commit_builder_committed_at": "89077ef",
+    "total": 716,
+    "composition": {
+      "banking_holdout": {"n": 16, "source": "banking_holdout_16/ (all files, no subsampling)"},
+      "malicious": {"n": 400, "source": "cicmaldroid_banking/ (random.Random(42).sample of 2489)"},
+      "benign": {"n": 300, "source": "fdroid_benign_apks/ (random.Random(42).sample of 802)"}
+    }
+  },
+  "extraction": {
+    "tool": "harness/extract_features_pool.py",
+    "consumes": "static_analysis.analyze_apk() (frozen file, unmodified, imported read-only)",
+    "cache_dir": "harness/feature_cache/ (gitignored, 668 sha256-keyed JSON files, regenerable)",
+    "n_cached_ok": 668,
+    "n_skipped": 48,
+    "n_total": 716,
+    "skips_by_corpus": {"banking_holdout": 0, "malicious": 40, "benign": 8},
+    "cached_by_corpus": {"banking_holdout": 16, "malicious": 360, "benign": 292},
+    "cache_integrity_check": "100% of 668 cache files parsed, filename sha256 == internal features.sha256, all expected feature keys present (0 corrupt)",
+    "skip_reasons": {
+      "malicious_InvalidInstruction_39": "androguard bytecode disassembler rejected obfuscated/corrupted DEX opcodes in cicmaldroid_banking samples",
+      "malicious_AttributeError_1": "FROZEN_FILE_FINDINGS.md Finding 1 (exported_components manifest node with no android:name -> NoneType.iter), known and deliberate, not fixed this session",
+      "benign_EOCD_ValueError_7": "fdroid_benign_apks files that are not valid ZIP archives (End of central directory record not found) -- data-quality issue in the corpus, not a scorer or memory issue",
+      "benign_ManualTimeout_1": "cash.p.terminal_243.apk, 172.2MB (the largest file in the entire 716-sample set by ~30x median). Killed after 300s wall-clock even when run alone with a dedicated 10G/8G/2G memory budget and zero contention from any other process. Not a scorer question; recorded as a known extraction-pipeline limitation."
+    },
+    "operational_note": "Initial 4-worker run under MemoryMax=8G/MemoryHigh=6G (no swap limit) caused system-wide swap exhaustion (8GB swap consumed, desktop starved) rather than the intended per-cgroup throttling, because MemoryMax/MemoryHigh do not constrain swap without a separate MemorySwapMax. Diagnosed and stopped (no cache corruption; per-APK immediate-write pattern held). A follow-up attempt with MemorySwapMax=0 caused a different failure mode (near-total stall under memory.high throttling with no swap relief valve for anonymous memory). Root cause of both was concurrency against a small number of atypically large APK files, not a general per-task leak. Resolved by splitting the remaining queue into 585 normal-sized files (processed with 2 workers, MemoryMax=8G/MemoryHigh=6G/MemorySwapMax=1G, completed in 704s at 1.20s/APK effective, 0 memory incidents) and 15 files >50MB (processed one at a time via harness/process_large_outliers.sh, each in its own scope with a dedicated 10G/8G/2G budget and a 300s hard timeout; 14/15 completed in under 60s each, confirming the earlier instability was concurrency-driven, not per-file; 1/15 (172.2MB) still timed out in isolation and was logged as a skip)."
+  },
+  "scorers": {
+    "old": {
+      "label": "pre scorer-v2 (includes reflection, self_signed, unnarrowed url/ip)",
+      "commit": "46ce2ea",
+      "note": "46ce2ea's setuguard_app/backend/app.py is byte-identical to this session's starting HEAD (9e34c5f); verified via `git diff 46ce2ea 9e34c5f -- setuguard_app/backend/app.py` producing zero output.",
+      "implementation": "harness/rescore_from_cache.py:_score_old (pinned copy, diffed line-for-line against `git show 46ce2ea:setuguard_app/backend/app.py`)"
+    },
+    "new": {
+      "label": "scorer-v2 (reflection and self_signed removed, url/ip narrowed to bare-IP-host / non-standard-port)",
+      "commit": "b3ff83b",
+      "implementation": "harness/rescore_from_cache.py:_score_new (pinned copy, verified matching setuguard_app/backend/app.py's _rule_based_verdict() score-relevant lines at commit b3ff83b by direct code inspection + unit tests)"
+    },
+    "both": "Pure functions over cached features dicts only; no Androguard re-invocation, no network, no Ollama."
+  },
+  "score_distributions": {
+    "note": "n / mean / median / min / max / count-at-1.0-cap. Computed twice independently (harness/rescore_from_cache.py's stats() and a standalone statistics.median recompute) with identical results to 4 decimal places.",
+    "old": {
+      "banking_holdout": {"n": 16, "mean": 0.8156, "median": 0.88, "min": 0.45, "max": 1.0, "capped_at_1.0": 4},
+      "malicious":        {"n": 360, "mean": 0.7202, "median": 0.73, "min": 0.15, "max": 1.0, "capped_at_1.0": 57},
+      "benign":           {"n": 292, "mean": 0.3649, "median": 0.36, "min": 0.05, "max": 0.98, "capped_at_1.0": 0}
+    },
+    "new": {
+      "banking_holdout": {"n": 16, "mean": 0.6881, "median": 0.82, "min": 0.28, "max": 0.96, "capped_at_1.0": 0},
+      "malicious":        {"n": 360, "mean": 0.6135, "median": 0.63, "min": 0.0, "max": 1.0, "capped_at_1.0": 14},
+      "benign":           {"n": 292, "mean": 0.1438, "median": 0.08, "min": 0.0, "max": 0.68, "capped_at_1.0": 0}
+    }
+  },
+  "auc": {
+    "method": "Mann-Whitney U / rank-sum identity (exact, matches sklearn.metrics.roc_auc_score for the binary case); positive class = malicious, higher score = more suspicious",
+    "verification": "Direction verified on synthetic cases (positives-higher -> 1.0, positives-lower -> 0.0, all-tied -> 0.5) and cross-checked against an independent brute-force O(n*m) pairwise implementation on a random subsample (60 malicious vs all 16 holdout), which matched the rank-sum result to 4 decimal places (0.4589 both ways).",
+    "gate_malicious_vs_banking_holdout_16": {
+      "old": 0.3841,
+      "new": 0.4113,
+      "is_the_gate": true,
+      "interpretation": "Both below 0.5: under both scorers, the average legitimate banking app still scores at or above the average malware sample. The new scorer narrows the gap (+0.0272) but does not cross 0.5."
+    },
+    "secondary_malicious_vs_fdroid_benign": {
+      "old": 0.8736,
+      "new": 0.9366,
+      "is_the_gate": false
+    }
+  },
+  "gate_verdict_plain_sentence": "Malware does not rank above legitimate banking apps under either scorer (AUC 0.3841 old, 0.4113 new, both <= 0.5 against banking_holdout_16); the three deletions improved the ranking gap without closing it.",
+  "determinism_check": {
+    "method": "Scored one cached feature set (harness/feature_cache/002ca15a26a80f025a45041df9bee5120653393c5ca41bdaca5f79ddda6d2731.json) three times with both _score_old and _score_new.",
+    "result_old": [0.56, 0.56, 0.56],
+    "result_new": [0.41, 0.41, 0.41],
+    "pass": true
+  },
+  "provenance_rule": "Every number in the companion .md carries: corpus, n, seed (42), commit (46ce2ea=old, b3ff83b=new), cached-not-analyzed (all Task-4 numbers read harness/feature_cache/*.json only, zero re-invocations of Androguard), and which scorer (harness/rescore_from_cache.py:_score_old / _score_new) produced it."
+}

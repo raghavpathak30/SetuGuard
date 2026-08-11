@@ -195,3 +195,180 @@ above).
 - Not pushed to origin — not asked.
 - Backend running on port 5000, PID 109314, with all five steps' changes
   live. Left running; kill it if you're done testing.
+
+## 2026-08-10 (continued — D1 calibration diagnosis, investigation only, no code changed)
+
+Investigation-and-planning session per instruction: no file edited, nothing committed. Measured
+the 100%-FP-on-`banking_holdout_16` result directly (not reasoned about from code), to verify or
+refute the standing hypothesis that a ~0.50 permission+URL floor was the cause. Scratch script
+(not committed, scratchpad only) imported the frozen `static_analysis.analyze_apk()` directly —
+no HTTP, no Ollama — and recorded per-term score contributions for all 16 `banking_holdout_16`
+APKs, a seeded random sample of 400 `cicmaldroid_banking` (360 parsed, `random.Random(42)`), and
+150 `fdroid_benign_apks` (146 parsed, same seed).
+
+**What was measured:**
+
+- **Score decomposition**: `banking_holdout_16` mean score **0.816**, *higher* than the actual
+  `cicmaldroid_banking` sample's mean (0.720); general `fdroid_benign` mean 0.354. Banking apps
+  fire nearly every scoring category (perm 93.8%, sms_control 68.8%, device_admin 50.0%,
+  installed_app_discovery 62.5%, reflection 81.2%, url/ip strings 75.0%, self_signed 93.8%,
+  device_fingerprinting 87.5% — higher than the malicious sample's 76.7%). Confirmed by reading
+  raw permissions on 4 holdout APKs directly: `SEND_SMS`/`RECEIVE_SMS`/`READ_SMS` (OTP autofill),
+  `SYSTEM_ALERT_WINDOW` (fraud overlays), `READ_PHONE_STATE`/`READ_CONTACTS`/`CALL_PHONE` — normal
+  banking-app functionality, not incidental.
+- **Discriminative power per term** (malicious sample vs. fdroid_benign+holdout16, ranked by
+  fire-rate separation): `perm_term` +51.9pts (strongest, and largest single contributor to the
+  holdout's inflated score), `sms_control` +45.9, `installed_app_discovery` +38.1,
+  device_fingerprint/crypto/exec +29.6, `device_admin` +20.6, debug_cert +14.9,
+  **`dynamic_code_loading` only +4.7** (second-weakest; fires on just 2/16 holdout apps — refutes
+  the standing hypothesis that this term drives the holdout FPs), `self_signed` **+0.1 (dead —
+  fires on ~99% of every group regardless of label, contributes a free +0.05 almost everywhere)**,
+  `accessibility_service` -1.6 (too rare either direction), **`suspicious_strings` (url/ip) -20.7
+  and `reflection` -20.9 (both measurably backwards — fire *more* in benign apps than malware)**.
+  `reflection`'s weakness is already documented in `static_analysis.py`'s own code comment; the
+  scorer weighs it as a positive signal anyway.
+- **Headroom** (extended `threshold_sweep.py`'s susp_cut range past 0.50, isolating
+  `banking_holdout_16` alone rather than the combined benign pool): FP never drops below 37.5%
+  (6/16) at *any* cut up to 0.98, where malicious flag-recall has already collapsed to 24.7%. Four
+  of sixteen legitimate banking apps hit the literal score cap (1.0), same as the top-scoring real
+  malware. **No threshold pair achieves benign FP under 15% on the banking population** — this is
+  a feature/weight problem, not a threshold problem, confirmed by measurement rather than assumed.
+- **Refined the standing hypothesis**: the "~0.50 floor" is real but not universal — general
+  `fdroid_benign` apps mostly don't hit it (`perm_term` mean 0.035, fires 40% of the time; overall
+  10th-pct score 0.15). It's specific to the banking/fintech vertical, which legitimately needs the
+  same permission set (SMS, overlay, phone-state) that the scorer treats as inherently suspicious.
+
+**Remediation plan delivered (not applied — approval pending):** drop/neutralize the two
+backwards terms (`reflection`, dead `self_signed`) and narrow the URL/IP term first (cheap,
+unambiguous); then redesign `perm_term`/`sms_control`/`installed_app_discovery`/`device_admin` as
+named co-occurrence signatures rather than raw counts (highest-leverage single change, per the
+discriminative-power ranking) — flagged that `accessibility_service` essentially never fires in
+this corpus (0% holdout, <2% general) so any signature built around it needs its own
+co-occurrence-rate check before being trusted; deprioritized re-weighting `dynamic_code_loading`
+(option c) since measurement shows it isn't the driver. Also proposed reframing the verdict as
+batch-relative triage rank (option d), justified specifically by the headroom finding (no
+threshold works, not just "thresholds are hard to pick") — mapped onto the existing
+`verdict`/`confidence`/`risk_score`/`severity` keys (kept, reinterpreted) plus two new additive
+fields (`triage_rank`, `percentile`); flagged single-APK-upload mode (no batch to rank against) as
+an unresolved edge case for that option. All four options confirmed implementable entirely in the
+non-frozen `setuguard_app/backend/app.py`; none require touching the six frozen PS1 files, since
+raw permissions/API categories/strings are already returned by `static_analysis.analyze_apk()`.
+
+**What was not done, and why:**
+
+- No code edited, nothing committed — investigation and planning only, per instruction.
+- `banking_holdout_16` was not tuned against — all discriminative-power and decomposition
+  measurements used `cicmaldroid_banking` (seeded sample) and `fdroid_benign_apks` (seeded
+  sample) only; holdout was scored once, read-only, as the subject of measurement, not as a
+  calibration target.
+- Permission/API co-occurrence signature design (option b) was scoped and justified by the
+  ranking but not specified in detail or calibrated — needs its own before/after measurement
+  against the two non-holdout corpora, flagged as next step, not done this session.
+- Scratch scoring script and its output CSV live in the session scratchpad only, not committed
+  or added under `harness/` — this was ad hoc measurement tooling for the investigation, not a
+  reusable harness artifact.
+
+## 2026-08-12 — scorer-v2 pruning: feature cache builder, three deletions, holdout ranking gate
+
+Task brief assumed a fresh start ("no memory of prior sessions"). Disk did not agree: an
+interrupted, uncommitted attempt at this exact task was already present (`app.py`'s three
+deletions already applied; `harness/build_sample_set_716.py` + `sample_set_716.txt` already
+built; `harness/extract_features_pool.py` partially run, 95/716 cached; `harness/rescore_from_cache.py`
+already drafted) — evidently OOM-killed mid-extraction the prior day, per instruction to stop
+and report rather than guess. Reported the discovery; instructed to verify-then-adopt rather than
+rebuild from the literal spec.
+
+**Verification gate (five checks, all passed) before adopting the prior work:**
+
+1. `app.py` deletions — confirmed via live import + unit tests, not just reading: reflection is
+   excluded from the `seen_cats` set entirely (does not fall through to the 0.08 "other"
+   fallback — the specific trap flagged), `self_signed` block/weight/reason fully removed,
+   url/ip narrowed so `https://domain.tld/path` contributes zero while bare-IP-host and
+   non-standard-port URLs still fire. Diffed the full function against `HEAD`: nothing else
+   changed. Additionally confirmed via `git diff 46ce2ea 9e34c5f -- setuguard_app/backend/app.py`
+   (zero output) that `HEAD` and `46ce2ea` are byte-identical for this file, so the "old scorer"
+   pinned copy is correctly anchored to both.
+2. Cache integrity — all 95 existing JSONs parsed clean, sha256 matched filename and internal
+   content, expected feature keys present.
+3. Sample set — re-derived `sample_set_716.txt` independently from `build_sample_set_716.py`'s
+   seed=42 logic; identical to the committed file, byte-for-byte, 0 diff either direction.
+4. Resume-logic bug — root-caused why 7 fdroid_benign failures from the OOM-killed run were
+   silently lost: the dead run tracked "already done" via a path-keyed `_done_paths.txt` log
+   (not the actual cache/skip outputs) and batched skip-CSV writes to the end of the run, so a
+   kill mid-flight lost failures without a trace. Rewrote `run_full()` to derive "already done"
+   from the cache dir + `skips.csv` directly (mirrors `fix3_fp_harness.py`'s
+   `_already_processed_filenames()`) and to flush each skip row immediately. Deleted the stale
+   `_done_paths.txt`.
+5. `rescore_from_cache.py` — `_score_old` diffed line-for-line against
+   `git show 46ce2ea:setuguard_app/backend/app.py` (exact match); `_score_new` matches the
+   working-tree function (per check 1); AUC rank-sum formula verified against synthetic cases
+   (positives-higher → 1.0, positives-lower → 0.0, tied → 0.5) and, later, against an independent
+   brute-force O(n·m) pairwise cross-check on real data (matched to 4 decimals).
+
+**Extraction (Task 2), with two live operational incidents, both diagnosed and resolved without
+losing or corrupting any cached data:**
+
+- Resume attempt 1 (4 workers, `MemoryMax=8G`/`MemoryHigh=6G`, no swap cap) caused system-wide
+  swap exhaustion — those settings don't constrain swap without a separate `MemorySwapMax`, so
+  the job silently pushed 8GB into swap and starved the desktop (available memory dropped to
+  ~1.8GB). Stopped; cache integrity re-verified clean (per-APK immediate-write held up under
+  `SIGTERM`).
+- Resume attempt 2 (`MemorySwapMax=0`) traded that for a near-total stall — anonymous memory over
+  `memory.high` has nowhere to go without swap, so throughput collapsed to ~8% CPU utilization
+  with zero new APKs cached in 4+ minutes. Stopped.
+- Root-caused both to a small number of atypically large APKs (`fdroid_benign_apks` file sizes
+  are heavily skewed: median 0.88MB, but 15 of the 600 remaining files exceed 50MB, one — 172MB —
+  exceeds the rest by ~30x) landing in the same concurrent worker window, not a general per-task
+  leak. Fix: split the remaining queue into 585 normal-sized files (2 workers,
+  `MemoryMax=8G`/`MemoryHigh=6G`/`MemorySwapMax=1G`; completed cleanly, 704s, 1.20s/APK effective)
+  and 15 files >50MB, processed one at a time (new script `harness/process_large_outliers.sh`,
+  not part of the harness proper) with a dedicated 10G/8G/2G budget and a hard 300s wall-clock
+  timeout per file. 14/15 completed in under a minute each in isolation — confirming the earlier
+  instability was concurrency-driven, not these files individually. The 15th (`cash.p.terminal_243.apk`,
+  172.2MB) still timed out alone with zero contention; logged as a deliberate manual skip.
+- Final: 668/716 cached (100% integrity-checked), 48/716 skipped (40 malicious — 39
+  `InvalidInstruction` bytecode-parse failures + 1 known Finding-1 `NoneType.iter`; 8 benign — 7
+  corrupt-ZIP `EOCD` data-quality failures + the 1 manual timeout above). Accounting exact:
+  668 + 48 = 716.
+
+**Task 1 deviation, noted per instruction rather than silently accepted**: the adopted harness
+lives at `harness/extract_features_pool.py` with CLI `--sample-list --workers --benchmark --n`,
+not the brief's literal `setuguard_ps1/feature_extract.py` with `--corpus-dir --sample-n --seed
+--limit --workers --out-dir`. Kept as-is per instruction (verify-then-adopt, don't burn time
+rebuilding to spec) — full detail in `docs/evidence/2026-08-12_scorer_v2.md`.
+
+**Task 4 — the gate:**
+
+Old scorer (commit `46ce2ea`, ≡ pre-session `HEAD`): `banking_holdout` mean 0.8156 (n=16),
+`malicious` mean 0.7202 (n=360), `benign` mean 0.3649 (n=292) — the holdout mean/malicious mean
+closely reproduce the earlier investigation session's numbers (0.816/0.720) on an independent,
+larger, seeded sample. New scorer (commit `b3ff83b`, this session's three deletions):
+`banking_holdout` mean 0.6881, `malicious` mean 0.6135, `benign` mean 0.1438 — all three corpora's
+means dropped, benign by far the most (0.3649 → 0.1438).
+
+AUC(malicious vs `banking_holdout_16`) — **the gate**: old **0.3841**, new **0.4113**.
+AUC(malicious vs `fdroid_benign`): old 0.8736, new 0.9366.
+
+**Malware does not rank above legitimate banking apps under either scorer** — both gate AUCs are
+≤ 0.5. The three deletions narrow the gap (+0.0272) without closing it. Reported plainly, no
+editorializing, per instruction; committed anyway, per instruction, since this result is itself
+a deliverable.
+
+Determinism check: one cached feature set, scored 3x with each scorer — old `[0.56, 0.56, 0.56]`,
+new `[0.41, 0.41, 0.41]`. Both identical. Pass.
+
+**What was not done, and why:**
+
+- No weight rebalancing, no new features (e.g. permission co-occurrence signatures) — explicitly
+  out of scope this session, per instruction ("I want the raw effect of the deletions").
+- Task 1 was not rebuilt to the literal file path/CLI spec — explicit instruction to adopt and
+  resume instead, given the deadline.
+- `banking_holdout_16` was not tuned against at any point — used only as the gate's measurement
+  subject, consistent with every prior session.
+- Full detail (per-corpus stats, skip reasons, AUC methodology/verification, operational
+  incident log) lives in `docs/evidence/2026-08-12_scorer_v2.md` and `.json` rather than being
+  duplicated here.
+
+Commits: `89077ef` (harness + sample set), `b3ff83b` (scorer deletions), plus this entry and the
+evidence files (commit to follow). Backend process from the 2026-08-10 session was not touched
+this session — status unknown, not verified.
