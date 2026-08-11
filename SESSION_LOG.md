@@ -673,3 +673,44 @@ Commits this session (in order): `077ad92` (Task A), `0fabb77` (Task B), `b455d7
 report-only, no commit. This entry is the eighth. Backend was started/stopped repeatedly for
 measurement and is not left running at session end; the real `ollama.service` was never modified
 and is unaffected by anything in this session.
+
+## 2026-08-11 (correction, not a rewrite) — retracting the "9072 corroborates the bridge" framing
+
+This is a correction appended to the record, not an edit of any prior entry — the entries above
+this one are left as originally written, per instruction.
+
+**Retracted claim**: the previous entry (Task A, line ~432 above: "produced exactly 1 link on
+account `"9072"` — independently confirmed real fraud") and this session's own Task H writeup used
+account 9072's true fraud label (`F3924=1`) as if it were meaningful corroboration that the bridge
+matcher works. Given Task H's own contiguity finding in that same writeup — all 81 fraud rows in
+`DataSet.csv` are contiguous at the file tail (indices 9002-9082) — grabbing almost any record from
+that region of the file lands on fraud regardless of intent. The label corroborates nothing about
+match quality; it was never independent evidence, because the account was drawn from a region of
+the file where a fraud label was the near-certain outcome. The phrasing was not factually false
+(the label really is F3924=1, verified by direct read of DataSet.csv) but it was being used as if
+it supported a claim it cannot support, which is the part being retracted here.
+
+**What survives, unretracted, because it doesn't depend on account 9072's label at all**:
+- `matcher.py` performs exact-match linkage on cert_hash / C2 host (`match_account_to_apk()`,
+  `extract_ioc_from_ps1()`) — real code, real matching logic, unaffected by this correction.
+- It is unit-tested against near-miss confounders in `bridge/confusion_matrix_validation.py`:
+  TP=10, FP=0, FN=0, TN=90 against 100 real PS2 account IDs with a *randomly assigned* (seeded,
+  shuffled, independent of true fraud label) synthetic ground truth — this is a unit-level test of
+  the matching logic's precision/recall on synthetic linkage, not a measurement of real-world
+  accuracy, and is not described as accuracy anywhere in that file (checked directly — the word
+  "accuracy" does not appear in `bridge/confusion_matrix_validation.py`).
+- One end-to-end demo linkage runs from a genuinely analyzed APK sample (`REFERENCE_APK_ANALYSIS`
+  in `confusion_matrix_validation.py`, its own docstring: "the real analyzed sample Raghav sent")
+  through the real matcher against a real dataset scoring run, and produces a real (not
+  hand-simulated) HTTP response. The account's fraud label is not part of that claim and is
+  dropped from it here.
+
+**Scope of the retraction, checked exhaustively**: grepped the full repo (`.py`/`.md`) for "9072",
+"independently confirmed", "confirmed real fraud", "coincidence", "corroborat", and "accuracy"
+near bridge/confusion-matrix code. The live application code (`setuguard_app/backend/app.py`'s
+`/api/bridge` `note` string, `bridge/matcher.py`'s comments, `bridge/confusion_matrix_validation.py`
+in full) was already clean — none of them ever claimed 9072's label as evidence; that framing only
+existed in this SESSION_LOG's own prior-session narrative text, corrected here. No source file
+required a code change for this task. `FROZEN_FILE_FINDINGS.md`, `PS1_Defects_and_Improvements.md`,
+`SetuGuard_Development_Roadmap_v2.md`, `CONTEXT.md`, `idea.txt`, and `setuguard_app/README.md` were
+also checked and contain no such claim.
