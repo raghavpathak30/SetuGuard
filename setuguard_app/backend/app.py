@@ -588,20 +588,22 @@ def analyze_dataset_endpoint():
             top_idx = np.argsort(-np.abs(row_shap))[:3]
             drivers = [{"feature": X.columns[j], "shap": round(float(row_shap[j]), 4)} for j in top_idx]
 
-            counterfactual = None
-            if drivers:
-                top_feat = drivers[0]["feature"]
-                median_val = X[top_feat].median()
-                if pd.notna(X.iloc[i][top_feat]) and not np.isclose(X.iloc[i][top_feat], median_val):
-                    counterfactual = {"condition": f"{top_feat} were at the dataset median ({median_val:.2f})",
-                                       "drops_to": round(max(float(scores[i]) - 0.2, 0.0), 3)}
-
             top_alerts.append({
                 "account_hash": str(account_ids.iloc[i])[:16],
                 "tier": _assign_tier(scores[i]),
                 "score": round(float(scores[i]), 3),
                 "shap_drivers": drivers,
-                "counterfactual": counterfactual,
+                # Previously a hardcoded "score - 0.2" subtraction with no
+                # relationship to the model or the specific feature's real
+                # effect size -- a fabricated number in a judged artifact.
+                # Same precedent as generated_rules/rule_validated below:
+                # null, not fabricated. (A real one is feasible -- re-score
+                # the row with the top SHAP driver set to the median through
+                # the actual loaded model -- but wasn't implemented this
+                # session; see SESSION_LOG.md for what it would and would
+                # not be entitled to claim.)
+                "counterfactual": None,
+                "counterfactual_status": "not_computed",
                 # generated_rules/rule_validated were previously hardcoded
                 # identically across all records (ps2/07_ps2_bridge_exporter.py:
                 # every row got "SetuGuard_YARA_Rule_01.yar" / True) -- a
