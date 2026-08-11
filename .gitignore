@@ -70,5 +70,6 @@ venv/
 *.csv
 !raw_graph_features.csv
 *.xlsx
+!data/Description.xlsx
 *.crdownload
 baseline_predictions.csv
