@@ -191,7 +191,31 @@ def main():
         seed42_percentiles[f"{key}_precision"] = round(percentile_of(r["precision_pct"], precisions), 1)
         seed42_percentiles[f"{key}_lift"] = round(percentile_of(r["lift_x"], lifts), 1)
 
+    def median_iqr(d, decimals=3, suffix=""):
+        f = f"{{:.{decimals}f}}"
+        return f"{f.format(d['median'])} [{f.format(d['iqr_25'])}-{f.format(d['iqr_75'])}]{suffix}"
+
+    # HEADLINE comes first in this file on purpose (Task 5): this is the
+    # number a report/demo should quote -- a 20-seed distribution, not any
+    # single split's point estimate, including not the shipped artifact's
+    # own seed=42 run (see seed_42_reference below for that, explicitly
+    # labeled as one draw).
+    headline = {
+        "what_this_is": "Median [IQR] across 20 independent stratified 80/20 holdouts (seeds 0-19), "
+                         "identical fixed hyperparameters, no tuning. This -- not any single seed's "
+                         "point estimate -- is the number to quote.",
+        "aucpr": median_iqr(dist(aucprs)),
+        "auroc": median_iqr(dist(aurocs)),
+        "recall_at_top_1pct": median_iqr(op_distributions["top_1.0pct"]["recall_pct_distribution"], 1, "%"),
+        "recall_at_top_5pct": median_iqr(op_distributions["top_5.0pct"]["recall_pct_distribution"], 1, "%"),
+        "precision_at_top_1pct": median_iqr(op_distributions["top_1.0pct"]["precision_pct_distribution"], 1, "%"),
+        "precision_at_top_5pct": median_iqr(op_distributions["top_5.0pct"]["precision_pct_distribution"], 1, "%"),
+        "lift_at_top_1pct": median_iqr(op_distributions["top_1.0pct"]["lift_x_distribution"], 1, "x"),
+        "lift_at_top_5pct": median_iqr(op_distributions["top_5.0pct"]["lift_x_distribution"], 1, "x"),
+    }
+
     out = {
+        "headline": headline,
         "n_seeds": args.n_seeds,
         "fixed_hyperparameters": FIXED_HYPERPARAMETERS,
         "note": "No hyperparameter search was performed -- identical fixed hyperparameters "
@@ -199,10 +223,10 @@ def main():
                 "model's own random_state, tied to it) varies. seed=42 is train_ps2_model.py's "
                 "hardcoded default, fixed before any of this evaluation ran, not chosen "
                 "afterward because it scored well.",
-        "per_seed": per_seed,
         "aucpr_distribution": dist(aucprs),
         "auroc_distribution": dist(aurocs),
         "operational_curve_distributions": op_distributions,
+        "per_seed": per_seed,
         "seed_42_reference": {
             "note": "train_ps2_model.py's default --seed is 42 -- this is what actually "
                     "produced the already-published models/ps2_xgb_v1_metrics.json holdout "
@@ -219,6 +243,8 @@ def main():
     }
     Path(args.out).write_text(json.dumps(out, indent=2))
 
+    print(f"\n=== HEADLINE (quote this, not any single seed) ===")
+    print(json.dumps(headline, indent=2))
     print(f"\nAUCPR distribution: {json.dumps(out['aucpr_distribution'], indent=2)}")
     print(f"AUROC distribution: {json.dumps(out['auroc_distribution'], indent=2)}")
     print(f"\nOperational curve distributions (across seeds 0-19):")

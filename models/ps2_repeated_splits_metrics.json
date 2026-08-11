@@ -1,4 +1,15 @@
 {
+  "headline": {
+    "what_this_is": "Median [IQR] across 20 independent stratified 80/20 holdouts (seeds 0-19), identical fixed hyperparameters, no tuning. This -- not any single seed's point estimate -- is the number to quote.",
+    "aucpr": "0.271 [0.221-0.362]",
+    "auroc": "0.872 [0.851-0.907]",
+    "recall_at_top_1pct": "25.0 [18.8-37.5]%",
+    "recall_at_top_5pct": "53.1 [43.8-62.5]%",
+    "precision_at_top_1pct": "22.2 [16.7-33.3]%",
+    "precision_at_top_5pct": "9.4 [7.7-11.0]%",
+    "lift_at_top_1pct": "25.2 [18.9-37.9]x",
+    "lift_at_top_5pct": "10.6 [8.7-12.5]x"
+  },
   "n_seeds": 20,
   "fixed_hyperparameters": {
     "n_estimators": 200,
@@ -10,6 +21,84 @@
     "n_jobs": 1
   },
   "note": "No hyperparameter search was performed -- identical fixed hyperparameters on every seed; only the stratified 80/20 split's random_state (and the model's own random_state, tied to it) varies. seed=42 is train_ps2_model.py's hardcoded default, fixed before any of this evaluation ran, not chosen afterward because it scored well.",
+  "aucpr_distribution": {
+    "median": 0.2706209815373406,
+    "iqr_25": 0.2207556886344224,
+    "iqr_75": 0.36172339320480607,
+    "min": 0.09307017979933457,
+    "max": 0.6003217055135439,
+    "mean": 0.30678577162584214,
+    "std": 0.12763903674848415
+  },
+  "auroc_distribution": {
+    "median": 0.8718593836757357,
+    "iqr_25": 0.8509855635757912,
+    "iqr_75": 0.9067705441421432,
+    "min": 0.716129927817879,
+    "max": 0.9332662409772349,
+    "mean": 0.8680975846751806,
+    "std": 0.05388168583298021
+  },
+  "operational_curve_distributions": {
+    "top_1.0pct": {
+      "recall_pct_distribution": {
+        "median": 25.0,
+        "iqr_25": 18.8,
+        "iqr_75": 37.5,
+        "min": 6.2,
+        "max": 62.5,
+        "mean": 30.0,
+        "std": 14.052401929919313
+      },
+      "precision_pct_distribution": {
+        "median": 22.2,
+        "iqr_25": 16.7,
+        "iqr_75": 33.3,
+        "min": 5.6,
+        "max": 55.6,
+        "mean": 26.669999999999998,
+        "std": 12.491561151433396
+      },
+      "lift_x_distribution": {
+        "median": 25.24,
+        "iqr_25": 18.93,
+        "iqr_75": 37.85,
+        "min": 6.31,
+        "max": 63.09,
+        "mean": 30.284999999999997,
+        "std": 14.190171070145704
+      }
+    },
+    "top_5.0pct": {
+      "recall_pct_distribution": {
+        "median": 53.1,
+        "iqr_25": 43.8,
+        "iqr_75": 62.5,
+        "min": 12.5,
+        "max": 81.2,
+        "mean": 51.55500000000001,
+        "std": 14.50232653749046
+      },
+      "precision_pct_distribution": {
+        "median": 9.350000000000001,
+        "iqr_25": 7.7,
+        "iqr_75": 11.0,
+        "min": 2.2,
+        "max": 14.3,
+        "mean": 9.075,
+        "std": 2.5532087654557354
+      },
+      "lift_x_distribution": {
+        "median": 10.605,
+        "iqr_25": 8.74,
+        "iqr_75": 12.48,
+        "min": 2.5,
+        "max": 16.22,
+        "mean": 10.2955,
+        "std": 2.8954506989413584
+      }
+    }
+  },
   "per_seed": [
     {
       "seed": 0,
@@ -752,84 +841,6 @@
       ]
     }
   ],
-  "aucpr_distribution": {
-    "median": 0.2706209815373406,
-    "iqr_25": 0.2207556886344224,
-    "iqr_75": 0.36172339320480607,
-    "min": 0.09307017979933457,
-    "max": 0.6003217055135439,
-    "mean": 0.30678577162584214,
-    "std": 0.12763903674848415
-  },
-  "auroc_distribution": {
-    "median": 0.8718593836757357,
-    "iqr_25": 0.8509855635757912,
-    "iqr_75": 0.9067705441421432,
-    "min": 0.716129927817879,
-    "max": 0.9332662409772349,
-    "mean": 0.8680975846751806,
-    "std": 0.05388168583298021
-  },
-  "operational_curve_distributions": {
-    "top_1.0pct": {
-      "recall_pct_distribution": {
-        "median": 25.0,
-        "iqr_25": 18.8,
-        "iqr_75": 37.5,
-        "min": 6.2,
-        "max": 62.5,
-        "mean": 30.0,
-        "std": 14.052401929919313
-      },
-      "precision_pct_distribution": {
-        "median": 22.2,
-        "iqr_25": 16.7,
-        "iqr_75": 33.3,
-        "min": 5.6,
-        "max": 55.6,
-        "mean": 26.669999999999998,
-        "std": 12.491561151433396
-      },
-      "lift_x_distribution": {
-        "median": 25.24,
-        "iqr_25": 18.93,
-        "iqr_75": 37.85,
-        "min": 6.31,
-        "max": 63.09,
-        "mean": 30.284999999999997,
-        "std": 14.190171070145704
-      }
-    },
-    "top_5.0pct": {
-      "recall_pct_distribution": {
-        "median": 53.1,
-        "iqr_25": 43.8,
-        "iqr_75": 62.5,
-        "min": 12.5,
-        "max": 81.2,
-        "mean": 51.55500000000001,
-        "std": 14.50232653749046
-      },
-      "precision_pct_distribution": {
-        "median": 9.350000000000001,
-        "iqr_25": 7.7,
-        "iqr_75": 11.0,
-        "min": 2.2,
-        "max": 14.3,
-        "mean": 9.075,
-        "std": 2.5532087654557354
-      },
-      "lift_x_distribution": {
-        "median": 10.605,
-        "iqr_25": 8.74,
-        "iqr_75": 12.48,
-        "min": 2.5,
-        "max": 16.22,
-        "mean": 10.2955,
-        "std": 2.8954506989413584
-      }
-    }
-  },
   "seed_42_reference": {
     "note": "train_ps2_model.py's default --seed is 42 -- this is what actually produced the already-published models/ps2_xgb_v1_metrics.json holdout numbers (aucpr=0.4114011947584679, auroc=0.9571765685730149). Included here, outside the requested seeds 0-19 range, and located by percentile in every distribution above rather than assumed to sit anywhere in particular.",
     "aucpr": 0.4114011947584679,
@@ -867,6 +878,6 @@
       "top_5.0pct_lift": 90.0
     }
   },
-  "peak_rss_kb": 276812,
-  "wall_clock_seconds": 4.684
+  "peak_rss_kb": 276192,
+  "wall_clock_seconds": 4.693
 }

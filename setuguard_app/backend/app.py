@@ -431,9 +431,29 @@ def _load_ps2_artifact(version: str = PS2_MODEL_VERSION):
     metrics = json.loads(metrics_path.read_text())
     explainer_module = __import__("shap")
     explainer = explainer_module.TreeExplainer(model)
+
+    # Optional: the 20-seed repeated-holdout study (harness/ps2_repeated_
+    # splits.py). A single 80/20 split's AUCPR/AUROC (metrics above) is a
+    # noisy point estimate off 16 holdout positives -- if this file exists,
+    # its 'headline' median/IQR is what the API actually reports, not the
+    # single-split number. Optional (not FileNotFoundError) because the
+    # single-split artifact is independently sufficient to serve requests;
+    # this only enriches the reported metric.
+    repeated_splits_path = MODELS_DIR / "ps2_repeated_splits_metrics.json"
+    repeated_splits = (
+        json.loads(repeated_splits_path.read_text()) if repeated_splits_path.exists() else None
+    )
+    if repeated_splits is None:
+        logging.warning(
+            f"{repeated_splits_path} not found -- /api/analyze_dataset will report the single-split "
+            f"holdout AUCPR/AUROC from {metrics_path.name} without distribution context. Run "
+            f"`python3 harness/ps2_repeated_splits.py` to generate it."
+        )
+
     return {
         "model": model,
         "metrics": metrics,
+        "repeated_splits": repeated_splits,
         "explainer": explainer,
         "encoded_feature_names": metrics["features"]["encoded_feature_names"],
     }
@@ -441,11 +461,16 @@ def _load_ps2_artifact(version: str = PS2_MODEL_VERSION):
 
 try:
     PS2_ARTIFACT = _load_ps2_artifact()
-    logging.info(
-        f"PS2 artifact loaded: {PS2_MODEL_VERSION} "
-        f"(holdout AUCPR={PS2_ARTIFACT['metrics']['holdout_metrics']['aucpr']:.4f}, "
-        f"holdout AUROC={PS2_ARTIFACT['metrics']['holdout_metrics']['auroc']:.4f})"
-    )
+    if PS2_ARTIFACT.get("repeated_splits"):
+        h = PS2_ARTIFACT["repeated_splits"]["headline"]
+        logging.info(f"PS2 artifact loaded: {PS2_MODEL_VERSION} (20-seed median AUCPR={h['aucpr']}, AUROC={h['auroc']})")
+    else:
+        logging.info(
+            f"PS2 artifact loaded: {PS2_MODEL_VERSION} "
+            f"(single-split holdout AUCPR={PS2_ARTIFACT['metrics']['holdout_metrics']['aucpr']:.4f}, "
+            f"AUROC={PS2_ARTIFACT['metrics']['holdout_metrics']['auroc']:.4f} -- no repeated-splits "
+            f"distribution found)"
+        )
 except Exception:
     logging.exception("Failed to load PS2 model artifact at startup — /api/analyze_dataset will error")
     PS2_ARTIFACT = None
@@ -618,19 +643,52 @@ def analyze_dataset_endpoint():
                 "rule_validated_status": "not_computed",
             })
 
+        # A single 80/20 split's AUCPR/AUROC is a noisy point estimate off
+        # only 16 holdout positives (see ps2/README.md's contiguity note and
+        # harness/ps2_repeated_splits.py's docstring). Report the 20-seed
+        # median when that study is available -- not the single-split
+        # number -- and carry the full distribution + the single-split
+        # reference alongside, clearly labeled, rather than silently
+        # picking one favorable draw as if it were the headline.
         holdout_metrics = PS2_ARTIFACT["metrics"]["holdout_metrics"]
+        repeated = PS2_ARTIFACT.get("repeated_splits")
+        if repeated is not None:
+            reported_aucpr = repeated["aucpr_distribution"]["median"]
+            reported_auroc = repeated["auroc_distribution"]["median"]
+            metrics_source = (
+                "median of 20 independent stratified 80/20 holdouts — see "
+                "models/ps2_repeated_splits_metrics.json's 'headline' field; NOT computed from "
+                "this request's upload, and NOT a single-split point estimate"
+            )
+        else:
+            reported_aucpr = holdout_metrics["aucpr"]
+            reported_auroc = holdout_metrics["auroc"]
+            metrics_source = (
+                "single stratified 80/20 holdout split — see models/ps2_xgb_v1_metrics.json; "
+                "models/ps2_repeated_splits_metrics.json (20-seed distribution) was not found at "
+                "startup, so this is one point estimate off 16 holdout positives, not a distribution"
+            )
         resp = {
             "model_version": PS2_ARTIFACT["metrics"]["model_version"],
-            "holdout_aucpr": holdout_metrics["aucpr"],
-            "holdout_auroc": holdout_metrics["auroc"],
-            "metrics_source": "precomputed offline holdout split — see models/ps2_xgb_v1_metrics.json; "
-                               "not computed from this request's upload",
+            "holdout_aucpr": reported_aucpr,
+            "holdout_auroc": reported_auroc,
+            "holdout_aucpr_distribution": repeated["aucpr_distribution"] if repeated else None,
+            "holdout_auroc_distribution": repeated["auroc_distribution"] if repeated else None,
+            "holdout_single_split_reference": {
+                "aucpr": holdout_metrics["aucpr"],
+                "auroc": holdout_metrics["auroc"],
+                "seed": PS2_ARTIFACT["metrics"]["seed"],
+                "note": "this model artifact's own training-time holdout split (one seed) -- "
+                        "kept for reference, not reported as the headline metric above",
+            },
+            "metrics_source": metrics_source,
             # cv_aucpr_mean/n_cv_folds kept for the existing frontend field
             # names, which read them as "CV AUCPR (n-fold)" — that label is
             # stale now, but the *value* underneath is the real, honest
-            # holdout AUCPR, not an in-request CV number (n_cv_folds=0
-            # because no CV runs in this process anymore).
-            "cv_aucpr_mean": holdout_metrics["aucpr"],
+            # holdout AUCPR (20-seed median when available), not an
+            # in-request CV number (n_cv_folds=0 because no CV runs in this
+            # process anymore).
+            "cv_aucpr_mean": reported_aucpr,
             "n_cv_folds": 0,
             "audit": {
                 "n_rows": len(df),

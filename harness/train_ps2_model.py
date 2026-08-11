@@ -200,6 +200,16 @@ def main():
             "encoded_feature_names": list(X.columns),
         },
         "holdout_metrics": holdout_metrics,
+        "single_split_caveat": (
+            "holdout_metrics above is ONE stratified 80/20 split (this run's --seed, "
+            f"default {args.seed}) on a holdout of only 16 positives -- do not quote it alone "
+            "as a headline result. harness/ps2_repeated_splits.py runs 20 such splits and "
+            "reports the resulting median/IQR in models/ps2_repeated_splits_metrics.json's "
+            "'headline' field; that file's seed_42_reference block confirms this seed's exact "
+            "numbers and reports where they fall in the 20-seed distribution (80th percentile "
+            "AUCPR, 100th percentile/best AUROC as of the run that produced that file -- i.e. "
+            "this run's holdout_metrics is a favorable draw, not a typical one)."
+        ),
         "in_sample_train_metrics_DO_NOT_REPORT_AS_HOLDOUT": in_sample_train_metrics,
         "shap_feature_importance_train_mean_abs": shap_feature_importance_train,
         "hyperparameters": hyperparameters,

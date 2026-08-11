@@ -1,0 +1,66 @@
+DEBUG:matplotlib:matplotlib data path: /usr/share/matplotlib/mpl-data
+DEBUG:matplotlib:CONFIGDIR=/home/raghavp/.config/matplotlib
+DEBUG:matplotlib:interactive is False
+DEBUG:matplotlib:platform is linux
+DEBUG:matplotlib:CACHEDIR=/home/raghavp/.cache/matplotlib
+DEBUG:matplotlib.font_manager:Using fontManager instance from /home/raghavp/.cache/matplotlib/fontlist-v390.json
+INFO:root:PS2 artifact loaded: ps2_xgb_v1 (20-seed median AUCPR=0.271 [0.221-0.362], AUROC=0.872 [0.851-0.907])
+ * Serving Flask app 'app'
+ * Debug mode: off
+INFO:werkzeug:WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on http://127.0.0.1:5000
+INFO:werkzeug:Press CTRL+C to quit
+DEBUG:root:Incoming request: GET / Origin=None Content-Length=None
+INFO:werkzeug:127.0.0.1 - - [11/Aug/2026 21:24:40] "GET / HTTP/1.1" 200 -
+DEBUG:root:Incoming request: GET / Origin=null Content-Length=None
+INFO:werkzeug:127.0.0.1 - - [11/Aug/2026 21:24:40] "GET / HTTP/1.1" 200 -
+DEBUG:root:Incoming request: POST /api/analyze_apk Origin=null Content-Length=492161
+DEBUG:root:Headers: {'Host': '127.0.0.1:5000', 'Connection': 'keep-alive', 'Content-Length': '492161', 'Sec-Ch-Ua-Platform': '"Linux"', 'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/129.0.6668.29 Safari/537.36', 'Sec-Ch-Ua': '"HeadlessChrome";v="129", "Not=A?Brand";v="8", "Chromium";v="129"', 'Content-Type': 'multipart/form-data; boundary=----WebKitFormBoundary0HvHdCTA6NusneR0', 'Sec-Ch-Ua-Mobile': '?0', 'Accept': '*/*', 'Origin': 'null', 'Sec-Fetch-Site': 'cross-site', 'Sec-Fetch-Mode': 'cors', 'Sec-Fetch-Dest': 'empty', 'Accept-Encoding': 'gzip, deflate, br, zstd'}
+DEBUG:faiss.loader:Environment variable FAISS_OPT_LEVEL is not set, so let's pick the instruction set according to the current CPU
+INFO:faiss.loader:Loading faiss with AVX2 support.
+INFO:faiss.loader:Could not load library with AVX2 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx2'")
+INFO:faiss.loader:Loading faiss.
+INFO:faiss.loader:Successfully loaded faiss.
+DEBUG:httpcore.connection:connect_tcp.started host='127.0.0.1' port=11434 local_address=None timeout=None socket_options=None
+DEBUG:httpcore.connection:connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x7f396457aba0>
+DEBUG:httpcore.http11:send_request_headers.started request=<Request [b'POST']>
+DEBUG:httpcore.http11:send_request_headers.complete
+DEBUG:httpcore.http11:send_request_body.started request=<Request [b'POST']>
+DEBUG:httpcore.http11:send_request_body.complete
+DEBUG:httpcore.http11:receive_response_headers.started request=<Request [b'POST']>
+DEBUG:httpcore.http11:receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'application/json; charset=utf-8'), (b'Date', b'Tue, 11 Aug 2026 15:54:42 GMT'), (b'Transfer-Encoding', b'chunked')])
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/embed "HTTP/1.1 200 OK"
+DEBUG:httpcore.http11:receive_response_body.started request=<Request [b'POST']>
+DEBUG:httpcore.http11:receive_response_body.complete
+DEBUG:httpcore.http11:response_closed.started
+DEBUG:httpcore.http11:response_closed.complete
+DEBUG:httpcore.http11:send_request_headers.started request=<Request [b'POST']>
+DEBUG:httpcore.http11:send_request_headers.complete
+DEBUG:httpcore.http11:send_request_body.started request=<Request [b'POST']>
+DEBUG:httpcore.http11:send_request_body.complete
+DEBUG:httpcore.http11:receive_response_headers.started request=<Request [b'POST']>
+DEBUG:httpcore.http11:receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'application/json; charset=utf-8'), (b'Date', b'Tue, 11 Aug 2026 15:54:42 GMT'), (b'Transfer-Encoding', b'chunked')])
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/embed "HTTP/1.1 200 OK"
+DEBUG:httpcore.http11:receive_response_body.started request=<Request [b'POST']>
+DEBUG:httpcore.http11:receive_response_body.complete
+DEBUG:httpcore.http11:response_closed.started
+DEBUG:httpcore.http11:response_closed.complete
+DEBUG:httpcore.http11:send_request_headers.started request=<Request [b'POST']>
+DEBUG:httpcore.http11:send_request_headers.complete
+DEBUG:httpcore.http11:send_request_body.started request=<Request [b'POST']>
+DEBUG:httpcore.http11:send_request_body.complete
+DEBUG:httpcore.http11:receive_response_headers.started request=<Request [b'POST']>
+DEBUG:httpcore.http11:receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'application/json; charset=utf-8'), (b'Date', b'Tue, 11 Aug 2026 15:54:55 GMT'), (b'Content-Length', b'1484')])
+INFO:httpx:HTTP Request: POST http://127.0.0.1:11434/api/chat "HTTP/1.1 200 OK"
+DEBUG:httpcore.http11:receive_response_body.started request=<Request [b'POST']>
+DEBUG:httpcore.http11:receive_response_body.complete
+DEBUG:httpcore.http11:response_closed.started
+DEBUG:httpcore.http11:response_closed.complete
+INFO:werkzeug:127.0.0.1 - - [11/Aug/2026 21:24:55] "POST /api/analyze_apk HTTP/1.1" 200 -
+DEBUG:root:Incoming request: POST /api/analyze_dataset Origin=null Content-Length=116537707
+DEBUG:root:Headers: {'Host': '127.0.0.1:5000', 'Connection': 'keep-alive', 'Content-Length': '116537707', 'Sec-Ch-Ua-Platform': '"Linux"', 'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/129.0.6668.29 Safari/537.36', 'Sec-Ch-Ua': '"HeadlessChrome";v="129", "Not=A?Brand";v="8", "Chromium";v="129"', 'Content-Type': 'multipart/form-data; boundary=----WebKitFormBoundaryglA3KMFEtH0uma8j', 'Sec-Ch-Ua-Mobile': '?0', 'Accept': '*/*', 'Origin': 'null', 'Sec-Fetch-Site': 'cross-site', 'Sec-Fetch-Mode': 'cors', 'Sec-Fetch-Dest': 'empty', 'Accept-Encoding': 'gzip, deflate, br, zstd'}
+INFO:werkzeug:127.0.0.1 - - [11/Aug/2026 21:24:56] "POST /api/analyze_dataset HTTP/1.1" 200 -
+DEBUG:root:Incoming request: POST /api/bridge Origin=null Content-Length=0
+DEBUG:root:Headers: {'Host': '127.0.0.1:5000', 'Connection': 'keep-alive', 'Content-Length': '0', 'Sec-Ch-Ua-Platform': '"Linux"', 'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/129.0.6668.29 Safari/537.36', 'Sec-Ch-Ua': '"HeadlessChrome";v="129", "Not=A?Brand";v="8", "Chromium";v="129"', 'Sec-Ch-Ua-Mobile': '?0', 'Accept': '*/*', 'Origin': 'null', 'Sec-Fetch-Site': 'cross-site', 'Sec-Fetch-Mode': 'cors', 'Sec-Fetch-Dest': 'empty', 'Accept-Encoding': 'gzip, deflate, br, zstd'}
+INFO:werkzeug:127.0.0.1 - - [11/Aug/2026 21:24:57] "POST /api/bridge HTTP/1.1" 200 -
