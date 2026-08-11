@@ -1,0 +1,9 @@
+unified_dashboard / case_view
+
+ALERT   account 9072   tier T4 (0.982)   status: PENDING REVIEW
+  linked_apk     duyskab.txtxorxqlni.nflfnauti   family: Generic Android Threat   severity: CRITICAL
+  shared_ioc     cert_hash:d6e80c1de6423814bb8b8e4de46d9eb84d7eaa5cadfd5c8116918e4922e070d6
+  yara_rule      SetuGuard_duyskab_txtxorxqlni_nflfnauti   validated: false
+  recommended    Immediate debit freeze on account + device quarantine.
+
+// Matching is on certificate hash / C2 host overlap only (matched APK indicators, not a malice verdict) against 15 scored account(s). 1 match(es) found.
