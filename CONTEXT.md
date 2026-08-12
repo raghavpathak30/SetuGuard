@@ -27,37 +27,75 @@ undercount (16 unusable benign files, not 1), found and logged five new frozen-f
 `requirements.txt` (D8, now RESOLVED). Every claim below from this session is traceable to a command
 actually run in this session. Changed sections: 2, 4, 5, 6, 8, 9._
 
+_Updated: 2026-08-11/12, fourth through sixth Claude Code sessions. This is the update that
+falsifies the stale-box's own "PS2/Bridge/Dashboard being unstarted... still accurate" claim
+below — **PS2 and Bridge are no longer unstarted.** Session four built the real PS2 pipeline:
+`setuguard_app/backend/ps2_features.py` (feature constants cited to `data/Description.xlsx`'s
+data dictionary), `harness/train_ps2_model.py` (offline XGBoost trainer, stratified holdout,
+writes `models/ps2_xgb_v1.json` + a metrics JSON), and rewired `/api/analyze_dataset` to load that
+artifact instead of training in-request (p50 ~7.6s→~0.66s). Also wired `/api/bridge` to actually
+call `bridge/matcher.py`'s real matching functions instead of reimplementing them, and nulled two
+previously-fabricated fields (`generated_rules`/`rule_validated`) rather than leaving them
+hardcoded identically across all 9,082 records. Session five (a hardening pass) added real
+headless-Chromium browser verification (`harness/browser_smoke.js`, not just field-checking),
+proved the Ollama-down degradation path, ran a 20-seed repeated-holdout variance study (median
+AUCPR **0.271** [IQR 0.221-0.362] — the single-seed 0.4114 number turned out to sit at the 80th
+percentile, a favorable draw), nulled a third fabricated field (the counterfactual), and found
+that all 81 fraud rows in `DataSet.csv` are contiguous at the file's tail (indices 9002-9082) —
+row order encodes the label. Session six extended that variance study to recall/precision/lift@k,
+confirmed the live application code path itself was clean of positional leakage (by reading
+sklearn's actual source, not assuming from the function name), retracted a prior session's framing
+that had used a fraud label as false corroboration of the bridge matcher, and made both the
+committed metrics files and the live API's own dashboard-facing number lead with the 20-seed
+median instead of one favorable seed. **All of this is documented in `SESSION_LOG.md`, not
+restructured into this file's Sections 2-9** — same reasoning as the box below: doing that
+properly would mean rewriting most of those sections, which this pass didn't have time for either.
+This paragraph and the corrections inline below (all newly tagged `SUPERSEDED 2026-08-12`) are the
+extent of this pass's edits to the prose. See `SESSION_LOG.md`'s four 2026-08-11 entries for full
+detail, every command run, and every number's provenance._
+
 > **THIS DOCUMENT IS STALE AS OF 2026-08-12 AND WAS NOT REWRITTEN TO MATCH — READ THIS BOX BEFORE
-> TRUSTING ANYTHING BELOW ABOUT VERDICT BEHAVIOR, GIT STATE, OR "PS1 IS THE ONLY UI."**
+> TRUSTING ANYTHING BELOW ABOUT VERDICT BEHAVIOR, GIT STATE, PS2/BRIDGE STATUS, OR "PS1 IS THE
+> ONLY UI."**
 >
-> Everything above this box describes the state as of the **2026-07-26/27** session, when the only
-> way to run PS1 was `run_pipeline.py`/`batch_baseline.py` against a single APK or a batch script,
-> and the RAG/Mistral stage's own verdict was authoritative (the D1 "always suspicious" defect this
-> whole document is chasing). **Three sessions since then are not reflected in the prose below**:
+> Everything above this box, except the update paragraph immediately preceding it (dated
+> **2026-08-11/12**), describes the state as of the **2026-07-26/27** session, when the only way to
+> run PS1 was `run_pipeline.py`/`batch_baseline.py` against a single APK or a batch script, and the
+> RAG/Mistral stage's own verdict was authoritative (the D1 "always suspicious" defect this whole
+> document is chasing). **That 2026-08-11/12 paragraph is current; Sections 1-9 below are not**:
 >
-> - **A new component exists that this document has zero awareness of**: `setuguard_app/` — a
->   Flask backend (`setuguard_app/backend/app.py`) and frontend, serving PS1 through
->   `POST /api/analyze_apk` (plus PS2/Bridge endpoints, generalized re-implementations — see the
->   backend's own module docstring for what's real vs. adapted). This is the actual demo surface,
->   not `run_pipeline.py`.
+> - **A new component exists that this document has zero awareness of in its main prose**:
+>   `setuguard_app/` — a Flask backend (`setuguard_app/backend/app.py`) and frontend, serving PS1
+>   through `POST /api/analyze_apk`, PS2 through `POST /api/analyze_dataset`, and the Bridge
+>   through `POST /api/bridge`. This is the actual demo surface, not `run_pipeline.py`.
 > - **D1 is no longer "always suspicious"/unaddressed.** `app.py`'s `_rule_based_verdict()` is now
 >   the sole, structural, deterministic source of `verdict`/`confidence`/`risk_score` for
 >   `/api/analyze_apk` — the LLM/RAG stage supplies narrative rationale only and cannot change the
 >   verdict, with or without Ollama reachable. This directly contradicts several claims below
 >   (Section 2's "Known-broken" bullets, Section 8 item 7) that the verdict enum "carries near-zero
 >   signal" — that was true of the old LLM-authoritative path and is not true of the current one.
+> - **PS2 and Bridge are no longer unstarted** (Section 1, Section 2's table, Section 3's
+>   architecture diagram, and Section 8 items 1-2 all still say otherwise below — each now carries
+>   an inline `SUPERSEDED 2026-08-12` correction rather than being rewritten). PS2 is a real
+>   XGBoost model trained offline (`harness/train_ps2_model.py` → `models/ps2_xgb_v1.json`) and
+>   served inference-only by `/api/analyze_dataset`; Bridge is real exact-match IOC linkage
+>   (`bridge/matcher.py`, called directly by `/api/bridge`, not reimplemented). Dashboard/Audit
+>   (`setuguard_app/frontend/`) also exists and has been verified in an actual headless browser,
+>   not just by inspection. Full detail, every number, every command: `SESSION_LOG.md`.
 > - Everything since 2026-08-10 (the D1 inversion itself; a `banking_holdout_16` measurement
 >   showing the *new* problem — the rule-based scorer initially flagged 16/16 real banks as
->   non-benign; a per-term discriminative-power diagnosis; and this session's `reflection`/
->   `self_signed`/url-ip scorer-v2 pruning, gated on a 668-of-716-sample AUC measurement) is
->   documented in **`SESSION_LOG.md`**, not here. Treat `SESSION_LOG.md` as the current, accurate
->   record for all of that; this file was not restructured to absorb it, since doing so properly
->   would mean rewriting most of Sections 2/3/4/6/8 to a standard this pass didn't have time for
->   before the 17 August deadline. Specific claims below that are now flatly wrong are flagged
->   inline with a `SUPERSEDED 2026-08-12` marker and a pointer to `SESSION_LOG.md`; claims not
->   flagged (the Androguard/androguard-quirks material in Section 4, the environment/corpus facts
->   in Section 5, PS2/Bridge/Dashboard being unstarted) are believed still accurate, since none of
->   the three sessions since touched them.
+>   non-benign; a per-term discriminative-power diagnosis; this session's `reflection`/
+>   `self_signed`/url-ip scorer-v2 pruning; the entire PS2/Bridge build described in the second
+>   update paragraph above; and a 20-seed PS2 variance study whose headline finding is that the
+>   single-seed AUCPR number anyone would naturally quote — 0.4114 — sits at the 80th percentile of
+>   a median-0.271 distribution) is documented in **`SESSION_LOG.md`**, not here. Treat
+>   `SESSION_LOG.md` as the current, accurate record for all of that; this file was not
+>   restructured to absorb it, since doing so properly would mean rewriting most of Sections
+>   2/3/4/6/8 to a standard this pass didn't have time for before the 17 August deadline. Specific
+>   claims below that are now flatly wrong are flagged inline with a `SUPERSEDED 2026-08-12`
+>   marker and a pointer to `SESSION_LOG.md`; claims not flagged (the Androguard/androguard-quirks
+>   material in Section 4, the environment/corpus facts in Section 5) are believed still accurate,
+>   since none of the sessions since touched them.
 
 ---
 
@@ -79,6 +117,17 @@ features (community detection, betweenness, PageRank, fan-in/out ratios) over a 
 it, so that "this device/APK is flagged" can influence "this account is a mule." A fourth
 component, **Dashboard/Audit**, is meant to visualize all of this and produce compliance-style
 audit records. As of this writing, **only PS1 has any code** — see Section 2.
+
+> **SUPERSEDED 2026-08-12** — PS2 is now a real, shipped XGBoost model
+> (`harness/train_ps2_model.py` → `models/ps2_xgb_v1.json`, trained offline on the 18
+> bank-finalized features from `data/Description.xlsx`, served inference-only by
+> `/api/analyze_dataset`); Bridge is real exact-match cert-hash/C2-host linkage
+> (`bridge/matcher.py`, called directly by `/api/bridge`); Dashboard/Audit
+> (`setuguard_app/frontend/`) exists and has been verified end-to-end in an actual headless
+> browser. The graph-feature enrichment this paragraph describes as PS2's plan was built as an
+> offline research artifact (`ps2/06_graph_features.py`) and found to leak the label (it assigns
+> graph features using the target column) — it is explicitly excluded from PS2's shipped model and
+> from all claims. See `SESSION_LOG.md`'s 2026-08-11 entries.
 
 An earlier, more ambitious design (found in `idea.txt`, dated 30 May, called **"FHEGuard"**)
 proposed doing account/device linkage under fully homomorphic encryption (CKKS) with private-set-
@@ -105,9 +154,9 @@ spec.
 | PS1 `validation_gate.py` (D4) | **NEW, DONE (Week 2)** | Validates-only (never corrects a verdict/rule): `validate_features_schema()`, `validate_report_grounding()` (the D4 grounding-faithfulness check — cited chunk/MITRE ids against `knowledge_base.CHUNKS`' real 16), `validate_indicator_traceability()` (every `$indicator_*` in a rule traces to a real features field). Validated against the one real on-disk artifact (`baseline/one_real_sample.features.json`, PASS) plus synthetic fixtures proving it catches fabricated chunk ids, hallucinated indicators, and schema violations. **Caught real violations from live model output** the same session (see Section 6) — not just synthetic tests. Known gap, not fixed: passes NUL-bearing indicators as "traceable" (provenance-only, no well-formedness check) |
 | PS1 `stress_harness.py` + `_stress_worker.py` (Week 2) | **NEW, DONE** | Feeds `analyze_apk()` 7 hostile/edge-case inputs (truncated APK, zero-byte file, valid-zip-not-APK, non-zip binary, directory, nonexistent path, corpus APK with most dangerous_permissions), each isolated in its own subprocess so a crash/hang can't take down the harness. All 7 resolved cleanly (6 clean exceptions, 1 success) — **zero dirty failures**. Also used ad hoc to diagnose the 27-file unzip-integrity discrepancy (see Section 6/8) |
 | PS1 `d2_negative_chunks.py` + `d2_ab_harness.py` (Week 2) | **NEW, DONE** | 6 negative-evidence chunks (reviewed/revised twice for framing before running — see Section 6), monkeypatched onto `rag_report.CHUNKS` at runtime by a paired A/B harness; **never edited `knowledge_base.py`**. Full result in Section 6 — a null-to-negative result that **redirects** D1's suspected root cause away from retrieval |
-| PS2 (XGBoost/SHAP/graph mule detection) | **NOT STARTED** | Exhaustive `find` for `xgboost`/`mule`/`ps2`/`shap`/`graph`-named files under `~/BOIhackathon` returns nothing but incidental APK filename matches (e.g. `com.eanema.graph89_...apk`, an unrelated F-Droid app) |
-| Bridge (PS1↔PS2 IOC enrichment) | **NOT STARTED** | No files found; cannot meaningfully exist without PS2 |
-| Dashboard/Audit UI | **NOT STARTED** | No files found |
+| PS2 (XGBoost/SHAP/graph mule detection) | **NOT STARTED (as of 2026-07-27) — SUPERSEDED 2026-08-12** | Exhaustive `find` for `xgboost`/`mule`/`ps2`/`shap`/`graph`-named files under `~/BOIhackathon` returns nothing but incidental APK filename matches (e.g. `com.eanema.graph89_...apk`, an unrelated F-Droid app). **Now DONE, without the graph-feature part**: `harness/train_ps2_model.py` trains XGBoost offline on the 18 bank-finalized features (`setuguard_app/backend/ps2_features.py`, cited to `data/Description.xlsx`), writes `models/ps2_xgb_v1.json` + a metrics JSON with a stratified holdout; `/api/analyze_dataset` loads that artifact and scores (inference-only, no training/CV/SHAP-fitting per request). Headline metric is a 20-seed repeated-holdout median (AUCPR 0.271 [IQR 0.221-0.362]), not a single split — the single-seed number (0.4114) sits at the 80th percentile, a favorable draw, not representative. Graph features (`ps2/06_graph_features.py`) were built as a research artifact and found to leak the label (assigns features using the target column) — excluded from the shipped model and all claims. See `SESSION_LOG.md`'s 2026-08-11 entries. |
+| Bridge (PS1↔PS2 IOC enrichment) | **NOT STARTED (as of 2026-07-27) — SUPERSEDED 2026-08-12** | No files found; cannot meaningfully exist without PS2. **Now DONE**: `bridge/matcher.py`'s real `extract_ioc_from_ps1()`/`match_account_to_apk()` are called directly by `/api/bridge` (not reimplemented) for exact-match cert-hash/C2-host linkage; a link is conditional (zero matches is the expected result for most APK/dataset pairs, not an error), verified against real analyzed-APK data both with and without a match, in an actual headless browser, not just via the API response JSON. See `SESSION_LOG.md`'s 2026-08-11 entries. |
+| Dashboard/Audit UI | **NOT STARTED (as of 2026-07-27) — SUPERSEDED 2026-08-12** | No files found. **Now DONE**: `setuguard_app/frontend/` (vendored Chart.js, no CDN dependency) serves all of PS1/PS2/Bridge's output; verified end to end in headless Chromium (`harness/browser_smoke.js`) across APK analysis, dataset analysis, and both bridge match/no-match outcomes, with zero console errors. See `SESSION_LOG.md`'s 2026-08-11 entries. |
 | Fix #3 (F-Droid + 16-real-bank holdout, FP-rate → 0) | **"Before" number measured (Week 2), still blocked on D1/D2 by design** | `setuguard_ps1/fix3_fp_harness.py`: Week-2 crash-survivability rewrite (same treatment as `batch_baseline.py`) plus `--sample-n`/`--seed` for reproducible seeded sampling. Hard-refuses `banking_holdout_16/` by path check (re-verified intact). A live NUL-byte crash (Finding 5) was hit, fixed narrowly (distinct `yara_compile:embedded_null` skip reason, verified against repeats), and the run restarted clean. **n=150, seed=7 result: FP rate 142/145 = 97.9%** (corrected accounting — see Section 6/`FIX3_BEFORE_RESULTS.md`); this is an explicitly-labeled BEFORE number, not a result to act on, since it's dominated by D1's always-"suspicious" verdict. Still defaults to `fdroid_benign_apks/`; the wider F-Droid pull and the 16 real banking APKs remain a separate, not-yet-done sourcing step |
 | Fix #4 (Obfuscapk survival matrix) | **Week-1 risk spike DONE — verdict GO** | The previously-skipped Week-1 spike was run: installed `claudiugeorgiu/obfuscapk` (note: the Docker Hub name is `claudiugeorgiu/obfuscapk`, **not** `obfuscapk/obfuscapk`, which doesn't exist) via `podman pull`, ran it against one real trojan sample from `cicmaldroid_banking/` with the lightest single obfuscation transform (`Nop`) plus the `Rebuild`+`NewAlignment`+`NewSignature` steps Obfuscapk requires you to chain explicitly (it does not auto-rebuild/sign after a transform). Output: a valid signed APK (`unzip -t` clean, `file` confirms an APK Signing Block present) that parses cleanly through `static_analysis.py`'s own `analyze_apk()` — the same androguard call path the pipeline uses. Full result in Section 6. **The survival matrix itself — many samples × multiple transforms, checking whether PS1's verdict/confidence/YARA output survives — is NOT started; this was only the go/no-go gate** |
 | AutoYara feasibility spike (I2, Week 2) | **DONE — NO-GO for tool adoption** | `setuguard_ps1/AUTOYARA_SPIKE.md`. Confirmed (fetched, not from memory): Java/Maven, JDK11+ (this machine has JDK 25 already), Apache 2.0, no PyPI package, no Docker image, single 2017-era release — appears abandoned. NO-GO because its input shape (multi-sample, family-labeled, cross-APK biclustering) doesn't fit this pipeline's single-APK shape, not because it's unobtainable. **Unresolved, flagged not resolved:** whether I2 means adopting the actual tool (NO-GO) or building a homegrown single-APK fallback (cheaper, not evaluated) |
@@ -185,7 +234,36 @@ spec.
 measurement harness**, deliberately kept separate from the six files above so that "measure" tasks
 never risk mutating the frozen pipeline.
 
-### PS2 + Bridge (planned only — no implementation exists)
+### PS2 + Bridge (planned only — no implementation exists) — SUPERSEDED 2026-08-12
+
+> This whole subsection describes the 2026-07-27 planning-only state. **PS2 and Bridge were built
+> in the sessions documented in `SESSION_LOG.md`'s 2026-08-11 entries** — the diagram below is left
+> unedited for historical accuracy about what the roadmap originally proposed (notably: the graph
+> feature stage in the diagram below was built as `ps2/06_graph_features.py` and found to leak the
+> label, so it is NOT part of the shipped model; "AMLworld / ULB" as an input was replaced by the
+> hackathon's actual `data/DataSet.csv`). The as-built shape is:
+> ```
+>    <DataSet.csv, 9,082 rows>
+>             │
+>             ▼
+>    [PS2: harness/train_ps2_model.py, offline]
+>    18 bank-finalized features (data/Description.xlsx) → XGBoost, stratified
+>    holdout → models/ps2_xgb_v1.json + metrics JSON (20-seed median AUCPR
+>    0.271). /api/analyze_dataset loads that artifact and scores -- inference
+>    only, no training/CV/SHAP-fitting per request.
+>             │
+>             ▼
+>    [Bridge: bridge/matcher.py, called directly by /api/bridge]
+>    extract_ioc_from_ps1() + match_account_to_apk() -- exact-match cert_hash
+>    / C2_host against matcher.SYNTHETIC_LINKAGE_GROUND_TRUTH. Conditional:
+>    zero matches is the expected result for most APK/dataset pairs.
+>             │
+>             ▼
+>    [Dashboard/Audit: setuguard_app/frontend/]
+>    Serves all three; verified end-to-end in headless Chromium
+>    (harness/browser_smoke.js), zero console errors.
+> ```
+> Full detail, every number, every command: `SESSION_LOG.md`.
 
 ```
    <transaction data (AMLworld / ULB)>
@@ -207,7 +285,8 @@ never risk mutating the frozen pipeline.
 ```
 
 No functions, files, or even stub signatures exist for PS2/Bridge/Dashboard — the diagram above is
-reconstructed purely from `SetuGuard_Development_Roadmap_v2.md` prose, not from code.
+reconstructed purely from `SetuGuard_Development_Roadmap_v2.md` prose, not from code. **SUPERSEDED
+2026-08-12 — see the box above.**
 
 ---
 
@@ -736,8 +815,18 @@ Ordered by risk to the Aug 27–28 demo (per the user's stated date — see UNVE
    pitch. Per the project's own roadmap, a baseline should have existed by end of "Week 1
    (1–7 Jul)," and today (per this machine's clock) is 2026-07-20 — well past even
    "Week 3 (15–21 Jul)" in that roadmap's calendar. **Highest risk item in the repo.**
+   **SUPERSEDED 2026-08-12** — PS2 now has real code (`harness/train_ps2_model.py`,
+   `models/ps2_xgb_v1.json`, `setuguard_app/backend/ps2_features.py`), served by
+   `/api/analyze_dataset`. No longer the highest-risk item in the repo for that reason; open risks
+   that remain are narrower (e.g. AUCPR variance — 20-seed median 0.271 [IQR 0.221-0.362], reported
+   honestly rather than quoting the single favorable-seed 0.4114 number). See `SESSION_LOG.md`.
 2. **Bridge (PS1↔PS2 linkage) has zero code**, and cannot meaningfully start until PS2 exists.
-3. **Dashboard/Audit UI has zero code.**
+   **SUPERSEDED 2026-08-12** — Bridge now calls `bridge/matcher.py`'s real matching functions
+   directly from `/api/bridge`, conditionally (zero matches is the expected, correct result for
+   most APK/dataset pairs). See `SESSION_LOG.md`.
+3. **Dashboard/Audit UI has zero code.** **SUPERSEDED 2026-08-12** — `setuguard_app/frontend/`
+   exists and has been verified end-to-end in headless Chromium, not just by inspection. See
+   `SESSION_LOG.md`.
 4. **Fix #3 (F-Droid + 16-real-bank holdout FP-rate tuning): "before" number measured (Week 2),
    still blocked on D1/D2 by design.** `fix3_fp_harness.py` now has a seeded, reproducible n=150
    run (`FIX3_BEFORE_RESULTS.md`, FP rate 142/145 = 97.9%, corrected accounting) — but this number
@@ -873,10 +962,18 @@ Ordered by risk to the Aug 27–28 demo (per the user's stated date — see UNVE
 - **Never touch `banking_holdout_16/`** in any script. Every harness in this repo has explicitly
   excluded it; it is reserved for the eventual Fix #3 FP-rate validation. Future sessions must
   preserve that exclusion.
-- **New PS2/Bridge/Dashboard modules**: no existing convention, since nothing has been built yet.
-  When started, give each its own top-level directory under `~/BOIhackathon/` (e.g.
-  `setuguard_ps2/`, `setuguard_bridge/`), mirroring `setuguard_ps1/`'s flat-files +
-  settings-block + CLI-`main()` style, unless the team decides otherwise.
+- **New PS2/Bridge/Dashboard modules**: ~~no existing convention, since nothing has been built
+  yet~~ **SUPERSEDED 2026-08-12** — they exist now, and did not follow this predicted convention.
+  PS2's offline trainer lives in `harness/` (alongside PS1's other non-frozen measurement
+  harnesses, not a separate `setuguard_ps2/`), its feature constants live in
+  `setuguard_app/backend/ps2_features.py` (imported by both the trainer and the live backend so
+  they can't drift apart), and its research artifacts (the original roadmap's graph-feature work
+  etc.) live in `ps2/` — one un-prefixed directory, not `setuguard_ps2/`. Bridge already had its
+  own `bridge/` directory (teammate-authored, predates this convention question) and kept it.
+  Dashboard is `setuguard_app/frontend/`. The actual, load-bearing convention that emerged: offline
+  training/measurement code goes in `harness/`, is declared non-frozen in its own docstring, and
+  writes versioned artifacts to `models/`; the live backend (`setuguard_app/backend/app.py`) only
+  ever loads those artifacts, never trains. See `SESSION_LOG.md`.
 - **Updating this file**: whenever a pipeline file's schema changes, a new measurement run
   completes, or a new component (PS2/Bridge/Dashboard) gets its first real code, refresh the
   relevant section of `CONTEXT.md` in the same sitting. Don't let it drift the way the actual
