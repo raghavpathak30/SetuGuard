@@ -85,6 +85,13 @@ node_modules/
 *.csv
 !raw_graph_features.csv
 !harness/banking_packages.csv
+# banking_packages.csv was silently dropped by this blanket rule once already
+# (commit 610d945 claimed to add it and didn't -- fixed in ce705d0). Adding the
+# next two exceptions in advance rather than waiting to repeat that mistake a
+# third time when results_banking_legit.csv (B4) and the fixtures/ dry-run
+# files are committed.
+!harness/results_banking_legit.csv
+!harness/fixtures/*.csv
 *.xlsx
 !data/Description.xlsx
 *.crdownload
