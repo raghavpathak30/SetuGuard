@@ -1,0 +1,442 @@
+{
+  "what_this_counts": {
+    "network_host_indicator": "features.suspicious_strings[] entries with kind in (\"url\",\"ip\") \u2014 the exact field bridge/matcher.py:extract_ioc_from_ps1() turns into c2_hosts",
+    "usable_certificate_hash": "features.certificate.sha256 is not None \u2014 the exact field bridge/matcher.py:match_account_to_apk() compares on the APK side",
+    "source": "harness/feature_cache/*.json, 668 cached extraction outputs, read-only; no Androguard invocation, no APK opened"
+  },
+  "all_extracted": {
+    "n_extracted": 668,
+    "with_network_host_indicator": 522,
+    "with_network_host_indicator_pct": 78.1,
+    "with_usable_cert_hash": 665,
+    "with_usable_cert_hash_pct": 99.6,
+    "with_both": 521,
+    "with_both_pct": 78.0,
+    "with_zero_network_host_indicators": 146,
+    "with_zero_network_host_indicators_pct": 21.9,
+    "with_zero_linkable_indicators_of_either_kind": 2,
+    "with_zero_linkable_indicators_of_either_kind_pct": 0.3,
+    "n_at_suspicious_strings_cap_25": 84,
+    "ip_kind_indicators_total": 376,
+    "url_kind_indicators_total": 3762,
+    "with_at_least_one_ip_kind": 106,
+    "with_at_least_one_ip_kind_pct": 15.9,
+    "network_indicators_per_apk_distribution": {
+      "0": 146,
+      "1": 156,
+      "2": 76,
+      "3": 52,
+      "4": 28,
+      "5": 18,
+      "6": 14,
+      "7": 15,
+      "8": 3,
+      "9": 7,
+      "10": 9,
+      "11": 1,
+      "12": 9,
+      "13": 6,
+      "14": 8,
+      "15": 2,
+      "16": 7,
+      "17": 1,
+      "18": 3,
+      "19": 4,
+      "20": 4,
+      "21": 4,
+      "22": 5,
+      "23": 7,
+      "24": 2,
+      "25": 81
+    },
+    "distinct_hosts_per_apk_distribution": {
+      "0": 146,
+      "1": 228,
+      "2": 59,
+      "3": 37,
+      "4": 27,
+      "5": 21,
+      "6": 19,
+      "7": 19,
+      "8": 13,
+      "9": 7,
+      "10": 11,
+      "11": 10,
+      "12": 7,
+      "13": 6,
+      "14": 10,
+      "15": 10,
+      "16": 5,
+      "17": 6,
+      "18": 6,
+      "19": 1,
+      "20": 4,
+      "21": 2,
+      "22": 3,
+      "23": 5,
+      "24": 5,
+      "25": 1
+    },
+    "median_network_indicators": 2,
+    "max_network_indicators": 25
+  },
+  "by_corpus": {
+    "banking_holdout": {
+      "n_extracted": 16,
+      "with_network_host_indicator": 12,
+      "with_network_host_indicator_pct": 75.0,
+      "with_usable_cert_hash": 15,
+      "with_usable_cert_hash_pct": 93.8,
+      "with_both": 11,
+      "with_both_pct": 68.8,
+      "with_zero_network_host_indicators": 4,
+      "with_zero_network_host_indicators_pct": 25.0,
+      "with_zero_linkable_indicators_of_either_kind": 0,
+      "with_zero_linkable_indicators_of_either_kind_pct": 0.0,
+      "n_at_suspicious_strings_cap_25": 1,
+      "ip_kind_indicators_total": 2,
+      "url_kind_indicators_total": 101,
+      "with_at_least_one_ip_kind": 2,
+      "with_at_least_one_ip_kind_pct": 12.5,
+      "network_indicators_per_apk_distribution": {
+        "0": 4,
+        "1": 6,
+        "2": 1,
+        "4": 1,
+        "22": 3,
+        "25": 1
+      },
+      "distinct_hosts_per_apk_distribution": {
+        "0": 4,
+        "1": 7,
+        "2": 1,
+        "7": 2,
+        "10": 1,
+        "15": 1
+      },
+      "median_network_indicators": 1,
+      "max_network_indicators": 25
+    },
+    "benign": {
+      "n_extracted": 292,
+      "with_network_host_indicator": 269,
+      "with_network_host_indicator_pct": 92.1,
+      "with_usable_cert_hash": 292,
+      "with_usable_cert_hash_pct": 100.0,
+      "with_both": 269,
+      "with_both_pct": 92.1,
+      "with_zero_network_host_indicators": 23,
+      "with_zero_network_host_indicators_pct": 7.9,
+      "with_zero_linkable_indicators_of_either_kind": 0,
+      "with_zero_linkable_indicators_of_either_kind_pct": 0.0,
+      "n_at_suspicious_strings_cap_25": 60,
+      "ip_kind_indicators_total": 296,
+      "url_kind_indicators_total": 2454,
+      "with_at_least_one_ip_kind": 66,
+      "with_at_least_one_ip_kind_pct": 22.6,
+      "network_indicators_per_apk_distribution": {
+        "0": 23,
+        "1": 32,
+        "2": 43,
+        "3": 35,
+        "4": 12,
+        "5": 11,
+        "6": 12,
+        "7": 12,
+        "8": 1,
+        "9": 6,
+        "10": 7,
+        "11": 1,
+        "12": 7,
+        "13": 4,
+        "14": 2,
+        "15": 2,
+        "16": 5,
+        "18": 3,
+        "19": 4,
+        "20": 2,
+        "21": 1,
+        "22": 1,
+        "23": 5,
+        "24": 2,
+        "25": 59
+      },
+      "distinct_hosts_per_apk_distribution": {
+        "0": 23,
+        "1": 69,
+        "2": 35,
+        "3": 26,
+        "4": 21,
+        "5": 15,
+        "6": 13,
+        "7": 13,
+        "8": 11,
+        "9": 5,
+        "10": 7,
+        "11": 9,
+        "12": 4,
+        "13": 4,
+        "14": 9,
+        "15": 3,
+        "16": 2,
+        "17": 4,
+        "18": 2,
+        "19": 1,
+        "20": 1,
+        "21": 2,
+        "22": 2,
+        "23": 5,
+        "24": 5,
+        "25": 1
+      },
+      "median_network_indicators": 5,
+      "max_network_indicators": 25
+    },
+    "malicious": {
+      "n_extracted": 360,
+      "with_network_host_indicator": 241,
+      "with_network_host_indicator_pct": 66.9,
+      "with_usable_cert_hash": 358,
+      "with_usable_cert_hash_pct": 99.4,
+      "with_both": 241,
+      "with_both_pct": 66.9,
+      "with_zero_network_host_indicators": 119,
+      "with_zero_network_host_indicators_pct": 33.1,
+      "with_zero_linkable_indicators_of_either_kind": 2,
+      "with_zero_linkable_indicators_of_either_kind_pct": 0.6,
+      "n_at_suspicious_strings_cap_25": 23,
+      "ip_kind_indicators_total": 78,
+      "url_kind_indicators_total": 1207,
+      "with_at_least_one_ip_kind": 38,
+      "with_at_least_one_ip_kind_pct": 10.6,
+      "network_indicators_per_apk_distribution": {
+        "0": 119,
+        "1": 118,
+        "2": 32,
+        "3": 17,
+        "4": 15,
+        "5": 7,
+        "6": 2,
+        "7": 3,
+        "8": 2,
+        "9": 1,
+        "10": 2,
+        "12": 2,
+        "13": 2,
+        "14": 6,
+        "16": 2,
+        "17": 1,
+        "20": 2,
+        "21": 3,
+        "22": 1,
+        "23": 2,
+        "25": 21
+      },
+      "distinct_hosts_per_apk_distribution": {
+        "0": 119,
+        "1": 152,
+        "2": 23,
+        "3": 11,
+        "4": 6,
+        "5": 6,
+        "6": 6,
+        "7": 4,
+        "8": 2,
+        "9": 2,
+        "10": 3,
+        "11": 1,
+        "12": 3,
+        "13": 2,
+        "14": 1,
+        "15": 6,
+        "16": 3,
+        "17": 2,
+        "18": 4,
+        "20": 3,
+        "22": 1
+      },
+      "median_network_indicators": 1,
+      "max_network_indicators": 25
+    }
+  },
+  "denoised_malicious_view": {
+    "method": "urlparse().hostname for kind=='url', literal value for kind=='ip'; then subtract the set of every host observed anywhere in the benign (n=292) or banking_holdout (n=16) corpora. This removes shared framework/CDN/XML-namespace hosts (schemas.android.com, ns.adobe.com, github.com, www.w3.org, 127.0.0.1, ...) that are present in malware only because ordinary libraries put them there.",
+    "n_malicious": 360,
+    "with_at_least_one_host_raw": 241,
+    "with_at_least_one_host_raw_pct": 66.9,
+    "with_at_least_one_host_not_seen_in_benign_or_holdout": 218,
+    "with_at_least_one_host_not_seen_in_benign_or_holdout_pct": 60.6,
+    "distinct_hosts_across_malicious": 469,
+    "distinct_hosts_not_in_benign_or_holdout": 411,
+    "top_25_hosts_in_malicious": [
+      [
+        "schemas.android.com",
+        23
+      ],
+      [
+        "xmlpull.org",
+        15
+      ],
+      [
+        "10.0.0.172",
+        13
+      ],
+      [
+        "market.android.com",
+        12
+      ],
+      [
+        "110.34.233.250",
+        12
+      ],
+      [
+        "www.google.com",
+        11
+      ],
+      [
+        "www.w3.org",
+        10
+      ],
+      [
+        "192.151.226.138",
+        10
+      ],
+      [
+        "sennapious.com",
+        10
+      ],
+      [
+        "rewards.getjar.com",
+        9
+      ],
+      [
+        "sandroid.getjar.com",
+        9
+      ],
+      [
+        "alog.umeng.co",
+        9
+      ],
+      [
+        "127.0.0.1",
+        9
+      ],
+      [
+        "103.228.66.249",
+        9
+      ],
+      [
+        "alog.umeng.com",
+        8
+      ],
+      [
+        "data.flurry.com",
+        7
+      ],
+      [
+        "1.234.38.88",
+        7
+      ],
+      [
+        "schemas.xmlsoap.org",
+        6
+      ],
+      [
+        "127.0.0.255",
+        5
+      ],
+      [
+        "10.0.0.200",
+        5
+      ],
+      [
+        "www.",
+        5
+      ],
+      [
+        "www.antivirus-pro.us",
+        5
+      ],
+      [
+        "tempuri.org",
+        5
+      ],
+      [
+        "log.umsns.com",
+        5
+      ],
+      [
+        "113.10.136.143",
+        5
+      ]
+    ],
+    "top_15_hosts_in_benign": [
+      [
+        "schemas.android.com",
+        232
+      ],
+      [
+        "ns.adobe.com",
+        85
+      ],
+      [
+        "github.com",
+        70
+      ],
+      [
+        "127.0.0.1",
+        43
+      ],
+      [
+        "www.w3.org",
+        39
+      ],
+      [
+        "play.google.com",
+        30
+      ],
+      [
+        "localhost",
+        22
+      ],
+      [
+        "apache.org",
+        20
+      ],
+      [
+        "xml.org",
+        19
+      ],
+      [
+        "developer.apple.com",
+        19
+      ],
+      [
+        "aomedia.org",
+        19
+      ],
+      [
+        "schemas.microsoft.com",
+        18
+      ],
+      [
+        "javax.xml.xmlconstants",
+        18
+      ],
+      [
+        "issuetracker.google.com",
+        16
+      ],
+      [
+        "default.url",
+        15
+      ]
+    ]
+  },
+  "caveats": [
+    "static_analysis.py:86 caps suspicious_strings at MAX_SUSPICIOUS_STRINGS=25 and iterates STRING_PATTERNS in url, ip, shell order \u2014 so an APK with >=25 distinct URL matches records zero ip-kind and zero shell-kind strings. 84/668 (12.6%) of cached outputs sit at that cap, including 23/360 malicious. Every per-APK indicator count is therefore right-censored at 25.",
+    "A 'network host indicator' here is any http(s):// string or dotted-quad match found in the DEX string pool. It is not evidence of a C2 channel and is not evidence the host was ever contacted. This audit measures joinability, not malice.",
+    "bridge/matcher.py compares c2_host by exact equality against the RAW suspicious_strings value, not against a parsed hostname. A ground-truth c2_host recorded as a hostname can therefore never match a url-kind indicator (whose value is the full URL). Only kind=='ip' values (bare dotted quads) and a ground-truth entry holding the byte-identical full URL can join today. 10.6% of malicious APKs (38/360) carry at least one ip-kind indicator.",
+    "banking_holdout n=16 is reported for completeness only; it is underpowered for any rate claim."
+  ]
+}
