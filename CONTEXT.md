@@ -1,1009 +1,429 @@
 # SetuGuard — Repository Context
 
-_Last written: 2026-07-20, by a Claude Code documentation pass. Everything below was verified
-against the actual filesystem/environment on that date unless marked otherwise in the
-"UNVERIFIED / TO CONFIRM" section at the end. Read that section before trusting any claim about
-identity/dates/venue._
+**As of 12 August 2026.** Written for a reader with no prior exposure to this repo.
 
-_Updated: 2026-07-20, same day, second Claude Code session. That session (1) initialized git and
-pushed to GitHub, (2) ran a dead-code audit across all PS1 files and applied the one signed-off
-finding, (3) ran the Week-1 Obfuscapk risk spike (go/no-go — passed) and (4) scaffolded the Fix #3
-batch-YARA false-positive harness. Every claim below from that session is traceable to a command
-actually run in that session, same standard as the rest of this document. Changed sections: 2, 5,
-6, 8, 9._
+This is a description of what the repo *is*. The narrative history lives in `SESSION_LOG.md` and
+stays there. Quotable numbers live in `REPORT_FACTS.md`. Forward work lives in `PLAN.md`.
 
-_Updated: 2026-07-26/27, third Claude Code session (Week 2). Completed the n=50-malicious
-`baseline_v2` re-run (D10, now RESOLVED), built `validation_gate.py` (D4) and validated it against
-live model output (not just synthetic tests — it caught real grounding-hallucination violations),
-built `stress_harness.py` for hostile-input robustness testing, pinned `rag_report.py`'s generation
-`options` (temperature=0, seed=42 — D6, PARTIALLY resolved: verdict/confidence now deterministic,
-`cited_chunk_ids` is not), ran a paired in-memory D2 A/B experiment (null-to-negative result that
-REDIRECTS D1's suspected root cause away from retrieval and toward `SYSTEM_PROMPT`/schema-level
-causes), fixed a live crash in `fix3_fp_harness.py` and used it to measure a seeded n=150 Fix #3
-"before" FP rate (97.9%, corrected accounting), ran the AutoYara (I2) feasibility spike (NO-GO for
-adopting the actual tool; ambiguity flagged, not resolved), corrected a significant D11/corpus-census
-undercount (16 unusable benign files, not 1), found and logged five new frozen-file defects
-(`FROZEN_FILE_FINDINGS.md`, sign-off-gated, only one applied — the temperature/seed pin), and wrote
-`requirements.txt` (D8, now RESOLVED). Every claim below from this session is traceable to a command
-actually run in this session. Changed sections: 2, 4, 5, 6, 8, 9._
-
-_Updated: 2026-08-11/12, fourth through sixth Claude Code sessions. This is the update that
-falsifies the stale-box's own "PS2/Bridge/Dashboard being unstarted... still accurate" claim
-below — **PS2 and Bridge are no longer unstarted.** Session four built the real PS2 pipeline:
-`setuguard_app/backend/ps2_features.py` (feature constants cited to `data/Description.xlsx`'s
-data dictionary), `harness/train_ps2_model.py` (offline XGBoost trainer, stratified holdout,
-writes `models/ps2_xgb_v1.json` + a metrics JSON), and rewired `/api/analyze_dataset` to load that
-artifact instead of training in-request (p50 ~7.6s→~0.66s). Also wired `/api/bridge` to actually
-call `bridge/matcher.py`'s real matching functions instead of reimplementing them, and nulled two
-previously-fabricated fields (`generated_rules`/`rule_validated`) rather than leaving them
-hardcoded identically across all 9,082 records. Session five (a hardening pass) added real
-headless-Chromium browser verification (`harness/browser_smoke.js`, not just field-checking),
-proved the Ollama-down degradation path, ran a 20-seed repeated-holdout variance study (median
-AUCPR **0.271** [IQR 0.221-0.362] — the single-seed 0.4114 number turned out to sit at the 80th
-percentile, a favorable draw), nulled a third fabricated field (the counterfactual), and found
-that all 81 fraud rows in `DataSet.csv` are contiguous at the file's tail (indices 9002-9082) —
-row order encodes the label. Session six extended that variance study to recall/precision/lift@k,
-confirmed the live application code path itself was clean of positional leakage (by reading
-sklearn's actual source, not assuming from the function name), retracted a prior session's framing
-that had used a fraud label as false corroboration of the bridge matcher, and made both the
-committed metrics files and the live API's own dashboard-facing number lead with the 20-seed
-median instead of one favorable seed. **All of this is documented in `SESSION_LOG.md`, not
-restructured into this file's Sections 2-9** — same reasoning as the box below: doing that
-properly would mean rewriting most of those sections, which this pass didn't have time for either.
-This paragraph and the corrections inline below (all newly tagged `SUPERSEDED 2026-08-12`) are the
-extent of this pass's edits to the prose. See `SESSION_LOG.md`'s four 2026-08-11 entries for full
-detail, every command run, and every number's provenance._
-
-> **THIS DOCUMENT IS STALE AS OF 2026-08-12 AND WAS NOT REWRITTEN TO MATCH — READ THIS BOX BEFORE
-> TRUSTING ANYTHING BELOW ABOUT VERDICT BEHAVIOR, GIT STATE, PS2/BRIDGE STATUS, OR "PS1 IS THE
-> ONLY UI."**
->
-> Everything above this box, except the update paragraph immediately preceding it (dated
-> **2026-08-11/12**), describes the state as of the **2026-07-26/27** session, when the only way to
-> run PS1 was `run_pipeline.py`/`batch_baseline.py` against a single APK or a batch script, and the
-> RAG/Mistral stage's own verdict was authoritative (the D1 "always suspicious" defect this whole
-> document is chasing). **That 2026-08-11/12 paragraph is current; Sections 1-9 below are not**:
->
-> - **A new component exists that this document has zero awareness of in its main prose**:
->   `setuguard_app/` — a Flask backend (`setuguard_app/backend/app.py`) and frontend, serving PS1
->   through `POST /api/analyze_apk`, PS2 through `POST /api/analyze_dataset`, and the Bridge
->   through `POST /api/bridge`. This is the actual demo surface, not `run_pipeline.py`.
-> - **D1 is no longer "always suspicious"/unaddressed.** `app.py`'s `_rule_based_verdict()` is now
->   the sole, structural, deterministic source of `verdict`/`confidence`/`risk_score` for
->   `/api/analyze_apk` — the LLM/RAG stage supplies narrative rationale only and cannot change the
->   verdict, with or without Ollama reachable. This directly contradicts several claims below
->   (Section 2's "Known-broken" bullets, Section 8 item 7) that the verdict enum "carries near-zero
->   signal" — that was true of the old LLM-authoritative path and is not true of the current one.
-> - **PS2 and Bridge are no longer unstarted** (Section 1, Section 2's table, Section 3's
->   architecture diagram, and Section 8 items 1-2 all still say otherwise below — each now carries
->   an inline `SUPERSEDED 2026-08-12` correction rather than being rewritten). PS2 is a real
->   XGBoost model trained offline (`harness/train_ps2_model.py` → `models/ps2_xgb_v1.json`) and
->   served inference-only by `/api/analyze_dataset`; Bridge is real exact-match IOC linkage
->   (`bridge/matcher.py`, called directly by `/api/bridge`, not reimplemented). Dashboard/Audit
->   (`setuguard_app/frontend/`) also exists and has been verified in an actual headless browser,
->   not just by inspection. Full detail, every number, every command: `SESSION_LOG.md`.
-> - Everything since 2026-08-10 (the D1 inversion itself; a `banking_holdout_16` measurement
->   showing the *new* problem — the rule-based scorer initially flagged 16/16 real banks as
->   non-benign; a per-term discriminative-power diagnosis; this session's `reflection`/
->   `self_signed`/url-ip scorer-v2 pruning; the entire PS2/Bridge build described in the second
->   update paragraph above; and a 20-seed PS2 variance study whose headline finding is that the
->   single-seed AUCPR number anyone would naturally quote — 0.4114 — sits at the 80th percentile of
->   a median-0.271 distribution) is documented in **`SESSION_LOG.md`**, not here. Treat
->   `SESSION_LOG.md` as the current, accurate record for all of that; this file was not
->   restructured to absorb it, since doing so properly would mean rewriting most of Sections
->   2/3/4/6/8 to a standard this pass didn't have time for before the 17 August deadline. Specific
->   claims below that are now flatly wrong are flagged inline with a `SUPERSEDED 2026-08-12`
->   marker and a pointer to `SESSION_LOG.md`; claims not flagged (the Androguard/androguard-quirks
->   material in Section 4, the environment/corpus facts in Section 5) are believed still accurate,
->   since none of the sessions since touched them.
+Every claim below is tagged with the file and line range, artifact, or command that proves it.
+Claims that could not be traced are in **Section 7**, not here.
 
 ---
 
-## 1. PROJECT IDENTITY
+## 0. The finding of 12 August, first, because everything else depends on it
 
-SetuGuard is a two-sided fraud/malware detection system built for what the user has described as
-**PSB CyberShield 2026**, by a team calling itself **Ciphered Four**, with a Grand Finale at
-**IIT Hyderabad, Aug 27–28**. None of that name/venue/date information appears anywhere in the
-repository's own files (see UNVERIFIED section) — it is recorded here purely on the user's
-say-so. What *is* verifiable in-repo is the technical shape of the project: it spans two
-problem statements. **PS1** is Android APK threat detection — ingest an `.apk`, statically extract
-security-relevant features with Androguard, ground a local-LLM (Mistral, via Ollama) triage
-report in a small hand-written MITRE ATT&CK-for-Mobile/OWASP MASTG knowledge base retrieved with
-FAISS, and emit a YARA rule when warranted. **PS2** is banking-mule-account detection — planned
-(per `SetuGuard_Development_Roadmap_v2.md`) as an XGBoost/SHAP tabular model enriched with graph
-features (community detection, betweenness, PageRank, fan-in/out ratios) over a transaction graph
-(AMLworld dataset). A **Bridge** component is meant to link the two: take PS1's per-APK IOC output
-(package, sha256, verdict, suspicious permissions/APIs) and enrich PS2's mule-account graph with
-it, so that "this device/APK is flagged" can influence "this account is a mule." A fourth
-component, **Dashboard/Audit**, is meant to visualize all of this and produce compliance-style
-audit records. As of this writing, **only PS1 has any code** — see Section 2.
-
-> **SUPERSEDED 2026-08-12** — PS2 is now a real, shipped XGBoost model
-> (`harness/train_ps2_model.py` → `models/ps2_xgb_v1.json`, trained offline on the 18
-> bank-finalized features from `data/Description.xlsx`, served inference-only by
-> `/api/analyze_dataset`); Bridge is real exact-match cert-hash/C2-host linkage
-> (`bridge/matcher.py`, called directly by `/api/bridge`); Dashboard/Audit
-> (`setuguard_app/frontend/`) exists and has been verified end-to-end in an actual headless
-> browser. The graph-feature enrichment this paragraph describes as PS2's plan was built as an
-> offline research artifact (`ps2/06_graph_features.py`) and found to leak the label (it assigns
-> graph features using the target column) — it is explicitly excluded from PS2's shipped model and
-> from all claims. See `SESSION_LOG.md`'s 2026-08-11 entries.
-
-An earlier, more ambitious design (found in `idea.txt`, dated 30 May, called **"FHEGuard"**)
-proposed doing account/device linkage under fully homomorphic encryption (CKKS) with private-set-
-intersection for cross-bank device matching. `idea.txt` is itself a self-critique of that design
-(noise growth, ~100ms+ per-op latency, PSI complexity) and recommends TEEs/model-simplification
-instead of raw FHE. `SetuGuard_Development_Roadmap_v2.md` (6 Jul) reads as the resulting, more
-grounded plan — no FHE/PSI anywhere in it. Treat `idea.txt` as historical background, not a live
-spec.
-
----
-
-## 2. CURRENT PROJECT STATE
-
-| Component | Status | Evidence |
-|---|---|---|
-| PS1 `static_analysis.py` | **DONE** (Week-1 baseline) | Runs standalone; tested against real APKs from both corpora; schema held stable (11/11 top-level keys, correct sub-key types) across 50 real samples in `baseline/` run |
-| PS1 `knowledge_base.py` | **DONE** | 16 hand-written chunks, `CHUNKS` list, covers 14 MITRE IDs required by the build spec plus 2 more (`T1444`, `T1398`) added to ground fields (certificate, boot receiver) that had no other chunk |
-| PS1 `report_prompt.py` | **DONE** | `SYSTEM_PROMPT`, `REPORT_SCHEMA`, `build_user_prompt()` — no pipeline logic, verified |
-| PS1 `rag_report.py` | **DONE**, generation now pinned | End-to-end tested against `ollama` (mistral + nomic-embed-text), returns valid JSON matching `REPORT_SCHEMA`. **Week-2 change (sign-off given, one-line edit):** `ollama.chat()` now passes `options={"temperature": 0, "seed": 42}` (Finding 3, `FROZEN_FILE_FINDINGS.md`) — the only edit to any of the six frozen files this session. Verified: verdict+confidence are now bit-for-bit deterministic across repeats; `cited_chunk_ids` is **not** (Finding 4 — that field is schema-unconstrained, see Section 6) |
-| PS1 `yara_gen.py` | **DONE** | Rules verified to actually **compile and match** with the real `yara` CLI (`yara-python` 4.5.1) against one malicious and one benign real sample. **Week-2 finding, not applied:** a NUL byte in a `suspicious_strings` value (from Adobe XMP metadata, very common) crashes `yara.compile()` downstream — Finding 5, `FROZEN_FILE_FINDINGS.md`, spans this file and `static_analysis.py` |
-| PS1 `run_pipeline.py` | **DONE** | Glue entrypoint; chains the three stages by import (no shelling out); writes `out/<pkg>.{features.json,report.json,report.md,yar}` |
-| PS1 `batch_baseline.py` | **DONE for both `baseline/` (n=10 malicious) and `baseline_v2/` (n=50 malicious nominal / n=46 effective)** | Week-2: rewritten for crash-survivability (incremental flush+fsync per sample to `results.csv`/new `skips.csv`, `heartbeat.log`, pidfile, resume-by-skip) after the original run died with zero output. Re-run to completion under `setsid nohup` — see Section 6 for the (now complete) n=46-malicious confidence-separation result |
-| Dead-code audit (six frozen files + non-frozen scaffolding) | **DONE, one finding applied** | Full pass (unused-import AST scan, grep-every-symbol-across-repo, commented-code/TODO grep) across `static_analysis.py`, `knowledge_base.py`, `report_prompt.py`, `rag_report.py`, `yara_gen.py`, `run_pipeline.py`, `batch_baseline.py`, `parse_fdroid_index.py`. One finding, in a frozen file: unused DEX-list binding `d` at `static_analysis.py:203` (`a, d, dx = AnalyzeAPK(...)`, `d` never referenced again anywhere in the repo — confirmed by grep before editing). Reported in `setuguard_ps1/DEAD_CODE_REPORT.md`, signed off by the user, applied as `a, _, dx = ...` — the only edit made to any of the six frozen files since Week 1 (superseded as "only edit" by the Week-2 temperature/seed pin, above — that's now the second). Verified with a post-edit CLI+import smoke test against a real malicious-corpus sample (exit 0, correct 11-key schema). Non-frozen files had zero dead code — no changes needed there |
-| PS1 `validation_gate.py` (D4) | **NEW, DONE (Week 2)** | Validates-only (never corrects a verdict/rule): `validate_features_schema()`, `validate_report_grounding()` (the D4 grounding-faithfulness check — cited chunk/MITRE ids against `knowledge_base.CHUNKS`' real 16), `validate_indicator_traceability()` (every `$indicator_*` in a rule traces to a real features field). Validated against the one real on-disk artifact (`baseline/one_real_sample.features.json`, PASS) plus synthetic fixtures proving it catches fabricated chunk ids, hallucinated indicators, and schema violations. **Caught real violations from live model output** the same session (see Section 6) — not just synthetic tests. Known gap, not fixed: passes NUL-bearing indicators as "traceable" (provenance-only, no well-formedness check) |
-| PS1 `stress_harness.py` + `_stress_worker.py` (Week 2) | **NEW, DONE** | Feeds `analyze_apk()` 7 hostile/edge-case inputs (truncated APK, zero-byte file, valid-zip-not-APK, non-zip binary, directory, nonexistent path, corpus APK with most dangerous_permissions), each isolated in its own subprocess so a crash/hang can't take down the harness. All 7 resolved cleanly (6 clean exceptions, 1 success) — **zero dirty failures**. Also used ad hoc to diagnose the 27-file unzip-integrity discrepancy (see Section 6/8) |
-| PS1 `d2_negative_chunks.py` + `d2_ab_harness.py` (Week 2) | **NEW, DONE** | 6 negative-evidence chunks (reviewed/revised twice for framing before running — see Section 6), monkeypatched onto `rag_report.CHUNKS` at runtime by a paired A/B harness; **never edited `knowledge_base.py`**. Full result in Section 6 — a null-to-negative result that **redirects** D1's suspected root cause away from retrieval |
-| PS2 (XGBoost/SHAP/graph mule detection) | **NOT STARTED (as of 2026-07-27) — SUPERSEDED 2026-08-12** | Exhaustive `find` for `xgboost`/`mule`/`ps2`/`shap`/`graph`-named files under `~/BOIhackathon` returns nothing but incidental APK filename matches (e.g. `com.eanema.graph89_...apk`, an unrelated F-Droid app). **Now DONE, without the graph-feature part**: `harness/train_ps2_model.py` trains XGBoost offline on the 18 bank-finalized features (`setuguard_app/backend/ps2_features.py`, cited to `data/Description.xlsx`), writes `models/ps2_xgb_v1.json` + a metrics JSON with a stratified holdout; `/api/analyze_dataset` loads that artifact and scores (inference-only, no training/CV/SHAP-fitting per request). Headline metric is a 20-seed repeated-holdout median (AUCPR 0.271 [IQR 0.221-0.362]), not a single split — the single-seed number (0.4114) sits at the 80th percentile, a favorable draw, not representative. Graph features (`ps2/06_graph_features.py`) were built as a research artifact and found to leak the label (assigns features using the target column) — excluded from the shipped model and all claims. See `SESSION_LOG.md`'s 2026-08-11 entries. |
-| Bridge (PS1↔PS2 IOC enrichment) | **NOT STARTED (as of 2026-07-27) — SUPERSEDED 2026-08-12** | No files found; cannot meaningfully exist without PS2. **Now DONE**: `bridge/matcher.py`'s real `extract_ioc_from_ps1()`/`match_account_to_apk()` are called directly by `/api/bridge` (not reimplemented) for exact-match cert-hash/C2-host linkage; a link is conditional (zero matches is the expected result for most APK/dataset pairs, not an error), verified against real analyzed-APK data both with and without a match, in an actual headless browser, not just via the API response JSON. See `SESSION_LOG.md`'s 2026-08-11 entries. |
-| Dashboard/Audit UI | **NOT STARTED (as of 2026-07-27) — SUPERSEDED 2026-08-12** | No files found. **Now DONE**: `setuguard_app/frontend/` (vendored Chart.js, no CDN dependency) serves all of PS1/PS2/Bridge's output; verified end to end in headless Chromium (`harness/browser_smoke.js`) across APK analysis, dataset analysis, and both bridge match/no-match outcomes, with zero console errors. See `SESSION_LOG.md`'s 2026-08-11 entries. |
-| Fix #3 (F-Droid + 16-real-bank holdout, FP-rate → 0) | **"Before" number measured (Week 2), still blocked on D1/D2 by design** | `setuguard_ps1/fix3_fp_harness.py`: Week-2 crash-survivability rewrite (same treatment as `batch_baseline.py`) plus `--sample-n`/`--seed` for reproducible seeded sampling. Hard-refuses `banking_holdout_16/` by path check (re-verified intact). A live NUL-byte crash (Finding 5) was hit, fixed narrowly (distinct `yara_compile:embedded_null` skip reason, verified against repeats), and the run restarted clean. **n=150, seed=7 result: FP rate 142/145 = 97.9%** (corrected accounting — see Section 6/`FIX3_BEFORE_RESULTS.md`); this is an explicitly-labeled BEFORE number, not a result to act on, since it's dominated by D1's always-"suspicious" verdict. Still defaults to `fdroid_benign_apks/`; the wider F-Droid pull and the 16 real banking APKs remain a separate, not-yet-done sourcing step |
-| Fix #4 (Obfuscapk survival matrix) | **Week-1 risk spike DONE — verdict GO** | The previously-skipped Week-1 spike was run: installed `claudiugeorgiu/obfuscapk` (note: the Docker Hub name is `claudiugeorgiu/obfuscapk`, **not** `obfuscapk/obfuscapk`, which doesn't exist) via `podman pull`, ran it against one real trojan sample from `cicmaldroid_banking/` with the lightest single obfuscation transform (`Nop`) plus the `Rebuild`+`NewAlignment`+`NewSignature` steps Obfuscapk requires you to chain explicitly (it does not auto-rebuild/sign after a transform). Output: a valid signed APK (`unzip -t` clean, `file` confirms an APK Signing Block present) that parses cleanly through `static_analysis.py`'s own `analyze_apk()` — the same androguard call path the pipeline uses. Full result in Section 6. **The survival matrix itself — many samples × multiple transforms, checking whether PS1's verdict/confidence/YARA output survives — is NOT started; this was only the go/no-go gate** |
-| AutoYara feasibility spike (I2, Week 2) | **DONE — NO-GO for tool adoption** | `setuguard_ps1/AUTOYARA_SPIKE.md`. Confirmed (fetched, not from memory): Java/Maven, JDK11+ (this machine has JDK 25 already), Apache 2.0, no PyPI package, no Docker image, single 2017-era release — appears abandoned. NO-GO because its input shape (multi-sample, family-labeled, cross-APK biclustering) doesn't fit this pipeline's single-APK shape, not because it's unobtainable. **Unresolved, flagged not resolved:** whether I2 means adopting the actual tool (NO-GO) or building a homegrown single-APK fallback (cheaper, not evaluated) |
-| `FROZEN_FILE_FINDINGS.md` (Week 2) | **NEW — 5 findings logged, 1 applied** | Same report-don't-touch precedent as `DEAD_CODE_REPORT.md`, generalized beyond dead code. Finding 1 (unguarded `manifest.iter()` on possibly-`None` manifest), Finding 2 (`exported_components[].name` can be `None`, violating the frozen `str` contract — 3 occurrences in `baseline_v2`), Finding 4 (`cited_chunk_ids` schema-unconstrained — parked research finding), Finding 5 (NUL-byte over-capture/under-sanitization, `static_analysis.py`+`yara_gen.py` — crashes `yara.compile()`, ~22% prevalence in benign F-Droid samples) are all **sign-off-gated, not applied**. Finding 3 (temperature/seed pin) is the one **applied** this session — see `rag_report.py` row above |
-| `requirements.txt` (D8) | **RESOLVED (Week 2)** | Generated from `python3 -m pip show` output actually run this session — see Section 5 |
-| Version control | **INITIALIZED, pushed** — **SUPERSEDED 2026-08-12, see note** | `.git` exists; remote `origin` = `https://github.com/raghavpathak30/SetuGuard`. As of 2026-07-26/27: branch `main` tracked `origin/main`, 2 commits (`aee8497`, `9695401`), Week-2 work sat on an unmerged `raghav/week2-ps1` branch. **That branch state is stale — do not rely on it.** All work since (D1 inversion, `setuguard_app/`, this session's scorer-v2 pruning) has landed as individual commits directly on `main`; run `git log --oneline -10` for the real current state rather than trusting a commit count here. `.gitignore` has grown since (now also excludes `harness/feature_cache/`, `harness/extract_run*.log`, and the scorer-v2 split sample lists — see `SESSION_LOG.md`'s 2026-08-12 entry) |
-
-**Known-broken / blunt findings:**
-
-> **SUPERSEDED 2026-08-12** — the four bullets below describe the RAG/Mistral stage's *own*
-> verdict, which was authoritative at the time. As of the 2026-08-10 "D1 inversion"
-> (`setuguard_app/backend/app.py`'s `_rule_based_verdict()`), the LLM no longer produces the
-> served verdict at all — a deterministic rule-based scorer does, and it does use all three
-> labels. The "always suspicious" defect described here is fixed, not by tuning the prompt (as
-> this section implies is the only path) but by removing the LLM from the verdict path entirely.
-> See `SESSION_LOG.md`'s 2026-08-10 entries. Left unedited below for historical accuracy about
-> what Weeks 1–2 actually measured.
-
-- **The RAG report's categorical verdict has never once been "benign" or "malicious" in any measured run.** Confirmed FOUR times independently now: `baseline/` (n=50), `baseline_v2/` (n=86 effective), the D2 A/B (n=36), and the Fix #3 before-run (n=113 effective) — **100% "suspicious"** across all of them, regardless of true label or measurement context. Confidence separates the classes at small n but the separation **collapses at wider n** (see Section 6) — the 3-way enum carries almost no signal. Week-2's D2 A/B experiment (paired, in-memory, `knowledge_base.py` never touched) **redirects the suspected root cause away from retrieval (D2) and toward `SYSTEM_PROMPT`/schema-level causes** (D1's other candidates) — see Section 6 for the full result. Still not fixed — explicit team decision required, not a silent patch.
-- **The wider n=50-malicious confidence-separation re-run is now COMPLETE** (Week 2) — `baseline_v2/` was rewritten for crash-survivability and re-run to completion (n=86 effective: 40 benign, 46 malicious after 4 `InvalidInstruction`-bytecode skips). The separation question is answered: **it does not survive** — see Section 6.
-- **Corpus-hygiene correction (Week 2) — CONTEXT.md previously undercounted this by 16x.** The benign corpus does not have "one corrupted file" — it has **16 files that fail `unzip -t`/Python `zipfile`** (only 1 is the known truncated download; the other 15 are structurally-valid-per-`file(1)` APKs that androguard itself also fails to parse for 15/16 of them, raising a clean exception in every case — confirmed via `stress_harness.py`, zero dirty failures). The malicious corpus has 11 similar zip-integrity failures (9/11 of which androguard tolerates fine; 2/11 raise cleanly) **plus a separate, previously-unknown failure mode**: `InvalidInstruction` DEX-bytecode parse errors, hit by 4/50 malicious samples in the `baseline_v2` re-run and again in the D2 A/B and Fix #3 runs. None of this breaks the pipeline (every harness already skip-logs cleanly), but the true unusable-file count across both corpora is materially higher than previously documented.
-- **NUL-byte defect (Week 2, Finding 5, `FROZEN_FILE_FINDINGS.md`) — new, high-prevalence.** `static_analysis.py`'s url-string regex doesn't exclude control characters, so Adobe XMP metadata's trailing NUL byte (extremely common in ordinary image assets) ends up in `suspicious_strings`, then in a generated YARA rule's string literal, then crashes `yara.compile()`. Measured prevalence: **22.1% (32/145)** of successfully-analyzed benign F-Droid samples in the Fix #3 seeded n=150 run. Sign-off-gated, not fixed.
-- YARA rules are generated assuming indicator strings are byte-present in **decompressed** DEX/AXML content (flagged explicitly in `yara_gen.py`'s module docstring) — most APK zip entries are DEFLATE-compressed, so a raw untouched `.apk` file is not guaranteed to byte-match. Ad hoc verification during this project (2 real samples, one malicious one benign) *did* successfully compile-and-match with the real `yara` CLI against the raw `.apk`, but that is not a general guarantee across build toolchains.
-- ~~No `requirements.txt`...~~ **RESOLVED (Week 2)** — see Section 5/8.
-
----
-
-## 3. ARCHITECTURE
-
-### PS1 (implemented)
+`banking_holdout_16/` **contains no banking apps.** All sixteen are malware samples — a
+sixteen-file partition of `Banking.tar.gz`, the CICMalDroid *Banking malware* archive that
+`cicmaldroid_banking/` was also extracted from.
 
 ```
-                         ┌─────────────────────────┐
-   <apk file> ─────────► │ static_analysis.py       │
-                         │  analyze_apk(path)       │
-                         │  → AnalyzeAPK() (a,d,dx) │
-                         └────────────┬─────────────┘
-                                      │ features dict (11 keys, frozen schema — Section 4)
-                                      ▼
-                         ┌─────────────────────────────────────────┐
-                         │ rag_report.py                            │
-                         │  generate_report(features)                │
-                         │   1. _build_retrieval_query(features)      │
-                         │   2. _retrieve(query, k=4):                │
-                         │      ollama.embed(nomic-embed-text) on     │
-                         │      CHUNKS (knowledge_base.py) + query,   │
-                         │      faiss.IndexFlatIP cosine search       │
-                         │   3. build_user_prompt() (report_prompt.py)│
-                         │   4. ollama.chat(mistral, format=SCHEMA)   │
-                         └────────────┬────────────────────────────┘
-                                      │ report dict {verdict, confidence, rationale,
-                                      │   cited_chunk_ids, retrieved_chunk_ids, package_name, sha256}
-                                      ▼
-                         ┌─────────────────────────────────────┐
-                         │ yara_gen.py                          │
-                         │  generate_yara(features, report)      │
-                         │   verdict=="benign" → None            │
-                         │   else build indicator strings from   │
-                         │   dangerous_permissions + suspicious_  │
-                         │   apis classes (deduped) + suspicious_ │
-                         │   strings; <2 indicators → None        │
-                         └────────────┬──────────────────────────┘
-                                      │ .yar text | None
-                                      ▼
-                         ┌─────────────────────────────────────┐
-                         │ run_pipeline.py                       │
-                         │  chains all 3 by import (no shell-out) │
-                         │  times each stage (time.perf_counter)  │
-                         │  writes out/<pkg>.{features.json,       │
-                         │    report.json, report.md, yar}         │
-                         └─────────────────────────────────────┘
+tar -tzf Banking.tar.gz | grep -c '\.apk$'   ->  2505
+ls -1 cicmaldroid_banking/*.apk | wc -l      ->  2489
+ls -1 banking_holdout_16/*.apk  | wc -l      ->    16   (2489 + 16 = 2505, exactly)
 ```
 
-`batch_baseline.py` sits alongside these (imports the same three functions) as a **read-only
-measurement harness**, deliberately kept separate from the six files above so that "measure" tasks
-never risk mutating the frozen pipeline.
+Set-differenced both ways: zero extras, zero omissions, zero overlap. Every certificate is
+self-signed, with subjects including `sdsdfsdf`, `sasasa`, `zxzxzx`, `android-debug`, and the
+AOSP public test key. Package names include `com.example.myapp` (the Android Studio default,
+which Play rejects) and `zzzzzz.xxxxxx.cccccc`. Full evidence:
+`harness/BANKING_HOLDOUT_16_PROVENANCE.md`, produced by `harness/identify_holdout_16.py`.
 
-### PS2 + Bridge (planned only — no implementation exists) — SUPERSEDED 2026-08-12
+"Banking holdout" meant *held out from the Banking malware set*. Later sessions read it as *a
+holdout of banking apps*. The drift is traceable from
+`SetuGuard_Development_Roadmap_v2.md:16` (2026-07-06) through
+`harness/sample_set_banking_holdout_16.txt:2-3`, which hardcodes the false reading as a comment.
 
-> This whole subsection describes the 2026-07-27 planning-only state. **PS2 and Bridge were built
-> in the sessions documented in `SESSION_LOG.md`'s 2026-08-11 entries** — the diagram below is left
-> unedited for historical accuracy about what the roadmap originally proposed (notably: the graph
-> feature stage in the diagram below was built as `ps2/06_graph_features.py` and found to leak the
-> label, so it is NOT part of the shipped model; "AMLworld / ULB" as an input was replaced by the
-> hackathon's actual `data/DataSet.csv`). The as-built shape is:
-> ```
->    <DataSet.csv, 9,082 rows>
->             │
->             ▼
->    [PS2: harness/train_ps2_model.py, offline]
->    18 bank-finalized features (data/Description.xlsx) → XGBoost, stratified
->    holdout → models/ps2_xgb_v1.json + metrics JSON (20-seed median AUCPR
->    0.271). /api/analyze_dataset loads that artifact and scores -- inference
->    only, no training/CV/SHAP-fitting per request.
->             │
->             ▼
->    [Bridge: bridge/matcher.py, called directly by /api/bridge]
->    extract_ioc_from_ps1() + match_account_to_apk() -- exact-match cert_hash
->    / C2_host against matcher.SYNTHETIC_LINKAGE_GROUND_TRUTH. Conditional:
->    zero matches is the expected result for most APK/dataset pairs.
->             │
->             ▼
->    [Dashboard/Audit: setuguard_app/frontend/]
->    Serves all three; verified end-to-end in headless Chromium
->    (harness/browser_smoke.js), zero console errors.
-> ```
-> Full detail, every number, every command: `SESSION_LOG.md`.
+**Consequences, applied throughout this document:**
 
-```
-   <transaction data (AMLworld / ULB)>
-            │
-            ▼
-   [PS2: NOT STARTED]
-   planned: graph construction → Louvain community / betweenness /
-   PageRank / fan-in-out features → XGBoost + SHAP → per-account risk score
-            │
-            ▼
-   [Bridge: NOT STARTED]
-   planned: join PS1's {package_name, sha256, verdict, dangerous_permissions,
-   suspicious_apis} onto PS2's account-graph nodes via a device↔account link
-   (mock initially, later Fix #1's synthetic ground-truth linkage set)
-            │
-            ▼
-   [Dashboard/Audit: NOT STARTED]
-   planned: visualize combined PS1+PS2+Bridge output, AuditTrailRecord schema
-```
-
-No functions, files, or even stub signatures exist for PS2/Bridge/Dashboard — the diagram above is
-reconstructed purely from `SetuGuard_Development_Roadmap_v2.md` prose, not from code. **SUPERSEDED
-2026-08-12 — see the box above.**
-
----
-
-## 4. FULL SPECIFICATIONS
-
-### PS1 — APK ingest & Androguard extraction
-
-- Entry point: `analyze_apk(apk_path: str) -> dict` in `static_analysis.py`.
-- Ingest is direct: `from androguard.misc import AnalyzeAPK; a, d, dx = AnalyzeAPK(apk_path)`. No
-  pre-validation, no unzip step — trusts androguard even when `file(1)` misidentifies some
-  cicmaldroid samples as "Java archive (JAR)" (libmagic false flag; androguard parses them fine).
-- **Androguard 4.1.4 quirks handled explicitly** (all confirmed against the installed version,
-  not assumed):
-  - Androguard 4.x logs XREF resolution at DEBUG via **loguru**, not stdlib `logging`. The
-    stdlib `logging.getLogger("androguard").setLevel(WARNING)` idiom is a no-op on 4.x. Fix used:
-    `from loguru import logger; logger.disable("androguard")` at module import time
-    (`static_analysis.py:12-15`).
-  - `AnalyzeAPK()` returns a 3-tuple `(a, d, dx)` — the APK object, DEX list, and Analysis object.
-  - `a.get_certificates()` returns a list of **asn1crypto** `x509.Certificate` objects (not
-    pyOpenSSL/cryptography). Accessed via `.subject.human_friendly`, `.issuer.human_friendly`,
-    `.sha256` (which is `bytes`, hex-encoded with `.hex()`).
-  - `dx.find_methods(classname=REGEX, methodname=REGEX)` returns `MethodAnalysis` objects; a
-    match is only counted as "actually called" if `list(m.get_xref_from())` is non-empty — a
-    hard rule in `_extract_suspicious_apis()` (`static_analysis.py:142-156`) to reject 0-xref
-    matches (dead/unreferenced code).
-  - `dx.find_strings(REGEX)` returns `StringAnalysis` objects; `.get_value()` gives the string.
-  - Manifest namespace is the literal string `"{http://schemas.android.com/apk/res/android}"`
-    (`MANIFEST_NS`), used to read `android:name`/`android:exported` off `lxml` Elements returned
-    by `a.get_android_manifest_xml()`.
-
-- **Feature set** (the exact, frozen schema — every key below and only these 11 keys):
-
-| Field | Type | Semantics |
-|---|---|---|
-| `apk_path` | `str` | Input path as given |
-| `sha256` | `str` (hex) | SHA-256 of the raw APK file bytes (not the DEX, not a cert) |
-| `package_name` | `str` | `a.get_package()` |
-| `app_name` | `str` | `a.get_app_name()` |
-| `target_sdk` | `str` | `str(a.get_target_sdk_version())` |
-| `permissions` | `list[str]` | `a.get_permissions()`, raw |
-| `dangerous_permissions` | `list[str]`, sorted | `set(permissions) ∩ DANGEROUS_PERMISSIONS` (12-item set, see catalog below) |
-| `exported_components` | `list[{type, name, intent_actions}]` | Only components determined exported (rule below); `type ∈ {activity,service,receiver,provider}`; `name` is fully-qualified (`.Foo` shorthand expanded with package name); `intent_actions: list[str]` |
-| `suspicious_apis` | `list[{category, class, method, call_count, mitre}]` | One entry per distinct (class, method) confirmed called (xref-checked); `call_count = len(xrefs)`; includes a synthetic `category="accessibility_service"` entry (`method="<manifest>"`, `call_count=0`) when accessibility abuse is detected declaratively |
-| `suspicious_strings` | `list[{kind, value}]`, capped at 25 | `kind ∈ {url, ip, shell}`; deduplicated by value; order-of-first-match across the three regexes |
-| `certificate` | `{subject, issuer, sha256, self_signed, is_debug}` | First signer only if multi-signed; all fields `None`/`False` if unsigned (guarded edge case) |
-
-  Exported-component rule (`_extract_exported_components`, `static_analysis.py:99-139`):
-  `android:exported=="true"` → exported; `=="false"` → not; attribute **absent** →
-  activity/service/receiver exported iff ≥1 `<intent-filter>` child; provider → **not** exported
-  (spec-mandated simplification, ignores the real Android targetSdk<17 default).
-
-  Suspicious-API catalog (`SUSPICIOUS_API_CATALOG`, `static_analysis.py:41-72`) — 8 categories,
-  each `(class_regex, method_regex, mitre_id)`:
-
-  | category | class regex (partial) | method regex | MITRE |
-  |---|---|---|---|
-  | `dynamic_code_loading` | `Ldalvik/system/(DexClassLoader\|PathClassLoader\|BaseDexClassLoader);` | `<init>` | T1407 |
-  | `reflection` (weak, by design) | `Ljava/lang/reflect/Method;` / `Ljava/lang/Class;` | `invoke` / `forName` | T1406 |
-  | `sms_control` | `Landroid/telephony/SmsManager;` | `sendTextMessage\|sendMultipartTextMessage` | T1582 |
-  | `device_admin` | `Landroid/app/admin/DevicePolicyManager;` | `lockNow\|wipeData` | T1626 |
-  | `installed_app_discovery` | `Landroid/content/pm/PackageManager;` | `getInstalledPackages\|getInstalledApplications` | T1418 |
-  | `device_fingerprinting` | `Landroid/telephony/TelephonyManager;` | `getDeviceId\|getImei\|getSubscriberId` | T1426 |
-  | `runtime_exec` | `Ljava/lang/Runtime;` | `exec` | T1623 |
-  | `crypto_usage` (dual-use, not auto-flagged) | `Ljavax/crypto/Cipher;` / `...SecretKeySpec;` | `doFinal` / `<init>` | T1521 |
-
-  Accessibility abuse (`T1417.001`) is **deliberately not** DEX-matched (benign hello-world apps
-  fired 23 `AccessibilityEvent` hits + 41 reflection hits in earlier verification — too noisy).
-  Detected instead from the manifest: `BIND_ACCESSIBILITY_SERVICE` permission present, OR a
-  `<service>` whose intent-filter action is `android.accessibilityservice.AccessibilityService`.
-
-  `DANGEROUS_PERMISSIONS` (12 items, `static_analysis.py:23-36`): `SEND_SMS`, `RECEIVE_SMS`,
-  `READ_SMS`, `READ_CONTACTS`, `READ_PHONE_STATE`, `CALL_PHONE`, `SYSTEM_ALERT_WINDOW`,
-  `BIND_ACCESSIBILITY_SERVICE`, `REQUEST_INSTALL_PACKAGES`, `QUERY_ALL_PACKAGES`,
-  `RECEIVE_BOOT_COMPLETED`, `WRITE_SETTINGS` (all `android.permission.*`).
-
-  Suspicious-string regexes (`STRING_PATTERNS`, `static_analysis.py:81-85`): `url` =
-  `https?://[^\s"']{4,}`; `ip` = standard dotted-quad IPv4; `shell` =
-  `/system/(x)?bin/|\bsu\b|chmod\s+777|mount\s+-o`.
-
-### PS1 — FAISS / RAG configuration
-
-- Corpus: `CHUNKS` in `knowledge_base.py` — **16 entries**, each `{id, title, mitre, text}`,
-  hand-paraphrased (not scraped) from MITRE ATT&CK-for-Mobile + OWASP MASTG. Covers 14 spec'd
-  MITRE IDs (T1407, T1406, T1582, T1417.001, T1417.002, T1626, T1418, T1426, T1623, T1521,
-  T1636.003, T1636.004, T1437, T1541) plus 2 extra (T1444 masquerade/cert, T1398 boot-persistence)
-  added to ground schema fields (`certificate`, `RECEIVE_BOOT_COMPLETED`) that otherwise had no
-  chunk.
-- Embedding model: `nomic-embed-text` via Ollama. Per `ollama show nomic-embed-text`:
-  architecture `nomic-bert`, 137M params, **768-dim** embeddings, F16 quantization, native context
-  length 2048 (served with `num_ctx=8192`).
-- Index: `faiss.IndexFlatIP` (exact inner-product search), built **in memory on every call** —
-  no persistence, no cache file (corpus is only ~16 chunks, per explicit spec: rebuild-each-run is
-  cheap enough). Cosine similarity achieved via `faiss.normalize_L2()` on both corpus and query
-  vectors before indexing/search (`rag_report.py:37-54`).
-- Retrieval query: `_build_retrieval_query(features)` concatenates `dangerous_permissions` +
-  sorted unique `suspicious_apis[].category` + sorted unique `suspicious_apis[].mitre` + sorted
-  unique `suspicious_strings[].kind` into one string; falls back to
-  `"benign android application no suspicious static indicators"` if all empty.
-- `TOP_K = 4` chunks retrieved per report.
-
-### PS1 — Mistral / generation
-
-- Model: `mistral` via Ollama. Per `ollama show mistral`: architecture `llama`, **7.2B params**,
-  **Q4_K_M quantization**, **32768-token context**, stop tokens `[INST]`/`[/INST]`.
-- Prompt template: `SYSTEM_PROMPT` (constant string) + `build_user_prompt(features,
-  retrieved_chunks)` (both in `report_prompt.py`) — both live **only** in that file; no prompt
-  logic in `rag_report.py` itself.
-- Structured output: `ollama.chat(model="mistral", messages=[system, user],
-  format=REPORT_SCHEMA, options={"temperature": 0, "seed": 42})` — Ollama's JSON-schema-constrained
-  decoding, not a hand-parsed regex. **The `options=` argument is a Week-2 addition** (Finding 3,
-  `FROZEN_FILE_FINDINGS.md`; the call had no `options` at all through end of Week 1) — verified to
-  make `verdict`/`confidence` bit-for-bit deterministic across repeated calls on identical input.
-  `REPORT_SCHEMA` (json-schema dict, `report_prompt.py:21-42`): `verdict` (enum
-  benign/suspicious/malicious — content-constrained by the schema, confirmed deterministic post-pin),
-  `confidence` (number 0–1, same), `rationale` (string), `cited_chunk_ids` (array of string — **no
-  enum/content constraint**, confirmed to both hallucinate non-existent ids and remain
-  non-deterministic even post-pin; Finding 4, do not treat this field as reliable). `generate_report()`
-  adds `retrieved_chunk_ids`, `package_name`, `sha256` on top of the model's raw JSON before
-  returning.
-- Both `ollama.embed()` and `ollama.chat()` calls are wrapped in `try/except` that **raise
-  loudly** (`RuntimeError`) rather than fabricate a verdict if the Ollama server/model is
-  unreachable.
-
-### PS1 — YARA rule generation format
-
-- `generate_yara(features: dict, report: dict) -> str | None` in `yara_gen.py`. **Note the
-  signature deviates from the literal spec text `generate_yara(features, verdict)`** — see
-  Section 7 for why (confidence, required in `meta`, only lives in the report dict).
-- Hard gate: `report["verdict"] == "benign"` → `None`, unconditionally (Section 7 explains why
-  this is enforced explicitly rather than left to the indicator-count threshold).
-- Indicators (three kinds, each becomes one `$indicator_*` string):
-  1. `dangerous_permissions` strings, verbatim (plaintext in the AXML string pool) — `ascii wide`.
-  2. `suspicious_apis[].class` descriptors, **deduplicated**, class only (NOT the `Lcls;->method`
-     arrow form) — `ascii` only.
-  3. `suspicious_strings[].value` (url/ip/shell, already capped at 25 upstream) — `ascii wide`.
-- If fewer than 2 total indicators → `None`.
-- `N = max(2, ceil(0.6 * num_indicators))`.
-- Rule text:
-  ```
-  rule SetuGuard_<sanitized_package_name>
-  {
-      meta:
-          package = "<package_name>"
-          sha256 = "<sha256>"
-          verdict = "<verdict>"
-          confidence = "<confidence>"
-          generated_by = "SetuGuard-PS1"
-      strings:
-          $indicator_perm_0 = "..." ascii wide
-          $indicator_api_0  = "..." ascii
-          $indicator_str_0  = "..." ascii wide
-          ...
-      condition:
-          uint32(0) == 0x04034b50 and <N> of ($indicator*)
-  }
-  ```
-  (`0x04034b50` is the ZIP/APK local-file-header magic.)
-- **Caveat, documented in the file's own module docstring**: this assumes indicator strings are
-  byte-present in **decompressed** DEX/AXML content. Most `.apk` zip entries are DEFLATE-compressed,
-  so a scanning engine needs to be zip-aware (or the rule needs to run post-extraction) for a
-  guaranteed match. Ad hoc testing (this project, 2 samples) showed it *did* match raw `.apk`
-  files with the real `yara` CLI, but that's not a general guarantee.
-
-### PS2 — feature engineering, XGBoost, SHAP, graph topology
-
-**No implementation exists.** Everything below is transcribed from
-`SetuGuard_Development_Roadmap_v2.md` prose and must not be treated as verified code behavior:
-
-- Baseline (Week 1, per roadmap): "XGBoost/SHAP pipeline running on ULB data with real numbers."
-  No hyperparameters, no feature list, no code.
-- Fix #2 (Week 2–3, per roadmap): four graph features — Louvain community, betweenness
-  centrality, PageRank, fan-in/out ratio — computed on an AMLworld HI-Small subgraph (from
-  Kaggle), fed into XGBoost as new columns, checked against AUCPR regression, with a target
-  finding that "mule-labeled nodes rank in top-percentile betweenness."
-- A Week-1 "Day 5–6 risk spike" was planned ("pull AMLworld HI-Small, load into NetworkX, confirm
-  Louvain/betweenness run without choking") — **no evidence in the repo that this happened.**
-
-### Frozen integration schema
-
-The `features` dict schema (Section 4, PS1 table above) **is the frozen contract** other
-components (Bridge, PS2 enrichment, Dashboard) are meant to consume. It is reproduced verbatim in
-`setuguard_ps1/baseline/one_real_sample.features.json` — a real, pretty-printed example from an
-actual malicious APK — explicitly generated as "the frozen-schema reference" for the Bridge owner.
-**Breaking this schema (renaming a key, changing a type, adding/removing a field) silently
-invalidates that reference file and any downstream code written against it, with no CI gate to
-catch the break automatically** — `batch_baseline.py`'s schema check and the Week-2
-`setuguard_ps1/validation_gate.py` (`validate_features_schema()`) are both measurement/gate tools
-run manually, not wired into CI. **The schema has already been observed to break in practice**:
-Finding 2 (`FROZEN_FILE_FINDINGS.md`) — `exported_components[].name` came back `None` on 3/86
-`baseline_v2` samples, violating the documented `str` type, sign-off-gated and not yet fixed. Any
-Bridge/PS2/Dashboard consumer coded strictly against the table above should be aware this can
-happen today.
-
-The `report` dict schema (verdict/confidence/rationale/cited_chunk_ids +
-retrieved_chunk_ids/package_name/sha256, per `rag_report.py:85-90`) and the YARA `meta` block
-format (package/sha256/verdict/confidence/generated_by) are the other two frozen contracts a
-Bridge/Dashboard consumer would need. **Caveat for the `report` contract, confirmed Week 2**: only
-`verdict` and `confidence` are safe to treat as stable/deterministic (post the temperature/seed pin,
-Finding 3); `cited_chunk_ids` is neither reliably grounded (hallucinates ids outside
-`knowledge_base.CHUNKS`) nor deterministic (Finding 4) — **a Bridge/Dashboard consumer should not
-key logic off `cited_chunk_ids`** until that's addressed. `validation_gate.py`'s
-`validate_report_grounding()` is the manual check for the grounding half of this.
-
----
-
-## 5. ENVIRONMENT & REPRODUCIBILITY
-
-Verified directly on the current machine (`cat /etc/os-release`, `uname -a`, `nvidia-smi`,
-`python3 --version`, `pip list`, `ollama list`, `ollama show`):
-
-| | |
+| Previously stated | Now |
 |---|---|
-| OS | Parrot Security 7.1 (echo) |
-| Kernel | `6.17.13+2-amd64` (Parrot build, dated 2026-01-08) |
-| GPU | NVIDIA GeForce RTX 4060, driver 550.163.01, CUDA 12.4, 8188 MiB VRAM |
-| Python | 3.13.5, system interpreter, **no venv** |
-| Ollama server | systemd service `ollama`, confirmed `active` |
-| Ollama models pulled | `mistral:latest` (4.4GB), `nomic-embed-text:latest` (274MB) |
-| Container runtime | `podman` 26.1.5-compat (the `docker` command on this machine is podman under the hood — `docker pull` fails against the podman socket unless invoked as `podman pull`); rootless. Image `docker.io/claudiugeorgiu/obfuscapk:latest` pulled (809MB) for the Fix #4 spike (Section 2/6) |
+| AUC 0.4113 = malware does not rank above legitimate banking apps | **Void** — malware vs malware from one archive |
+| 15/16 legitimate banking apps false-positive | **Inverted** — 15/16 held-out malware correctly flagged |
+| The 0.28 sample was a correct benign call | **A miss** |
+| Classes are "convergent by construction" — a measured ceiling | **An untested hypothesis** |
+| AUC 0.9366 vs F-Droid benign | **Unaffected.** The one genuine PS1 separation number. |
 
-Pinned dependency versions actually installed (`python3 -m pip list`). **`setuguard_ps1/requirements.txt`
-now exists (Week 2, D8 resolved)** — generated from this same `pip show` data, so this table and
-that file should stay in sync:
+The repo warned itself and was not heard: `PS1_Defects_and_Improvements.md:144` (D9) recorded
+that "the 16 real banking APKs are **unsourced**. Until they exist, the FP number cannot be
+measured." It was measured five weeks later anyway.
 
-| package | version |
-|---|---|
-| androguard | 4.1.4 |
-| asn1crypto | 1.5.1 |
-| faiss-cpu | 1.14.3 |
-| loguru | 0.7.3 |
-| numpy | 2.2.4 |
-| ollama (python client) | 0.6.2 |
-| yara-python | 4.5.1 |
+---
 
-_Minor drift noted 2026-07-20 (second session): `python3 -c "import yara; print(yara.__version__)"`
-now reports `4.5.2` on this machine — one patch version ahead of the table above. Not re-verified
-whether this changes behavior; noted for traceability, not treated as a live bug._
+## 1. What this is
 
-This is a Debian-family "externally managed environment" (PEP 668) — plain `pip install` is
-blocked. All of the above were installed with `--break-system-packages` into
-`~/.local/lib/python3.13/site-packages` (confirmed via `pip show androguard` pointing there).
-**Anyone re-provisioning this machine must use the same flag or a venv.**
+A submission to **PSB CyberShield 2026** (Bank of India × IIT Hyderabad × DFS). Raghav Pathak is
+the sole contributor.
 
-**Literal commands to set up and run:**
+| Date | What | Failure mode |
+|---|---|---|
+| **17 Aug 2026** | Progress Report due (submitting 16 Aug) | Missing it **cancels candidature** — the only hard failure mode |
+| **27–28 Aug 2026** | Grand Finale, IIT Hyderabad | Judged on Innovation, Technical Feasibility, Business Potential, Scalability, User Experience |
 
-```bash
-# one-time environment setup (Debian/Parrot externally-managed-environment)
-python3 -m pip install --break-system-packages androguard==4.1.4 loguru asn1crypto \
-    faiss-cpu==1.14.3 ollama==0.6.2 yara-python
+Three components:
 
-# ollama server + models (separate install, not pip)
-systemctl status ollama          # must show 'active'
-ollama pull mistral
-ollama pull nomic-embed-text
+- **PS1 — Android banking-malware triage.** Androguard static analysis → FAISS retrieval over a
+  16-chunk MITRE ATT&CK knowledge base → Mistral-7B narrative via local Ollama → YARA generation.
+- **PS2 — mule-account detection.** XGBoost over the bank's 18 finalized features from a
+  9,082-row account dataset, with SHAP attribution and risk tiering.
+- **Bridge — IOC linkage.** Joins a PS1 APK's certificate hash to a PS2-scored account.
 
-# run one APK end-to-end
-cd ~/BOIhackathon/setuguard_ps1
-python3 run_pipeline.py /path/to/sample.apk
-# → out/<package_name>.features.json / .report.json / .report.md / .yar (if a rule was warranted)
+Deliverable: one Flask backend (`setuguard_app/backend/app.py`) plus a static dashboard
+(`setuguard_app/frontend/`), running fully offline except a local Ollama server.
 
-# run any single stage standalone
-python3 static_analysis.py <apk> [-o feat.json]
-python3 rag_report.py <feat.json> [-o report.json]
-python3 yara_gen.py <feat.json> <report.json> [-o rule.yar]
+---
 
-# install from the pinned file directly (Week 2)
-python3 -m pip install --break-system-packages -r requirements.txt
+## 2. Component state
 
-# re-run the wider measurement batch (baseline_v2/ is now complete — see Section 6 —
-# re-running from a clean baseline_v2/ regenerates it; resume-by-skip means a partial
-# baseline_v2/ would need clearing first for a truly fresh run)
-python3 batch_baseline.py        # writes to baseline_v2/ (NUM_MALICIOUS=50 currently configured)
-```
-
-**Corpus locations** (not committed to any repo — raw data on this machine only):
-
-| Directory | Count | Size | Role |
+| Component | Status | Evidence | Provenance |
 |---|---|---|---|
-| `~/BOIhackathon/fdroid_benign_apks/` | 802 apks | 12G | Benign training/eval corpus |
-| `~/BOIhackathon/cicmaldroid_banking/` | 2489 apks | 3.9G | Malicious (banking trojan) corpus |
-| `~/BOIhackathon/banking_holdout_16/` | 16 apks | 40M | **Reserved holdout — never touched by any script; earmarked for Fix #3** |
-| `~/BOIhackathon/fdroid_benign/` | 0 files | 4.0K | Empty — apparent leftover from an earlier, superseded download attempt |
-| `~/BOIhackathon/Banking.tar.gz` | — | 3.9G | Presumed source archive for `cicmaldroid_banking/` (not opened/verified) |
+| PS1 static extraction | Live | `setuguard_ps1/static_analysis.py:202-242`; 668 cached outputs in `harness/feature_cache/` | frozen file |
+| PS1 rule scorer | Live, authoritative in the API | `app.py:145-215` | `d1-inversion`, scorer-v2 (`b3ff83b`) |
+| PS1 RAG narrative | Live, narrative-only in the API | `app.py:218-234`; pin at `rag_report.py:78` | frozen; `temperature=0, seed=42` |
+| PS1 YARA generation | Live | `yara_gen.py`; compile+match at `app.py:316-328` | frozen |
+| PS1 CLI (`run_pipeline.py`) | Live, **not** inverted — LLM supplies the verdict | `run_pipeline.py:15,76,95` | frozen; §7 C1 |
+| PS2 offline trainer | Live | `harness/train_ps2_model.py` → `models/ps2_xgb_v1.json` | non-frozen |
+| PS2 20-seed study | Live | `harness/ps2_repeated_splits.py` → `models/ps2_repeated_splits_metrics.json` | non-frozen |
+| PS2 inference endpoint | Live, inference-only | `app.py:527-710`; artifact loaded once at import, `app.py:462-476` | — |
+| PS2 leakage guard + test | Live, 4/4 PASS | `train_ps2_model.py:67-84`; `harness/test_leakage_assert.py` | non-frozen |
+| Bridge matcher | Live, exact-match, cert-hash only in practice | `bridge/matcher.py:77-108`; called at `app.py:749,753` | teammate-authored |
+| Bridge unit test | Live | `bridge/fix1_confusion_matrix_results.json` | synthetic ground truth |
+| Dashboard | Live, zero console errors | `harness/browser_smoke.js`; 5 screenshots + report in `harness/browser_evidence/ollama_up/` | Playwright |
+| Ollama-down degradation | Verified | `harness/browser_evidence/ollama_down/` | — |
+| Chart.js | Vendored locally | `frontend/chart.umd.js`; `index.html:7-8,249` all-local | — |
+| Holdout provenance | **New, 12 Aug** | `harness/identify_holdout_16.py` → `harness/BANKING_HOLDOUT_16_PROVENANCE.md` | non-frozen |
+| `ps2/01`–`ps2/07` | Offline research, dead in the live path | zero import hits from `setuguard_app/` or `bridge/` | `ps2/README.md` |
+| Legitimate-banking-app corpus | **Does not exist** | §0 | — |
+| Dynamic analysis | Not started | no emulator/pcap/Frida code anywhere | — |
 
-**Machine-specific things future sessions should not assume generalize:**
-- The measured ~12.6s mean per-APK RAG latency is GPU-accelerated on this specific RTX 4060; a
-  CPU-only Ollama install would be substantially slower.
-- `batch_baseline.py` hardcodes `Path.home() / "BOIhackathon" / ...` — assumes this exact
-  directory layout under whatever user's home it runs as.
-- The YARA raw-`.apk`-byte-match caveat (Section 4) was only spot-checked on 2 samples on this
-  machine's build of those APKs; don't assume it generalizes to every APK build toolchain.
-
----
-
-## 6. RESULTS SO FAR
-
-Exactly two measurement artifacts exist, both under `setuguard_ps1/`. **No PS2/Bridge/Dashboard
-metrics exist anywhere** — there is no code to produce them.
-
-### `baseline/` — COMPLETE (40 benign + 10 malicious, produced by `batch_baseline.py` before it was
-edited to the wider n=50 config)
-
-Source: `setuguard_ps1/baseline/{results.csv,summary.txt}`. Recomputed directly from
-`results.csv` for this document (not just copied from the old `summary.txt`, which grouped
-confidence by verdict rather than by true label):
-
-| | benign (n=40) | malicious (n=10) |
-|---|---|---|
-| verdict | 100% `"suspicious"` | 100% `"suspicious"` |
-| confidence min/median/max | 0.45 / 0.70 / 0.75 | 0.75 / 0.78 / 0.85 |
-| YARA rule written | 36/40 (90%) | 10/10 (100%) |
-
-- Processed: 50/50, **0 skips**.
-- Schema check: **PASS**, 0 anomalies (all 11 top-level keys present on every sample; every
-  `suspicious_apis`/`suspicious_strings`/`exported_components` element had exactly its expected
-  sub-keys with correct types; every features dict round-tripped through `json.dumps` cleanly).
-- Total wall time 630.8s; mean 12.6s/apk (this is the Mistral-latency risk-register number).
-
-**The finding and its implication**: confidence scores separate the two classes cleanly (benign
-tops out at 0.75; malicious starts at 0.75 — touching exactly at the boundary, not crossing it),
-but the **categorical verdict does not** — the model never used `"benign"` or `"malicious"` in
-any of the 50 runs, always landing on the middle label. If any downstream consumer (Bridge,
-Dashboard) keys off the literal verdict string rather than the confidence float, it will observe
-zero variation across the entire corpus. This was recorded as-is, per explicit instruction not to
-tune the prompt or add a validation gate to mask it — it is real Week-1 baseline evidence for the
-Fix #3 FP-rate work.
-
-### `baseline_v2/` — COMPLETE as of Week 2 (n=40 benign / n=50 malicious nominal, n=46 malicious effective)
-
-Source: `setuguard_ps1/baseline_v2/{results.csv,skips.csv,summary.txt}`, recomputed directly from
-the CSVs for this document (not from the harness's own `summary.txt`, which is still accurate for
-this particular run but is a general risk pattern worth naming — see the Fix #3 write-up below
-for a case where trusting a harness's own summary actively produced a wrong number).
-Re-run (Week 2) after a full crash-survivability rewrite of `batch_baseline.py` (incremental
-flush+fsync, `skips.csv`, `heartbeat.log`, pidfile, resume-by-skip); ran to completion under
-`setsid nohup`, 1055.9s wall time, mean 12.2s/apk (n=86 successful).
-
-| | benign (n=40) | malicious (n=46 effective, 4 skipped) |
-|---|---|---|
-| verdict | 100% `"suspicious"` | 100% `"suspicious"` |
-| confidence min/p25/median/p75/max | 0.60 / 0.65 / 0.70 / 0.75 / 0.85 | 0.65 / 0.75 / 0.75 / 0.80 / 0.85 |
-
-**The n=10 separation does NOT survive at n=46 — answered, not smoothed.** At n=10 malicious
-(the `baseline/` run above), malicious min (0.75) exactly touched benign max (0.75) — no overlap.
-At n=46, malicious min drops to 0.65, well inside the benign range; benign max (0.85) now equals
-malicious max. Overlap region ≈ [0.65, 0.85] — most of both distributions. 33/40 benign score at
-or above the malicious minimum. This closes D10 (previously open) and answers the question
-CONTEXT.md's prior session left open: **no, confidence separation does not hold at wider n.**
-
-4 malicious samples skipped this run, all `InvalidInstruction` DEX-bytecode parse errors at the
-`static_analysis` stage — a distinct failure mode from the zip-integrity issue described below,
-first observed this session.
-
-**Schema violation found this run (Finding 2, `FROZEN_FILE_FINDINGS.md`), not seen in `baseline/`'s
-n=50:** 3/86 samples had `exported_components[].name = None` (violating the frozen `str`
-contract) — all 11 components in each of those 3 manifests lacked an `android:name` attribute.
-Traces to `static_analysis.py`'s `_resolve_component_name()` falling through to `return name`
-unguarded when the manifest attribute is absent. Sign-off-gated, not fixed — see
-`FROZEN_FILE_FINDINGS.md` Finding 2 for the two options.
-
-### D6 determinism — PARTIALLY resolved (Week 2)
-
-`rag_report.py`'s `ollama.chat()` call previously passed no `options` at all. Confirmed via 3 real
-samples run twice each through `generate_report()`: **verdict changed on 1/3 pairs, confidence
-moved on 3/3** — reproducibility was genuinely broken, not a theoretical risk.
-
-**Fix applied** (sign-off given, one-line edit — the only frozen-file edit this session):
-`options={"temperature": 0, "seed": 42}`. Re-verification (same 3 samples, same test):
-**verdict and confidence are now bit-for-bit deterministic across all 3 pairs.**
-`cited_chunk_ids` is **not** — 1/3 pairs diverged completely (one run cited real MITRE-style ids,
-the other cited literal feature-dict key names like `'exported_components'`). Root cause
-identified (Finding 4, `FROZEN_FILE_FINDINGS.md`): `REPORT_SCHEMA` content-constrains `verdict`
-(enum) and `confidence` (bounded number) via Ollama's schema-guided decoding, but `cited_chunk_ids`
-is typed as "array of arbitrary strings" with no such constraint — the same reason it both
-jitters and hallucinates. **Verdict/confidence are safe to treat as stable measurements now;
-`cited_chunk_ids` is not**, and no downstream measurement this session relied on it.
-
-### D2 A/B experiment — null-to-negative result, REDIRECTS D1's suspected root cause
-
-Full writeup: `setuguard_ps1/D2_AB_RESULTS.md`. Paired, in-memory (`rag_report.CHUNKS`
-monkeypatched at runtime; `knowledge_base.py` never edited), seed 2026, n=20 benign + 20
-malicious (16 effective after 4 more `InvalidInstruction` skips). Arm A = real 16 chunks; Arm B =
-real 16 + 6 reviewed negative-evidence chunks (`d2_negative_chunks.py`) describing normal
-permission/API profiles for messaging, fintech, media/utility-boot, package-management, dual-use
-APIs, and network strings — written to state only what's normal, with no malicious-co-indicator
-language (an earlier draft was rejected on review for smuggling a decision rule this way).
-
-**Headline: verdict never changed — 0/36 samples, either direction, either arm.** This is the
-clearest result: if D1's "always suspicious" verdict came from retrieval imbalance (D2's theory),
-changing what gets retrieved should have moved at least some verdicts. It moved zero.
-**This substantially weakens D2 as *the* root cause of D1** and redirects suspicion toward
-`report_prompt.py`-level candidates this test didn't touch: `SYSTEM_PROMPT`'s explicit hedging
-language, the absence of explicit decision thresholds, and the 3-way enum inviting the safe middle
-option. Confidence moved too, but backwards from D2's prediction — malicious confidence dropped
-more than benign (mean Δ −0.028 vs −0.0075), and separation got measurably *worse* (malicious
-samples at/below the benign max confidence doubled, 7/16→14/16).
-
-**D2↔D7 coupling, logged as the likely mechanism, not acted on:** at fixed `TOP_K=4`, the 6 new
-chunks compete with the original 16 for the same 4 retrieval slots — for a malicious sample this
-can displace a genuinely relevant malicious-framing chunk rather than adding balancing context.
-**Any future D2 revisit needs to travel with a D7 fix (or at least a higher `TOP_K`)** so negative
-chunks add context instead of displacing it. This is a null result for *this specific, cleanly-
-scoped test*, not a general verdict on D2 — no ablation was run, and D1's other candidates remain
-untouched and now more likely.
-
-### D4 grounding check — now backed by MEASURED evidence, not just synthetic tests
-
-`validation_gate.py`'s `validate_report_grounding()` was run against the same 6 live
-`generate_report()` outputs from the D6 determinism check (pre-pin): **4 of 6 runs failed with
-3–7 violations each** — real fabricated chunk ids (`'permissions'`, `'exported_components'`,
-`'suspicious_api_usage'`, full chunk titles instead of ids) caught on the very first live model
-output the gate was ever run against, not a contrived test case. Post-pin, the rate was 5/6 (not
-improved by the determinism fix — grounding-hallucination and run-to-run stability are different
-properties, see D6 above). **D4 went from a nice-to-have Week-2 deliverable to the barrier between
-a hallucinated technique id and a poisoned rule, with real measured evidence it fires in practice.**
-
-### Fix #3 "before" measurement — n=150, seed=7, FP rate 97.9% (corrected)
-
-Full writeup: `setuguard_ps1/FIX3_BEFORE_RESULTS.md`. Explicitly a BEFORE number, not a result —
-dominated by D1's always-"suspicious" verdict, per instruction. `fix3_fp_harness.py` rewritten for
-crash-survivability plus `--sample-n`/`--seed`; hard-refuses `banking_holdout_16/` (re-verified).
-
-A live crash was hit and fixed mid-session: `com.dmouayad.my_quran_233.apk` (a real, ordinary
-F-Droid app) crashed the harness with `ValueError: embedded null character` from
-`yara.compile()` — root-caused to a coupled `static_analysis.py`/`yara_gen.py` defect (Finding 5,
-below). Fixed narrowly in the harness (distinct `yara_compile:embedded_null` skip reason,
-verified against repeated occurrences) and the run **restarted from scratch** (not resumed) so
-all 150 samples share one harness version.
-
-**Corrected accounting (the harness's own auto-generated `summary.txt` undercounts and should not
-be used — it misses that every `yara_compile:*` skip row is *also* a rule-generated-on-benign
-event, since `_check_rule_match()` is only reachable after `generate_yara()` already returned a
-rule):**
-
-| | Count |
-|---|---|
-| Nominal | 150 |
-| Genuine skips (`static_analysis`, zip/EOCD errors) | 5 |
-| NUL-compile skips (rule generated, couldn't compile-test) | **32** |
-| Fully processed | 113 |
-
-**Primary FP rate = 142/145 = 97.9%** (110 `results.csv` rows with `rule_generated=True`, plus all
-32 NUL rows, which are `rule_generated=True` by construction — over the 145 samples that made it
-through `analyze_apk`+`generate_report`). Secondary sub-metric (of rules that could be
-compile-tested, i.e. excluding NUL cases — an explicitly biased subsample): 21/110 = 19.1%
-compiled and matched their own source APK.
-
-**The NUL-skip rate itself is the headline, independent of the FP number: 32/145 = 22.1%** of
-successfully-analyzed benign F-Droid samples hit this defect — systemic, not incidental, per
-Finding 5 below.
-
-Verdict distribution (n=113): 100% `"suspicious"` — the fourth independent confirmation this
-session.
-
-### Finding 5 — coupled `static_analysis.py`/`yara_gen.py` defect: NUL bytes crash YARA compilation
-
-Full detail: `FROZEN_FILE_FINDINGS.md` Finding 5. Adobe XMP metadata (near-ubiquitous in ordinary
-image assets) embeds a trailing NUL byte; `static_analysis.py:82`'s url regex doesn't exclude
-control characters, so it's captured into `suspicious_strings`; `yara_gen.py`'s `_yara_escape()`
-strips `\n`/`\r` and escapes backslash/quote but not NUL, so it flows into the generated rule and
-crashes `yara.compile()`. Measured prevalence 22.1% in the Fix #3 run above. Also checked:
-`validation_gate.validate_indicator_traceability()` passes a NUL-bearing indicator with zero
-violations — it validates provenance, not well-formedness. Two options logged for the team
-(tighten the regex; harden `_yara_escape()`; likely both needed), neither applied.
-
-### AutoYara (I2) feasibility spike — NO-GO for tool adoption, ambiguity unresolved
-
-Full writeup: `setuguard_ps1/AUTOYARA_SPIKE.md`. `FutureComputing4AI/AutoYara`: Java/Maven, JDK11+
-(confirmed available on this machine — JDK 25), Apache 2.0, no PyPI/Docker packaging, appears
-abandoned (single 2017-era release). **NO-GO for adopting the tool** — its input shape (multi-
-sample, family-labeled, cross-APK biclustering) doesn't fit this pipeline's single-APK
-`features → report → rule` shape without a substantial redesign, independent of licensing/
-availability. **Flagged, not resolved:** whether I2 means adopting this tool (NO-GO) or building a
-much cheaper homegrown single-APK fallback for the `<2 indicators` case (not evaluated) — a team
-decision.
-
-### Obfuscapk Fix #4 risk spike — GO (single sample, single transform, not a survival matrix)
-
-Run 2026-07-20 (second session). `claudiugeorgiu/obfuscapk:latest` via `podman run`, against
-`cicmaldroid_banking/00049d038a2abc2d5fe3b190d6cf5c1cb1ba63441defdf136be251c7a00727d8.apk`
-(94,725 bytes, a real trojan sample, first-sorted from the corpus). Obfuscator chain:
-`-o Nop -o Rebuild -o NewAlignment -o NewSignature` — `Nop` is the actual obfuscation transform
-(inserts nop instructions in the smali); `Rebuild`/`NewAlignment`/`NewSignature` are required
-separate steps to get a valid installable APK back out (Obfuscapk does not rebuild or re-sign
-automatically after a transform — that surprised the first attempt, which ran `-o Nop` alone and
-silently produced no output file at all, exit 0, no error).
-
-Result: output APK 115,552 bytes. `unzip -t` reports no errors. `file` identifies it as a proper
-Android package with an APK Signing Block. `analyze_apk()` (the real PS1 stage-1 function, not a
-mock) parses it with no exceptions: `package_name=com.baidu.pay2`, 7 dangerous permissions and 6
-suspicious_apis entries recovered — same shape of output as an unobfuscated sample.
-
-**What this proves and doesn't prove**: proves Obfuscapk installs clean in this environment (via
-podman, not raw pip — it isn't a PyPI package), completes without erroring on a real sample from
-our own malicious corpus, and emits an APK that both `unzip`/`file` and PS1's own androguard-based
-ingest accept as valid. Does **not** prove anything about whether obfuscation changes PS1's
-*verdict* — nobody has yet run the pre-obfuscation and post-obfuscation APK through the full
-`analyze_apk → generate_report → generate_yara` chain and diffed the outputs. That comparison,
-across multiple obfuscators and multiple samples, is the actual "survival matrix" and is still
-unbuilt (Open Item, Section 8).
+**Corpora on disk (gitignored):** `Banking.tar.gz` 3.9 GB / 2,505 APKs, extracted as
+`cicmaldroid_banking/` (2,489) + `banking_holdout_16/` (16); `fdroid_benign_apks/` 802 APKs /
+12 GB; `DataSet.csv` 117 MB.
 
 ---
 
-## 7. DESIGN DECISIONS & RATIONALE
+## 3. Architecture — traced from code
 
-| Decision | Why | What was rejected | What would force a revisit |
+### `POST /api/analyze_apk` — `app.py:382-404`
+
+```
+multipart "apk" → saved to backend/_uploads/
+  → static_analysis.analyze_apk(path)          # app.py:391, frozen
+  → _rule_based_verdict(features)              # app.py:392  ← verdict, confidence, score
+  → _try_llm_narrative(features, rule_report)  # app.py:393  ← rationale, cited_chunk_ids ONLY
+  → yara_gen.generate_yara(...)                # app.py:396, skipped when verdict == "benign"
+  → _adapt_apk_response(...) → STATE["last_apk"]
+  → finally: uploaded file deleted             # app.py:403-404
+```
+
+**The inversion is structural, not conventional.** `_try_llm_narrative()` opens with
+`report = dict(rule_report)` (`app.py:225`), so verdict and confidence hold rule-based values
+before Ollama is contacted. Inside the `try`, exactly two keys are assigned — `rationale` and
+`cited_chunk_ids` (`app.py:229-230`). The `except` branch assigns only `_narrative_source`.
+`verdict_source` is the string literal `"rule_based"` (`app.py:377`), not a variable. There is
+no code path — success, failure or partial — on which an LLM value reaches verdict, confidence,
+`risk_score` or `severity`. Verified by reading every assignment.
+
+### `POST /api/analyze_dataset` — `app.py:527-710`
+
+Header read → intersect with the 18 bank features → re-read with `usecols` → one-hot F3889/F3891
+→ `predict_proba` → SHAP over the top-15 rows only → tiers and audit findings. The model,
+metrics and fitted `TreeExplainer` load **once at import** (`app.py:419-476`). No `fit`, no
+split, no CV, no explainer construction in any request handler.
+
+### `POST /api/bridge` — `app.py:740-796`
+
+Reads `STATE["last_apk"]` / `["last_dataset"]`, calls `bridge_matcher.extract_ioc_from_ps1`
+(`app.py:749`) and `bridge_matcher.match_account_to_apk` (`app.py:753`) directly — nothing
+reimplemented inline. Returns HTTP 200 with `"links": []` when nothing matches.
+
+**The C2 path has never fired.** `matcher.py:94-98` does `linked_c2 in apk_c2_hosts`, and
+`apk_c2_hosts` is built at `matcher.py:31-34` from **raw** `suspicious_strings` values — the
+matcher never calls `urlparse`. For `kind == "url"` the value is the whole URL including scheme
+and path, so a hostname-valued ground-truth entry can never match. Only a bare dotted quad
+(`kind == "ip"`, present in 10.6% of malicious APKs) can join. Moreover the single entry in
+`SYNTHETIC_LINKAGE_GROUND_TRUTH` has `c2_host: None` (`matcher.py:68`), so in the shipped
+configuration **only cert-hash matching can fire at all**.
+
+Consequence for the planned runtime capture: dynamic analysis yields hostnames (DNS, TLS SNI).
+Those cannot join through today's matcher. `PLAN.md` item 2 is the prerequisite.
+
+---
+
+## 4. Verified numbers
+
+Full quotable set with caveats: **`REPORT_FACTS.md`**. Summary of what reproduced during the
+12 August sweep:
+
+| Number | Value | Producing script | Status |
 |---|---|---|---|
-| Accessibility abuse detected from the manifest, not DEX xref-matching | A benign hello-world app fired 23 `AccessibilityEvent` hits + 41 reflection hits — DEX-matching is too noisy | Matching `AccessibilityEvent`-family methods directly like the other 8 categories | If manifest-only detection proves too coarse (misses apps that register accessibility services dynamically at runtime) |
-| `reflection` category kept despite being explicitly "weak" — **SUPERSEDED 2026-08-12: the revisit condition in the next column was met.** Wider measurement (668-sample, seed=42) found `reflection` fires *more* on benign apps than malware (measured separation −20.9pts) in the scorer built on top of this feature (`app.py`'s `_rule_based_verdict()`, not this file). Removed from that scorer's scoring entirely (rationale text still lists call sites) — see `SESSION_LOG.md`'s 2026-08-12 entry. **This row is about `static_analysis.py`'s feature extraction, which still extracts and reports `reflection` API calls unchanged — only the downstream scorer stopped weighting them.** | Required by spec (T1406 coverage); dual-use nature stated up front rather than hidden | Dropping reflection entirely to cut noise | If it never contributes to a true positive once wider/holdout data is measured |
-| `generate_yara` gates on `report["verdict"] == "benign"` (hard invariant), not just the indicator-count threshold | A real, genuinely benign F-Droid app (`a2dp.Vol`, an audio player) organically racked up 10 indicators (READ_PHONE_STATE + RECEIVE_BOOT_COMPLETED + a GitHub URL, etc.) — proving "benign apps naturally have <2 indicators" false | Relying on the count threshold alone, as the literal spec text implied | This is load-bearing for the "benign apps don't yield malware rules" guarantee — would need explicit team sign-off to relax |
-| `generate_yara(features, report)` instead of the literally-specified `generate_yara(features, verdict)` | YARA `meta` requires `confidence`, which only lives in the report dict, not in a bare verdict string | Passing `verdict` and `confidence` as two separate positional args | If a downstream caller needs the exact 2-arg signature for some integration reason |
-| FAISS index rebuilt in memory on every `generate_report()` call, no persistence | Corpus is only ~16 chunks — explicit instruction was "no persistence, no cache code" | Precomputing/saving an index file | If the knowledge base grows large enough that per-call embedding cost becomes a real bottleneck |
-| YARA strings assume decompressed DEX/AXML content (flagged in the module docstring, not silently handled) | Matches the literal spec's stated assumption; genuinely correct behavior depends on the scanning engine being zip-aware, which this project doesn't control | Adding zip-extraction logic before rule-writing | If a live demo requires generated rules to match against raw, untouched `.apk` files and broader testing shows failures |
-| ~~No `requirements.txt`/Dockerfile/Makefile written yet~~ **RESOLVED (Week 2)** | `requirements.txt` written from actual `pip show` output once explicitly scoped as a Week-2 task (D8) | Writing one proactively without being asked | N/A — done |
-| `batch_baseline.py` kept structurally separate from the six frozen pipeline files, even though it imports them | Explicit instruction: "measurement only," must not fold into or modify the six files | Adding a `--batch` mode to `run_pipeline.py` | Never, unless the six-file boundary itself is renegotiated |
-| `rag_report.py`'s `ollama.chat()` pinned to `temperature=0, seed=42` (Week 2) | D6: measured non-determinism directly (verdict flipped on identical input in 1/3 pairs); pinning was needed so any other measurement this session (D2 A/B, Fix #3 before-number) could be trusted as reproducible, not to fix D1/D2's underlying behavior | Leaving generation unpinned and treating every baseline number as noisy | If a future re-verification shows the pin doesn't hold even for verdict/confidence on a wider sample than the 3 tested — currently only spot-checked, not exhaustively proven |
-| D2's negative-evidence chunks tested via runtime monkeypatch of `rag_report.CHUNKS`, never written to `knowledge_base.py` (Week 2) | The whole point of the A/B was to get evidence *before* committing a change to a frozen file that breaks `baseline`/`baseline_v2` comparability | Editing `knowledge_base.py` directly and re-measuring | If the team reviews `D2_AB_RESULTS.md` and decides the (currently null) result doesn't justify a knowledge-base edit at all — which is the current standing situation |
+| AUC(malicious vs F-Droid benign) | **0.9366** | `harness/rescore_from_cache.py` | **Valid.** The one genuine PS1 separation figure |
+| AUC(malicious vs `banking_holdout_16`) | 0.4113 (0.3841 old scorer) | same | **Void** — negative class is malware, §0 |
+| Malware flagged / missed | 93.6% / 6.4% (337 and 23 of 360) | same | Valid |
+| General benign flagged | 17.1% (50/292) | same | Valid |
+| Held-out malware flagged | 15/16 (one missed at 0.28) | same | Valid as a *detection* rate; not an independent holdout — same archive |
+| Extraction | 668 cached / 48 skipped of 716 | `harness/extract_features_pool.py` | Valid, reproduced exactly |
+| IOC yield, malicious | 66.9% ≥1 host, 99.4% cert hash | `harness/ioc_yield_audit.json` | Valid |
+| PS2 AUCPR / AUROC | median **0.271** [0.221–0.362] / **0.872** | `harness/ps2_repeated_splits.py` | Valid |
+| PS2 recall @1% / @5% | **25.0%** / **53.1%** | same | Valid |
+| Bridge unit test | TP=10 FP=0 FN=0 TN=90 | `bridge/confusion_matrix_validation.py` | Valid, unit-level only |
+
+**PS2 split procedure verified:** `train_test_split(X, y, test_size=0.2, random_state=seed,
+stratify=y)` at `ps2_repeated_splits.py:70-72` and `train_ps2_model.py:124-126`. `shuffle`
+defaults `True` and `stratify` requires it. No positional slicing exists anywhere in the live
+path or either training script — which matters, because all 81 fraud rows are contiguous at the
+file tail (`Unnamed: 0` 9002–9082, positional 9001–9081) and row order therefore encodes the
+target.
+
+**Dataset shape verified directly:** 9,082 rows × 3,925 columns (`Unnamed: 0` + `F1`…`F3924`),
+81 positives.
+
+**The 18 features verified against the spreadsheet:** column 4 of `data/Description.xlsx` has
+exactly 19 non-empty rows — 18 features plus `F3924` marked `Target Variable` — byte-identical
+to `ps2_features.py:17-36` and to the trained artifact.
+
+**Determinism:** RAG pinned `temperature=0, seed=42` (`rag_report.py:78`); sample set
+`random.Random(42)` over a sorted glob; PS2 fixed seed with `n_jobs=1`; scorers are pure
+functions over cached dicts.
 
 ---
 
-## 8. OPEN ITEMS
+## 5. Conventions
 
-Ordered by risk to the Aug 27–28 demo (per the user's stated date — see UNVERIFIED section):
+### The six frozen PS1 files
 
-1. **PS2 (XGBoost/mule detection) has zero code.** This is half of the two-problem-statement
-   pitch. Per the project's own roadmap, a baseline should have existed by end of "Week 1
-   (1–7 Jul)," and today (per this machine's clock) is 2026-07-20 — well past even
-   "Week 3 (15–21 Jul)" in that roadmap's calendar. **Highest risk item in the repo.**
-   **SUPERSEDED 2026-08-12** — PS2 now has real code (`harness/train_ps2_model.py`,
-   `models/ps2_xgb_v1.json`, `setuguard_app/backend/ps2_features.py`), served by
-   `/api/analyze_dataset`. No longer the highest-risk item in the repo for that reason; open risks
-   that remain are narrower (e.g. AUCPR variance — 20-seed median 0.271 [IQR 0.221-0.362], reported
-   honestly rather than quoting the single favorable-seed 0.4114 number). See `SESSION_LOG.md`.
-2. **Bridge (PS1↔PS2 linkage) has zero code**, and cannot meaningfully start until PS2 exists.
-   **SUPERSEDED 2026-08-12** — Bridge now calls `bridge/matcher.py`'s real matching functions
-   directly from `/api/bridge`, conditionally (zero matches is the expected, correct result for
-   most APK/dataset pairs). See `SESSION_LOG.md`.
-3. **Dashboard/Audit UI has zero code.** **SUPERSEDED 2026-08-12** — `setuguard_app/frontend/`
-   exists and has been verified end-to-end in headless Chromium, not just by inspection. See
-   `SESSION_LOG.md`.
-4. **Fix #3 (F-Droid + 16-real-bank holdout FP-rate tuning): "before" number measured (Week 2),
-   still blocked on D1/D2 by design.** `fix3_fp_harness.py` now has a seeded, reproducible n=150
-   run (`FIX3_BEFORE_RESULTS.md`, FP rate 142/145 = 97.9%, corrected accounting) — but this number
-   is explicitly a BEFORE, not a fix, since it's dominated by D1's always-"suspicious" verdict.
-   Still needs: (a) the wider F-Droid pull, (b) the 16 real banking APKs sourced and pointed at via
-   `--corpus-dir` (never `banking_holdout_16/` directly — the harness refuses that path itself,
-   re-verified intact this session), (c) the actual AFTER run once D1/D2 are addressed by the team,
-   applying the same NUL-exclusion accounting so the two are comparable, and (d) the team decision
-   on D1 itself.
-5. **Fix #4 (Obfuscapk survival matrix): Week-1 risk spike DONE, verdict GO** (Section 2/6). The
-   actual survival matrix — running many samples through multiple obfuscation transforms and
-   measuring whether PS1's verdict/confidence/YARA output survives — is still **not started**.
-   This item is now unblocked, not resolved.
-6. ~~The wider (n=50-malicious) confidence-separation re-run is incomplete~~ **RESOLVED (Week 2).**
-   `baseline_v2/` re-run to completion (n=86 effective). Answer: **separation does not survive** —
-   overlap region ≈[0.65,0.85] at n=46 malicious vs. a clean touch-not-cross at n=10 (Section 6).
-7. **SUPERSEDED 2026-08-12.** The verdict enum's near-zero-signal problem, confirmed four times
-   independently as of this Week-2 session (`baseline`, `baseline_v2`, D2 A/B, Fix #3), was a
-   property of the *LLM's own* verdict. The 2026-08-10 "D1 inversion" removed the LLM from the
-   verdict path entirely — `app.py`'s `_rule_based_verdict()` is now the sole, deterministic
-   source of verdict/confidence, and it does use all three labels with real separation (though a
-   *different* problem was then found and is still being worked: on `banking_holdout_16`, the
-   scorer initially ranked real banking apps at or above malware; this session's scorer-v2 pruning
-   improved that gap without closing it — gate AUC 0.3841→0.4113, still ≤0.5). See
-   `SESSION_LOG.md`'s 2026-08-10 and 2026-08-12 entries and `docs/evidence/2026-08-12_scorer_v2.md`.
-   Left below for historical accuracy about what was true as of Week 2.
-8. ~~No version control exists anywhere in the repository.~~ **RESOLVED 2026-07-20 (second
-   session).** `.git` initialized, remote `origin` = `https://github.com/raghavpathak30/SetuGuard`,
-   2 commits made and pushed to `main` (`aee8497`, `9695401` — Section 2). `.gitignore` keeps all
-   corpora/models/binaries/scraping-data out. Team members can now `git clone` instead of relying
-   on Claude Code conversation transcripts for project history. **Week-2 session's work is on
-   branch `raghav/week2-ps1`, not yet merged/pushed as of this documentation pass.**
-9. ~~No `requirements.txt`/Dockerfile/environment file exists.~~ **RESOLVED (Week 2).**
-   `setuguard_ps1/requirements.txt` generated from actual `pip show` output. Ollama+models remain a
-   separate, non-pip install (documented in the file's own header).
-10. **YARA-vs-compressed-APK caveat is only spot-checked on 2 samples.** Worth a broader
-    validation pass (e.g., against the holdout set, once Fix #3 starts using it) before relying on
-    generated rules matching raw APKs live in front of judges.
-11. ~~One corrupted sample sits in the benign corpus~~ **CORRECTED, WORSE THAN DOCUMENTED (Week
-    2).** The benign corpus has **16** files (not 1) that fail `unzip -t`/Python `zipfile` — 15 of
-    those also fail androguard parsing (clean exceptions, not dirty failures — confirmed via
-    `stress_harness.py`). The malicious corpus has a separate 11 zip-integrity failures (9/11
-    androguard-tolerant) **plus** a distinct `InvalidInstruction` DEX-bytecode failure mode hit by
-    multiple samples across `baseline_v2`/D2-A/B/Fix#3 runs. None of this breaks the pipeline
-    (every harness skip-logs cleanly) but the true unusable-file count is materially higher than
-    previously documented — worth a corpus cleanup pass before final numbers are reported to
-    judges, so wall-time/sample-count estimates aren't quietly off by ~16-20%.
-12. Team/hackathon identity details (name, venue, dates) are asserted by the user but not found
-    anywhere in repo text — low risk, noted for traceability only.
-13. ~~One dead-code finding in a frozen file~~ **RESOLVED 2026-07-20 (second session).**
-    `static_analysis.py:203`'s unused DEX-list binding (`d`) was reported in
-    `setuguard_ps1/DEAD_CODE_REPORT.md`, signed off by the user, and fixed
-    (`a, d, dx = ...` → `a, _, dx = ...`). No other dead code found anywhere in the six frozen
-    files or the two non-frozen scaffolding files (`batch_baseline.py`, `parse_fdroid_index.py`).
-    Noted here only for traceability — not an open item.
-14. **NEW (Week 2) — five frozen-file findings logged in `FROZEN_FILE_FINDINGS.md`, sign-off-gated,
-    only one applied:**
-    - Finding 1: `_extract_exported_components()` calls `.iter()` on a possibly-`None` manifest
-      (`static_analysis.py`) — 2 observed occurrences, clean `AttributeError`, not fixed.
-    - Finding 2: `exported_components[].name` can be `None`, violating the frozen `str` contract —
-      3 occurrences in `baseline_v2`, not fixed.
-    - Finding 3: `rag_report.py`'s generation was unpinned (D6) — **fixed** (temperature=0,
-      seed=42), verdict/confidence now deterministic, `cited_chunk_ids` still isn't.
-    - Finding 4: `cited_chunk_ids` is schema-unconstrained in `report_prompt.py`'s `REPORT_SCHEMA`
-      — the same reason it both hallucinates and jitters. Parked research finding, not fixed.
-    - Finding 5: coupled `static_analysis.py`/`yara_gen.py` NUL-byte defect — crashes
-      `yara.compile()`, measured 22.1% prevalence in benign F-Droid samples (Section 6). Not
-      fixed. Also: `validation_gate.py`'s indicator-traceability check passes NUL-bearing
-      indicators (validates provenance, not well-formedness) — noted, not fixed.
-15. **NEW (Week 2) — D2 A/B experiment result redirects D1's suspected root cause.** A clean,
-    reviewed, paired in-memory test of D2's hypothesis (retrieval imbalance) moved zero verdicts
-    across 36 samples and made confidence separation slightly *worse*. This weakens D2 as *the*
-    cause of D1 and points toward `SYSTEM_PROMPT`/schema-level candidates instead. Also
-    established: **D2 and D7 are coupled** — a fair retrieval-augmentation test needs a `TOP_K`
-    increase or D7's distance-thresholded retrieval fix first, since at fixed `TOP_K=4` new chunks
-    displace old ones rather than adding to them. Full detail: `D2_AB_RESULTS.md`.
-16. **NEW (Week 2) — AutoYara (I2) ambiguity flagged, not resolved.** The go/no-go spike
-    (`AUTOYARA_SPIKE.md`) is a clear NO-GO for adopting the actual `FutureComputing4AI/AutoYara`
-    tool (architectural mismatch — multi-sample family-biclustering vs. this pipeline's single-APK
-    shape), but I2's original intent is ambiguous between "adopt that tool" and "build a homegrown
-    single-APK fallback." Team decision needed on which was meant.
+**`static_analysis.py`, `knowledge_base.py`, `report_prompt.py`, `rag_report.py`, `yara_gen.py`,
+`run_pipeline.py`** — all in `setuguard_ps1/`.
+
+`FROZEN_FILE_FINDINGS.md` does **not** itself contain this list; it refers to "the six frozen
+files" and delegates to `CONTEXT.md §9` (this section's predecessor). Deriving the list from
+`FROZEN_FILE_FINDINGS.md` alone recovers only the four it happens to file findings against.
+
+The list is independently confirmed structurally: these are exactly the six `.py` files in
+`setuguard_ps1/` whose opening docstring does **not** declare non-frozen status. Every other
+`.py` there declares it.
+
+**Rule:** do not modify these six without explicit sign-off. Findings are *reported* in
+`FROZEN_FILE_FINDINGS.md`, not fixed; a separate narrowly-scoped follow-up applies exactly the
+signed-off fix.
+
+### `FROZEN_FILE_FINDINGS.md` status
+
+| # | Location | Finding | Status |
+|---|---|---|---|
+| 1 | `static_analysis.py:99-105` | Unguarded `manifest.iter()` on a `None` manifest | **Open** |
+| 2 | `static_analysis.py:91-106` | `exported_components[].name` can be `None`, violating the frozen `str` contract | **Open** |
+| 3 | `rag_report.py:71-78` | Generation unpinned | **Applied.** Verdict/confidence stable; `cited_chunk_ids` still jitters |
+| 4 | `report_prompt.py:36-39` | `cited_chunk_ids` unconstrained | **Applied.** Item schema is now an `enum` of the 16 real IDs |
+| 5 | `static_analysis.py:82` + `yara_gen.py:35-39` | NUL byte from Adobe XMP metadata reaches a YARA string literal and crashes `yara.compile()` with `ValueError` | **Open. 22.1% prevalence** (32/145 benign F-Droid samples) |
+
+**Finding 5 is unfixed and `run_pipeline.py` has no guard for it.** `app.py:317-326` wraps
+`yara_engine.compile` in `try/except Exception`, so the API degrades to `compiles: false` rather
+than crashing — but the CLI and the batch harnesses are unprotected. Scope on the API path is
+unconfirmed; establishing it is `PLAN.md` item 7.
+
+### Harness convention
+
+Measurement code is non-frozen, declares that in its own module docstring, never mutates a
+frozen file. Offline training writes versioned artifacts to `models/`; the live backend only
+loads them. Conforming: `browser_smoke.js`, `build_sample_set_716.py`, `extract_features_pool.py`,
+`identify_holdout_16.py`, `measure_app_verdicts.py`, `ps2_repeated_splits.py`,
+`rescore_from_cache.py`, `test_leakage_assert.py`, `threshold_sweep.py`, `train_ps2_model.py`,
+`verify_chartjs.js`, plus `setuguard_ps1/`'s `batch_baseline.py`, `d2_ab_harness.py`,
+`d2_negative_chunks.py`, `fix3_fp_harness.py`, `stress_harness.py`, `_stress_worker.py`,
+`validation_gate.py`. One exception: `harness/process_large_outliers.sh` calls itself "a one-off
+driver, not part of the harness proper" without using the words *non-frozen*.
+
+### ~~Never touch `banking_holdout_16/` in any script~~ — STRUCK 12 August 2026
+
+The predecessor of this section stated: *"**Never touch `banking_holdout_16/`** in any script.
+Every harness in this repo has explicitly excluded it."* Both sentences were false.
+`harness/build_sample_set_716.py:33` globs the directory directly and writes all sixteen files
+into the scorer's sample set; `harness/rescore_from_cache.py` computes the gate AUC on them;
+`harness/sample_set_banking_holdout_16.txt` and `harness/results_banking_holdout.csv` are
+committed direct runs. No guard, assertion or refusal exists anywhere.
+
+The rule is struck rather than enforced, for two reasons. It was already universally violated, so
+it was a false assurance in a document a judge may read. And it was actively harmful: *"never
+open these files"* is precisely what let sixteen malware samples sit unexamined for five weeks
+while a headline number was computed on them (§0). The discipline worth keeping is the narrower
+one the rule was reaching for — **a holdout must not be used for term selection or threshold
+choice** — and on that the repo has a recorded failure (§7 C2).
+
+### Git workflow
+
+Single branch `main`, PR-into-main with Copilot auto-review. Three stale local branches
+(`integration/app-review`, `ps2-merge`, `raghav/week2-ps1`), two with `origin` gone.
+
+### What survives a clone
+
+Gitignored, therefore **not reproducible from a fresh clone**: `harness/feature_cache/`,
+`harness/results_716.csv`, `DataSet.csv`, all APK corpora. The PS1 evidence chain survives only
+as `docs/evidence/2026-08-12_scorer_v2.{md,json}` — summary statistics with full provenance, no
+per-sample data. If a judge says "show me the 0.9366," there is nothing to open.
 
 ---
 
-## 9. CONVENTIONS FOR FUTURE SESSIONS
+## 6. KNOWN DEFECTS, DEFERRED
 
-- **The six frozen PS1 pipeline files** are: `static_analysis.py`, `knowledge_base.py`,
-  `report_prompt.py`, `rag_report.py`, `yara_gen.py`, `run_pipeline.py`. Each is independently
-  runnable via CLI (`python3 <file>.py ...`) and importable as a plain module — stages are
-  chained by import, never by shelling out to each other. **Do not modify these six without
-  explicit user sign-off.** Every task given on this project so far has explicitly separated
-  "build/modify the six" from "measure/test, read-only" — preserve that boundary.
-- **Measurement/analysis harnesses** (`batch_baseline.py`, `fix3_fp_harness.py`, and now
-  `validation_gate.py`, `stress_harness.py`+`_stress_worker.py`, `d2_ab_harness.py`+
-  `d2_negative_chunks.py`) live alongside the six files in `setuguard_ps1/` but must say in their
-  own module docstring that they are *not* one of the six, and must not mutate them.
-- **Any finding in a frozen file — not just dead code — is reported, not fixed, in the same
-  session that finds it.** `DEAD_CODE_REPORT.md`'s pattern generalized (Week 2) into
-  `FROZEN_FILE_FINDINGS.md`: write up file/line/what/why/options there rather than editing the
-  frozen file directly. Once the user signs off on a *specific* finding and its *specific* chosen
-  option, a separate, narrowly-scoped follow-up edit applies exactly that fix and nothing else —
-  precedent: the `static_analysis.py:203` rename (Section 2, Open Item 13) and the Week-2
-  `rag_report.py` temperature/seed pin (Finding 3). Re-verify the finding is still accurate
-  immediately before applying (fresh repo-wide grep / re-run the reproduction), since the codebase
-  may have changed between the report and the sign-off. **After a crash or unexpected behavior in
-  a non-frozen harness, root-cause it before just patching the harness** — Week 2's NUL-byte
-  harness crash traced back to a real, previously-unknown frozen-file defect (Finding 5); patching
-  only the harness's exception handling would have hidden that.
-- **Harness crash-survivability is now the standard, not an exception.** `batch_baseline.py` and
-  `fix3_fp_harness.py` both follow the same Week-2 pattern: incremental flush+fsync per sample to
-  a results CSV, a separate `skips.csv` (not silently folded into the success rows), a
-  `heartbeat.log`, a pidfile, and resume-by-skip. Apply this pattern to any new batch-style
-  harness — the original `baseline_v2` disaster (a killed process losing 100% of its output) is
-  exactly what this prevents.
-- **D2 and D7 are coupled — don't test one without the other.** At fixed `TOP_K` retrieval,
-  augmenting `knowledge_base.py`'s chunk corpus (D2) makes new chunks compete with old ones for the
-  same slots rather than adding to them, which can erode signal for the class you're *not* trying
-  to help. A future D2 revisit needs either a higher `TOP_K` or D7's distance-thresholded retrieval
-  fix to be a fair test — see `D2_AB_RESULTS.md`.
-- **Settings block convention**: every pipeline file keeps a single
-  `# ============================== SETTINGS ==============================` block near the top
-  holding all tunable constants (regexes, model names, thresholds, directories). No YAML config,
-  no env-var-driven config, no logging framework beyond the one documented loguru workaround, no
-  plugin system. Preserve this pattern for any new module.
-- **Output directories**: `out/` (per-APK outputs from `run_pipeline.py`, transient/regenerable);
-  `baseline/` (the completed n=10-malicious measurement run — **do not overwrite**, it's the
-  original wider-than-one-sample evidence); `baseline_v2/` (now **complete**, n=46-malicious-
-  effective — regenerable by re-running `batch_baseline.py`, but note it now has real content
-  worth keeping, same do-not-carelessly-overwrite caution as `baseline/`); `fix3_fp_baseline/`
-  (`fix3_fp_harness.py`'s default output dir, regenerable, but the Week-2 n=150/seed=7 run took
-  ~38 min — see `FIX3_BEFORE_RESULTS.md` before blowing it away); `d2_ab_results/`
-  (`d2_ab_harness.py`'s output dir, regenerable). All gitignored.
-- **Never touch `banking_holdout_16/`** in any script. Every harness in this repo has explicitly
-  excluded it; it is reserved for the eventual Fix #3 FP-rate validation. Future sessions must
-  preserve that exclusion.
-- **New PS2/Bridge/Dashboard modules**: ~~no existing convention, since nothing has been built
-  yet~~ **SUPERSEDED 2026-08-12** — they exist now, and did not follow this predicted convention.
-  PS2's offline trainer lives in `harness/` (alongside PS1's other non-frozen measurement
-  harnesses, not a separate `setuguard_ps2/`), its feature constants live in
-  `setuguard_app/backend/ps2_features.py` (imported by both the trainer and the live backend so
-  they can't drift apart), and its research artifacts (the original roadmap's graph-feature work
-  etc.) live in `ps2/` — one un-prefixed directory, not `setuguard_ps2/`. Bridge already had its
-  own `bridge/` directory (teammate-authored, predates this convention question) and kept it.
-  Dashboard is `setuguard_app/frontend/`. The actual, load-bearing convention that emerged: offline
-  training/measurement code goes in `harness/`, is declared non-frozen in its own docstring, and
-  writes versioned artifacts to `models/`; the live backend (`setuguard_app/backend/app.py`) only
-  ever loads those artifacts, never trains. See `SESSION_LOG.md`.
-- **Updating this file**: whenever a pipeline file's schema changes, a new measurement run
-  completes, or a new component (PS2/Bridge/Dashboard) gets its first real code, refresh the
-  relevant section of `CONTEXT.md` in the same sitting. Don't let it drift the way the actual
-  build has already drifted from the roadmap's own week-by-week calendar.
+**These are deliberate deferrals, not oversights.** Each was found, root-caused and recorded
+before 17 August, and each is scheduled. The Progress Report is the only hard failure mode in
+this project; a code change that destabilises the green integrated build before submission costs
+more than any defect below. Nothing here is fixed during report week. Full schedule: `PLAN.md`.
+
+| # | Defect | File:line | Risk | Scheduled |
+|---|---|---|---|---|
+| D-1 | `setuguard_app/README.md` describes the rule-based verdict as the Ollama-unreachable *fallback* — the exact inverse of `d1-inversion` — plus "trains XGBoost with stratified CV (falls back to IsolationForest)" and "auto-detects the label column". None is true. | `setuguard_app/README.md` | **High.** First file a judge opens. Contradicts the architecture on its own front page. | 17 Aug, `PLAN.md` 1 |
+| D-2 | Frontend claims capabilities that do not exist: "real XGBoost + SHAP trained on your data" (`index.html:157`), button "Run Data Audit + Train" (`:164`), on-screen status "…then training XGBoost + SHAP…" (`app.js:164`), "CV AUCPR (0-fold)" rendered over a 20-seed holdout median (`app.js:223,489`), plus bias-checking, KS-test drift monitoring and a "greedy counterfactual" (`index.html:212-214`) that is `null`. | frontend | **High.** Visible on stage. Zero technical risk to fix. | 17 Aug, `PLAN.md` 1 |
+| D-3 | Matcher compares raw URL strings, never parsed hosts; ground-truth `c2_host` is `None`. C2 matching has never fired. | `matcher.py:31-34,94-98`, `:68` | **High.** Blocks runtime-capture experiment entirely. | 17–18 Aug, `PLAN.md` 2 |
+| D-4 | No fail-closed path. Parse failure → HTTP 500 with the raw exception string rendered in the UI. | `app.py:400-402` | **Medium-high.** An exception string in a bank console is a feasibility answer by itself. 40 of 716 APKs hit this. | 18 Aug, `PLAN.md` 3 |
+| D-5 | No upload size cap — no `MAX_CONTENT_LENGTH`, no client-side check. | `app.py`, `frontend/app.js` | **Medium-high.** 26 sample-set APKs exceed 50 MB; one 172 MB file defeated a 300 s timeout with a dedicated memory budget. Two live memory incidents traced to large files. | 18 Aug, `PLAN.md` 4 |
+| D-6 | Evidence chain gitignored — `results_716.csv` does not survive a clone. | `.gitignore:77` | **Medium.** "Show me" has no answer. Must be relabelled first: its `banking_holdout` rows carry the false corpus label. | 18 Aug, `PLAN.md` 5 |
+| D-7 | Withdrawn artifacts still shipping: `bridge/test_fixtures_ps2_sample.json` (202 records, loaded at runtime by `confusion_matrix_validation.py:240`) and `ps2/ps2_bridge_payload.json` carry `generated_rules`, `rule_validated: true`, `counterfactual: "No change needed (Safe)"`, `model_version: "v2.0.0-xgb-platt-graph"`, and a `graph_betweenness` SHAP driver — a withdrawn leaky feature. | those two files | **Medium.** Greppable, committed, contradicts three published retractions. | 18 Aug, `PLAN.md` 6 |
+| D-8 | Finding 5 NUL-byte YARA crash unfixed; `run_pipeline.py` unguarded, API scope unconfirmed. | `static_analysis.py:82`, `yara_gen.py:35-39` | **Medium.** 22.1% prevalence in benign samples. If the API path is affected, roughly one demo run in five can throw during YARA generation. | 18 Aug, `PLAN.md` 7 |
+| D-9 | Endpoint timings have no producing harness (§7 U1). | — | **Medium.** Blocks the scalability argument. | 18 Aug, `PLAN.md` 8 |
+| D-10 | `MAX_SUSPICIOUS_STRINGS = 25` with fixed url→ip→shell order right-censors every indicator count and zeroes IP extraction on 84/668 APKs. | `static_analysis.py:86` | **Medium.** IPs are the only match type the bridge can currently fire on, so this suppresses the one working linkage path. **Frozen file** — needs sign-off and invalidates the feature cache. | 18–19 Aug, `PLAN.md` 9 |
+| D-11 | `banking_holdout_16/` misnamed; `sample_set_banking_holdout_16.txt:2-3` asserts the false reading in a committed comment. | those paths | **High, but documentation-mitigated.** §0 and `REPORT_FACTS.md` now carry the correction; the rename is a data/code change. | after 17 Aug |
+| D-12 | Findings 1 and 2 (`None` manifest, `None` component name) open. | `static_analysis.py:91-106` | **Low.** Both already degrade cleanly at every call site. | unscheduled |
 
 ---
 
-## UNVERIFIED / TO CONFIRM
+## 7. CONTRADICTED and UNVERIFIED
 
-- **Hackathon name ("PSB CyberShield 2026"), team name ("Ciphered Four"), venue ("IIT
-  Hyderabad"), and dates ("Aug 27–28")** — all asserted by the user in the prompt that requested
-  this document. Grepping every text file in the repo (`idea.txt`,
-  `SetuGuard_Development_Roadmap_v2.md`, all top-level `.txt` files, `index-v2.json`) for these
-  terms found **zero genuine matches** (one incidental substring hit on "HIIT," an F-Droid workout
-  app, inside `index-v2.json`). Not necessarily wrong — just not traceable to any file in this
-  repo.
-- **"ULB" dataset** referenced in the roadmap for PS2's baseline — the roadmap text says only
-  "ULB benchmark" without elaboration. This document does not assert it is the Université Libre
-  de Bruxelles credit-card-fraud dataset; that would be an inference, not a verified fact.
-- ~~Why the `baseline_v2` background process was killed~~ — **moot as of Week 2**: `baseline_v2`
-  was re-run to completion under crash-survivable conditions (`setsid nohup` + incremental
-  flush/heartbeat/pidfile) and now has real, complete data (Section 6). The original kill's exact
-  cause was still never directly observed, but the practical question ("can we get this data at
-  all") is resolved.
-- The **`logging` file** at the repo top level (6.5MB, identifies as a PostScript document via
-  `file(1)`, oddly named) — purpose unknown. Not examined further since it isn't code; flagged
-  here only so a future session doesn't assume it's a log file just because of its name.
-- **Whether packages were installed with exactly `--break-system-packages`** vs. some other method
-  that produced the same `~/.local` result — inferred from hitting the externally-managed-
-  environment error earlier in a related session and androguard's presence in `~/.local` without a
-  matching `apt` package, but not confirmed via pip's own install records.
-- **Whether the ad hoc YARA-vs-raw-APK match success (Section 4/6) generalizes** beyond the 2
-  samples it was checked against — treat as "worked twice," not "proven to always work."
+### CONTRADICTED
+
+**C0 — `banking_holdout_16/` is malware, not banks.** §0. The largest of these by a wide margin.
+
+**C1 — `run_pipeline.py` takes verdict *and* confidence straight from the LLM.** The inversion is
+scoped to `app.py`. `run_pipeline.py:76` does `report = generate_report(features)` and lines
+30–31, 95–96 print and write `report['verdict']` / `report['confidence']` — Mistral's.
+`batch_baseline.py:261,286` does the same. The committed
+`setuguard_ps1/out/duyskab.txtxorxqlni.nflfnauti.report.md` shows `Verdict: suspicious /
+Confidence: 0.85` from the model. Correct framing: the CLI is a **retained pre-inversion
+reference**, and those artifacts should be labelled as such.
+
+**C2 — the holdout was in the negative pool during scorer-v2 term selection, and `SESSION_LOG.md`
+contradicts itself about it in one entry.** `SESSION_LOG.md:219` records the ranking as
+*"malicious sample vs **fdroid_benign+holdout16**"*; `SESSION_LOG.md:258-261` states
+*"`banking_holdout_16` was not tuned against… used `cicmaldroid_banking` and `fdroid_benign_apks`
+only."* Line 219 is the accurate one — a dated correction is appended in place at
+`SESSION_LOG.md`. Given §0 this is worse than contamination: those sixteen are **malware placed
+in the negative class**, so the ranking that justified the three scorer-v2 deletions ran with
+roughly 5% label noise in its negatives.
+
+**C3 — the "never touch `banking_holdout_16/`" convention was universally violated.** Struck; see
+§5.
+
+**C4 — "16/16 false positives" was never a false-positive rate**, and under the shipping scorer
+it is 15/16 anyway (9 malicious, 6 suspicious, 1 at 0.28 below the 0.30 threshold). Both the
+count and the interpretation were wrong.
+
+**C5 — "0.816 vs 0.720" is the old scorer's** (live: 0.688 vs 0.614), and both pairs compare
+malware to malware.
+
+**C6 — there is no fail-closed or manual-review routing.** `grep -rni "manual review|fail.closed|
+fail_closed|manual_review"` across every `.py`, `.js`, `.md`, `.html` returns **zero hits**.
+Parse failure returns HTTP 500 with the exception string (`app.py:400-402`); batch harnesses
+append to `skips.csv`.
+
+**C7 — `setuguard_app/README.md` describes an architecture that does not exist.** D-1 above.
+
+**C8 — the frontend advertises four capabilities that do not exist.** D-2 above.
+
+**C9 — withdrawn artifacts still ship.** D-7 above.
+
+**C10 — the retracted "9072 corroborates the bridge" framing survives.** Commit `0d12997`
+retracted it; `SESSION_LOG.md:430-434` still reads *"independently confirmed real fraud
+(`F3924=1`)… not a coincidence."* 9072 is `F3924==1`, and is also the **only** key in
+`SYNTHETIC_LINKAGE_GROUND_TRUTH` — it was chosen.
+
+**C11 — minor.** `DataSet.csv` has **3,925** columns, not 3,924 (3,924 `F`-columns plus
+`Unnamed: 0`). "~15 APKs over 50 MB" was the residual processing queue; the sample set holds
+**26**. `ps2/README.md`'s "9002–9082" is the `Unnamed: 0` frame; positional is 9001–9081.
+
+### UNVERIFIED
+
+**U1 — endpoint timings have no producing harness.** ~9.86 s / ~0.66 s / ~0.0025 s exist only as
+a hand-written n=3 table at `SESSION_LOG.md:445-450`. Searched for any script POSTing all three
+endpoints, any percentile computation under `harness/`, any timing JSON in `docs/evidence/`.
+`measure_app_verdicts.py` records `elapsed_s` for `/api/analyze_apk` only and computes no
+percentile; `browser_smoke.js` does not time. **Never write "p50."**
+
+**U2 — the Ollama-down "1.24 s"** is in no committed artifact — checked `console_report.json`,
+`backend_stdout_stderr.log`, `03_bridge_match.txt`. The behaviour is verified; the number is not.
+
+**U3 — how `fdroid_benign_apks/` was assembled.** `parse_fdroid_index.py`, `index-v2.json`,
+`fdroid_urls.txt` and `download_log.txt` document the pull, but no committed script records the
+selection or filtering rule. Lower-stakes than U3's predecessor — the holdout question — which
+is now answered.
+
+**U4 — representativeness** of the 400/300 draws. The draw is reproducible and was re-derived
+byte-for-byte; whether CICMalDroid Banking represents 2026 Indian banking malware, or F-Droid
+represents consumer Android, is unestablished either way.
+
+**U5 — hackathon name, team name, venue and dates** appear nowhere in the repo.
+
+---
+
+## 8. Known limitations, stated plainly
+
+**No measurement against legitimate banking apps exists.** The corpus believed to serve that
+purpose was malware (§0). The class-convergence hypothesis — that a real banking app needs the
+same permission set as a banking trojan, making them statically inseparable — is plausible and
+**untested**. It may be presented as the motivating hypothesis for the corpus build; it may not
+be presented as a finding.
+
+**No dynamic analysis.** DEX string pool, manifest, certificate. Nothing executed. A packed
+dropper that resolves its C2 at runtime looks like an app with few permissions and no strings.
+Quantified: 33.1% of malicious samples yield zero network indicators statically.
+
+**Sample-selection bias.** 39 of 400 malicious samples (9.75%) were dropped because Androguard's
+disassembler rejected obfuscated bytecode. Obfuscation is itself adversarial, so the 360 that
+survived are the more analysable tail. Every PS1 number is conditioned on "APKs that parse," and
+is therefore optimistic.
+
+**Right-censored indicator counts.** `MAX_SUSPICIOUS_STRINGS = 25`, url→ip→shell order: an APK
+with ≥25 URL matches records zero IPs. 84/668 sit at the cap. IP and shell rates are lower
+bounds — which matters because IPs are the only indicator the bridge can currently match on.
+
+**One static CSV, not real-time feeds.** No streaming ingest, no transaction feed, no NPCI/UPI
+connection.
+
+**Small positive count in PS2.** 81 fraud in 9,082 (0.892%), 16 per holdout — each account is
+6.25% of recall. Hence a 20-seed median with IQR rather than a point estimate; AUCPR ranges
+0.093–0.600 across seeds. In-sample AUCPR is 0.988 against a 0.271 holdout median.
+
+**Synthetic bridge ground truth, one entry.** No real device↔account join key exists in any
+source dataset. TP=10/FP=0/FN=0/TN=90 validates that the matching *function* behaves correctly
+on near-miss confounders; it says nothing about how often a real link would be found.
+
+**The bridge's C2 path has never fired.** §3.
+
+---
+
+## Terminology — read once
+
+The field named `confidence` is defined at `app.py:211` as `round(0.5 + score / 2, 2)`: an
+affine, strictly monotone transform of the evidence-weighted score, floored at 0.5 by
+construction. It carries **no information the score does not carry**. It is not a calibrated
+probability and not an uncertainty estimate. Downstream, `risk_score = round(confidence * 100)`
+for non-benign verdicts and `round(confidence * 20)` for benign (`app.py:311`) — a further
+monotone transform that jumps discontinuously from 13 to 65 at the benign/suspicious boundary.
+
+**Write "evidence-weighted score."** State the transform once, then use one name.
+
+Still presenting it as an independent quantity: `frontend/index.html:119` (a column headed
+"Confidence"), `app.py:261` (`_family_guess` appends `"(rule-based triage, confidence {c})"` into
+a displayed string), the `confidence` column in `harness/results_*.csv`, and
+`PS1_Defects_and_Improvements.md:18-19`, which asserts "Confidence separates the classes
+correctly" as though it were a second signal.
+
+## Three things this document will not say
+
+**The bridge confusion matrix is never called accuracy.**
+
+**The PS2 leakage work is never called discovery** — the bank's finalized list already excluded
+every leaky feature; SetuGuard audited and quantified.
+
+**The PS1 score is never reframed as a batch-relative triage percentile.** Proposed once
+(`SESSION_LOG.md:248-252`), never implemented, does not work for single-APK upload, and converts
+a measurement problem into a presentational dodge.
