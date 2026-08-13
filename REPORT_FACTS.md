@@ -1,0 +1,255 @@
+# REPORT_FACTS.md — the only source of quotable numbers
+
+**Authoritative as of 12 August 2026.** For the 17 August Progress Report (submitting 16 August)
+and the 27 August deck. Write from this file only. If a number is not here, it does not go in.
+
+Every entry carries: the number, the producing artifact, the corpus, and the caveat it must
+always be quoted with.
+
+> ### Read this before anything else
+>
+> On 12 August, `harness/identify_holdout_16.py` established that **`banking_holdout_16/`
+> contains no banking apps.** All sixteen are malware, drawn from the same
+> `Banking.tar.gz` (CICMalDroid Banking malware) archive as `cicmaldroid_banking/`. Full
+> evidence: `harness/BANKING_HOLDOUT_16_PROVENANCE.md`.
+>
+> **AUC 0.4113 and the 15/16 false-positive figure are therefore void** and have moved out of
+> QUOTABLE. They measured malware against malware. This overrides the plan that produced this
+> file, which listed both as quotable-with-caveats. The caveat cannot rescue them; the negative
+> class was wrong.
+>
+> **The report is still strong.** AUC 0.9366 against real F-Droid benign apps is untouched, the
+> whole PS2 section is untouched, the IOC yield audit is untouched, and the project now leads
+> with a corpus-integrity finding it caught itself, four days before submission, in its own
+> headline result. That is a better story than the one it replaces.
+
+---
+
+## QUOTABLE — PS1
+
+### Separation
+
+| Number | Value | Producing artifact | Corpus | Mandatory caveat |
+|---|---|---|---|---|
+| **AUC(malicious vs general F-Droid benign)** | **0.9366** | `harness/rescore_from_cache.py`, `_score_new` + Mann-Whitney `auc()` | 360 CICMalDroid Banking malware vs 292 F-Droid benign | The negative class is **general-purpose** apps, not banking apps. This does not establish behaviour on the banking vertical — that has never been measured. Re-run reproduces it exactly. |
+
+This is the project's one genuine PS1 separation number. Lead with it.
+
+### Operating point — the strongest User Experience numbers the project has
+
+| Number | Value | Corpus | Caveat |
+|---|---|---|---|
+| Confirmed malware scored **benign** (missed) | **6.4%** (23/360) | `cicmaldroid_banking` seeded sample | Miss rate at the shipping 0.30 threshold |
+| General benign apps **flagged** non-benign | **17.1%** (50/292) | `fdroid_benign_apks` seeded sample | Analyst false-positive load |
+| Malware **flagged** non-benign | **93.6%** (337/360) | `cicmaldroid_banking` seeded sample | Detection rate at the same threshold |
+
+Frame as analyst load: at the shipping threshold the scorer surfaces 93.6% of malware while
+sending roughly one in six clean apps to an analyst. Both numbers come from the same
+`harness/feature_cache/` rescore and are recomputable in seconds.
+
+### Held-out malware detection
+
+| Number | Value | Producing artifact | Caveat |
+|---|---|---|---|
+| Held-out malware flagged non-benign | **15/16 (93.8%)** — 9 malicious, 6 suspicious, 1 missed at score 0.28 | `harness/rescore_from_cache.py` over `harness/feature_cache/` | **These sixteen are malware, not banks** (`BANKING_HOLDOUT_16_PROVENANCE.md`). They are a 16-sample partition of the *same archive* as the 360 — so this is **not an independent holdout**, it is a same-source split. Quote only as "consistent with the 93.6% in-sample-source rate," never as external validation. |
+
+Do **not** present this as a false-positive rate. Do not present it as an improvement on
+anything. If in doubt, omit it — the 93.6% row above says the same thing without the corpus
+caveat.
+
+### Corpus
+
+| Number | Value | Caveat |
+|---|---|---|
+| Sample set | **716** APKs: 16 holdout + 400 malicious + 300 benign, seed 42, sorted glob | `harness/build_sample_set_716.py`; independently re-derived byte-for-byte |
+| Extracted | **668** | — |
+| Skipped | **48** — 39 obfuscated-bytecode parse failures + 1 manifest crash (all malicious), 7 corrupt ZIPs + 1 172 MB manual timeout (both benign) | `harness/feature_cache_skips.csv`, reproduced exactly |
+
+**Selection-bias caveat, attaches to every PS1 number:** the 39 obfuscated parse failures are
+~10% of the malicious sample. Obfuscation is itself an adversarial signal, so the 360 that
+survived are the more analysable, plausibly less sophisticated tail. **Every PS1 number is
+optimistic.**
+
+### Right-censoring — attaches to every indicator count anywhere in the report
+
+`MAX_SUSPICIOUS_STRINGS = 25` with fixed iteration order **url → ip → shell**
+(`setuguard_ps1/static_analysis.py:86`). An APK with ≥25 URL matches records **zero** IPs and
+zero shell strings by construction — the IP extractor never runs. **84 of 668** sit at the cap.
+**IP and shell indicator rates are lower bounds, not measurements.**
+
+---
+
+## QUOTABLE — Bridge
+
+### IOC yield — `harness/IOC_YIELD_RESULTS.md`, `harness/ioc_yield_audit.json`
+
+| Number | Value | Caveat |
+|---|---|---|
+| Malicious APKs yielding ≥1 network host indicator | **66.9%** (241/360) | Right-censoring above applies |
+| Yielding ≥1 host absent from both the benign and holdout corpora | **60.6%** (218/360) | The holdout half of that exclusion set is malware — see the finding. The benign half (292 F-Droid apps) is genuine and carries the exclusion. |
+| Yielding a usable certificate hash | **99.4%** | — |
+| Yielding **zero** network indicators | **33.1%** malicious vs **7.9%** benign | Benign apps yield **more**, consistent with the measured **−20.7** backwards separation of that term. Yield and discriminative power are different properties. |
+
+Conservative floor treating all 39 obfuscated failures as zero-yield: **60.3%** (241/400).
+
+### Mandatory adjacent statement — say this whenever linkage is mentioned
+
+**Linkage today fires on certificate hash only.** `bridge/matcher.py:94-98` compares raw
+`suspicious_strings` values and `extract_ioc_from_ps1` never calls `urlparse`, so a
+`kind == "url"` indicator carries the entire URL and can never match a hostname. The single
+entry in `SYNTHETIC_LINKAGE_GROUND_TRUTH` has `c2_host: None`. **C2-host matching is implemented
+and has never fired.** Do not write "matches on certificate hash and C2 host" as a present-tense
+capability.
+
+### Matcher validation
+
+**TP=10 / FP=0 / FN=0 / TN=90** — `bridge/confusion_matrix_validation.py`,
+`bridge/fix1_confusion_matrix_results.json`. A **unit-level test of a deterministic exact-match
+function against hand-built near-miss confounders on synthetic ground truth**: 10 same-/24-subnet
+and same-issuer-different-hash confounders each, an all-`None` account, and an unsigned-APK edge
+case. **Never "accuracy." Never a performance metric.**
+
+---
+
+## QUOTABLE — PS2
+
+Untouched by the holdout finding. This section is the most solid material in the report.
+
+| Number | Value | Producing artifact |
+|---|---|---|
+| AUCPR | **median 0.271**, IQR 0.221–0.362 | `harness/ps2_repeated_splits.py` → `models/ps2_repeated_splits_metrics.json` |
+| AUROC | **median 0.872**, IQR 0.851–0.907 | same |
+| Recall @ top 1% | **25.0%**, IQR 18.8–37.5 | same |
+| Recall @ top 5% | **53.1%**, IQR 43.8–62.5 | same |
+| Precision @ top 1% / 5% | 22.2% / 9.4% | same |
+| Lift @ top 1% / 5% | 25.2× / 10.6× | same |
+
+Method: **20 repeated stratified 80/20 splits**, seeds 0–19, identical fixed hyperparameters, no
+tuning. **1,817 accounts and 16 fraud per holdout.** `train_test_split(..., stratify=y)` shuffles
+by default and `stratify` requires it — verified against sklearn's source, not assumed.
+
+**Always state the random baseline in the same sentence:** 81/9,082 = **0.0089**. AUCPR 0.271 is
+**≈30× baseline**.
+
+**State the overfit gap yourself, before a judge asks:** in-sample AUCPR **0.988** vs holdout
+median **0.271**, on 81 positives. Say plainly that this is why only holdout figures are quoted.
+The trainer records it under a key named `in_sample_train_metrics_DO_NOT_REPORT_AS_HOLDOUT` and
+the API never surfaces it.
+
+### Dataset
+
+**9,082 rows × 3,925 columns** (`Unnamed: 0` + `F1`…`F3924`; there are 3,924 `F`-columns — do not
+write 3,924 for the column count). **81 fraud**, prevalence 0.892%.
+
+**All 81 fraud rows are contiguous at the file tail** — `Unnamed: 0` values **9002–9082**, which
+are DataFrame positions **9001–9081**; the two frames differ by one because `Unnamed: 0` is
+1-based. No non-fraud row appears in that range, so **row order encodes the target and any
+positional sampling of this file is label leakage.**
+
+### Features
+
+**18 bank-finalized features** from column 4 (`Bank_Finalized_Variables`) of
+`data/Description.xlsx`, sheet `Data_Dicitionary`: exactly 19 non-empty rows — the 18 plus
+`F3924` marked `Target Variable`. Byte-identical to `ps2_features.py:17-36`, to the trained
+artifact's `features.bank_finalized`, and to the trainer's `usecols`.
+
+**Framing is audit and quantification only — never discovery.** The bank's own finalized list
+already excludes every leaky feature (`F3898`, `F3899`, `F3912`–`F3915`) and every alert-derived
+feature (`F2230`, `F3900`–`F3911`, `F3919`–`F3923`). The contribution is a guard that makes the
+exclusion structural plus a 4-case negative test proving the guard fires
+(`harness/test_leakage_assert.py`, all PASS). A discovery claim is falsifiable by any judge who
+opens the same spreadsheet.
+
+---
+
+## QUOTABLE — scope gaps, stated as gaps
+
+**No legitimate-banking-app measurement exists.** The corpus believed to be one was malware.
+Behaviour on the banking vertical is **unmeasured**, and the plan to measure it is
+`PLAN.md` item A. State this as a known gap with a dated remedy, not as a result. The
+class-convergence hypothesis — that a real banking app needs the same permission set as a
+banking trojan and is therefore hard to separate statically — remains **plausible and
+untested**. Present it as the motivating hypothesis for the corpus build, never as a finding.
+
+**No dynamic analysis.** Static only: DEX string pool, manifest, certificate. Nothing is
+executed. Quantified: 33.1% of malicious samples yield zero network indicators statically and a
+further ~10% cannot be parsed at all.
+
+**One static CSV, not real-time feeds.** PS2 scores an uploaded CSV against a fixed 18-column
+schema. No streaming ingest, no transaction feed, no NPCI/UPI connection.
+
+**No fail-closed path exists.** Parse failure returns **HTTP 500 with the exception string**
+(`app.py:400-402`); batch harnesses write a row to `skips.csv`. Neither is a review queue. A
+repo-wide grep for "manual review" / "fail-closed" / "fail_closed" returns **zero hits** — delete
+every such claim wherever one is found. Fix specified: catch the exception, return HTTP 200 with
+`status: requires_manual_review` (`PLAN.md` item 3).
+
+**`d1-inversion` is scoped to the serving path only.** `_rule_based_verdict()` is structurally
+authoritative in `setuguard_app/backend/app.py` — verified line by line: `_try_llm_narrative()`
+opens `report = dict(rule_report)` and assigns only `rationale` and `cited_chunk_ids`, and
+`verdict_source` is a string literal. But `run_pipeline.py:76` and `batch_baseline.py:261,286`
+take `verdict` and `confidence` straight from Mistral, and the committed
+`setuguard_ps1/out/*.report.md` shows an LLM verdict of `suspicious / 0.85`. Describe the CLI as
+a **retained pre-inversion reference** and label those artifacts as such.
+
+**No upload size cap of any kind** — no `MAX_CONTENT_LENGTH`, no client-side check. 26 APKs in
+the sample set exceed 50 MB, one is 172 MB and could not be analysed inside a 300 s timeout with
+a dedicated memory budget. Two live memory incidents are traced to large files.
+
+---
+
+## BANNED — must not appear in the PDF, the deck, or any document
+
+| Banned | Why |
+|---|---|
+| **AUC 0.4113 / 0.3841** as a legitimate-banking-app result | The negative class is malware. See the finding. |
+| **"15/16 false positives"**, **"16/16"** | Not false positives. They are 15 of 16 malware samples correctly flagged. |
+| **"0.688 vs 0.614"** as banking-apps-outscore-malware | Both groups are malware. |
+| **"0.816" / "0.720"** | Old scorer, superseded — and same corpus error. |
+| **"malware ranks below real banking apps"**, **"convergent by construction"** as a finding | Unmeasured. Permitted only as a stated hypothesis. |
+| **"confidence"** as an independent quantity | It is `round(0.5 + score/2, 2)` — a monotone transform of the evidence-weighted score, floored at 0.5, carrying no independent information. Write **evidence-weighted score**, state the transform once. |
+| **"0.4114"** and any single-split seed-42 PS2 figure | Retired. It sits at the 80th percentile of the 20-seed distribution — a favourable draw. |
+| **"p50"** for endpoint timings | No producing harness. See below. |
+| **"accuracy"** applied to the bridge confusion matrix | It is a unit test of an exact-match function. |
+| **"mules sit at network bridges"**, any graph-feature uplift | Withdrawn as label leakage — `ps2/06_graph_features.py` assigns top-betweenness nodes to fraud rows using the target. |
+| Any **triage-percentile reframe** of the PS1 score | Dead. Proposed once (`SESSION_LOG.md:248-252`), never implemented, does not work for single-APK upload. |
+| **"independently confirmed"** applied to account 9072 | It is `F3924==1`, but it is also the **only** key in `SYNTHETIC_LINKAGE_GROUND_TRUTH` — it was chosen. `SESSION_LOG.md:430-434` still carries the retracted framing. |
+
+---
+
+## CANNOT CURRENTLY BE SHOWN — state the gap, do not quote
+
+**Any legitimate-banking-app performance number.** No such corpus exists in this repo. Blocked
+until `PLAN.md` item A lands.
+
+**Endpoint timings.** ~9.86 s / ~0.66 s / ~0.0025 s come from a hand-written **n=3** table at
+`SESSION_LOG.md:445-450` with no producing harness. `harness/measure_app_verdicts.py` records
+`elapsed_s` for `/api/analyze_apk` only and computes no percentile. Either write "spot
+measurement, n=3" or omit timings entirely and add them once the harness exists (`PLAN.md`
+item 8). **Never write "p50."**
+
+**Ollama-down 1.24 s.** In no committed artifact — checked `console_report.json`,
+`backend_stdout_stderr.log`, `03_bridge_match.txt`. The *behaviour* is verified (3 steps, zero
+console errors, bridge still matched with Ollama unreachable); the *number* is not.
+
+**The 0.9366 evidence chain does not survive a clone.** `harness/feature_cache/` and
+`harness/results_716.csv` are gitignored; only the summary
+`docs/evidence/2026-08-12_scorer_v2.{md,json}` is committed. If a judge says "show me," there is
+nothing to open. Committing `results_716.csv` is `PLAN.md` item 5 — a post-report item, because
+that file's `banking_holdout` rows are mislabelled and must be relabelled first.
+
+---
+
+## The one-paragraph version, for the report's abstract
+
+SetuGuard triages Android banking malware by static analysis and links the result to mule-account
+scoring through shared indicators of compromise. Its static scorer separates banking malware from
+general-purpose Android apps with **AUC 0.9366** over 652 real APKs, flagging **93.6%** of malware
+while sending **17.1%** of clean apps to an analyst. Its mule model reaches **AUCPR 0.271**
+(IQR 0.221–0.362) across 20 stratified holdouts — about **30× the 0.0089 random baseline** at a
+0.892% fraud rate — catching **53.1%** of fraud in the top 5% of accounts by score. Bridging is
+viable: **66.9%** of malware samples yield at least one network indicator and **99.4%** yield a
+usable certificate hash. Two limits are stated rather than hidden: the system performs no dynamic
+analysis, and its behaviour against *legitimate* banking apps is unmeasured — the corpus believed
+to serve that purpose was found, four days before submission, to contain malware rather than bank
+apps, and building a real one is the project's next measurement.
