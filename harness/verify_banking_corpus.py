@@ -15,6 +15,9 @@ legitimate Play Store apps, is self-signed in the X.509 sense (there is no CA-is
 for app-signing certs). Only debug keys, the AOSP test key, and a missing certificate are
 rejected.
 
+Also writes BANKING_CORPUS_VERIFICATION.json (same basename, .json suffix) -- a machine-readable
+companion consumed by score_banking_corpus.py, which scores only APKs with status "pass" here.
+
 Usage:
     python3 verify_banking_corpus.py --candidates harness/banking_candidates.json \\
         --corpus-dir harness/banking_legit_corpus --out harness/BANKING_CORPUS_VERIFICATION.md
@@ -214,6 +217,14 @@ def main():
     gate_ok = tier_a_survivors >= TIER_A_SURVIVOR_GATE
 
     args.out.write_text(render(results, collisions, tier_pass, tier_a_survivors, gate_ok, args.corpus_dir))
+    json_out = args.out.with_suffix(".json")
+    json_out.write_text(json.dumps({
+        "collisions": collisions, "tier_pass": tier_pass,
+        "tier_a_survivors": tier_a_survivors, "gate_ok": gate_ok,
+        "results": results,
+    }, indent=2))
+    print(f"[verify] wrote {json_out} (machine-readable companion, consumed by score_banking_corpus.py)",
+          file=sys.stderr)
     print(f"\n[verify] status counts: "
           f"{ {s: sum(1 for r in results if r['status']==s) for s in ('pass','reject','quarantine')} }",
           file=sys.stderr)
