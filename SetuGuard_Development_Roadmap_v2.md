@@ -13,6 +13,17 @@
 
 | Part | Owner | Baseline | + Fix |
 |---|---|---|---|
+> **CORRECTION, 2026-08-12 — this document is the origin of a five-week error.** The phrase
+> "16 real banking-app holdout" below is the earliest occurrence of a claim that turned out to be
+> false. `banking_holdout_16/` contains **no banking apps**; all sixteen are malware from the
+> CICMalDroid `Banking.tar.gz` archive. "Banking holdout" meant *held out from the Banking
+> malware set*, and it was read as *a holdout of banking apps*. From here the reading propagated
+> into `harness/sample_set_banking_holdout_16.txt`, `SESSION_LOG.md`,
+> `PS1_Defects_and_Improvements.md`, `docs/evidence/`, and `CONTEXT.md`. Evidence:
+> `harness/BANKING_HOLDOUT_16_PROVENANCE.md`. Every "0 FP across all 16 real banking apps"
+> target in this roadmap is aimed at a corpus that was never sourced. Left unedited below for
+> the record.
+
 | 1 — PS1 engine | You | Androguard, RAG report, YARA gen | **Fix #3** (F-Droid + 16 real banking-app holdout) + **Fix #4** (Obfuscapk adversarial survival matrix) |
 | 2 — PS2 model | Teammate | Data audit, XGBoost/SHAP/tiers | **Fix #2** (Louvain/betweenness/PageRank on AMLworld) |
 | 3 — Bridge | Teammate | IOC enrichment, DiCE, mock regulatory feed | **Fix #1** (synthetic ground-truth linkage validation — depends on Fix #2's graph) |

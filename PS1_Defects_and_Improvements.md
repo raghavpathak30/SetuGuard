@@ -1,5 +1,23 @@
 # PS1 — Defects and Improvements
 
+> **CORRECTION, 2026-08-12.** Two items in this file need reading in light of a later finding.
+>
+> 1. **D9 was right and was not acted on.** It states that "the 16 real banking APKs are
+>    **unsourced**. Until they exist, the FP number cannot be measured." The FP number was
+>    measured anyway. On 2026-08-12 `harness/identify_holdout_16.py` established that
+>    `banking_holdout_16/` contains **no banking apps** — all sixteen are malware from the same
+>    `Banking.tar.gz` archive as `cicmaldroid_banking/`. Every "0 FP across… all 16 real banking
+>    apps" target in this file (D9, and the Fix #3 target at line 67) is therefore aimed at a
+>    corpus that never existed. See `harness/BANKING_HOLDOUT_16_PROVENANCE.md` and `CONTEXT.md`
+>    §0.
+> 2. **D1's framing is superseded.** "Confidence separates the classes correctly" treats
+>    `confidence` as an independent signal. It is `round(0.5 + score/2, 2)` — a monotone
+>    transform of the evidence-weighted score carrying no extra information (`app.py:211`). D1's
+>    substance was addressed by the `d1-inversion`: the rule scorer is now structurally
+>    authoritative in `setuguard_app/backend/app.py`.
+>
+> Left otherwise unedited, for the record.
+
 Scope: PS1 only. Ordered by severity. "Must fix" items are correctness or
 demo-integrity problems. "Should improve" items make the system better but nothing
 breaks without them.

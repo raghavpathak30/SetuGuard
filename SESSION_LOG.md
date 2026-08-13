@@ -261,6 +261,36 @@ raw permissions/API categories/strings are already returned by `static_analysis.
   measurements used `cicmaldroid_banking` (seeded sample) and `fdroid_benign_apks` (seeded
   sample) only; holdout was scored once, read-only, as the subject of measurement, not as a
   calibration target.
+
+> **CORRECTION appended 2026-08-12 — the bullet immediately above is wrong, and is retained
+> rather than deleted.**
+>
+> It conflicts with line 219 of this same entry, which records the discriminative-power ranking
+> as *"malicious sample vs. **fdroid_benign+holdout16**, ranked by fire-rate separation"*.
+> **Line 219 is the accurate one.** The holdout was in the negative pool, so it *was* visible
+> during scorer-v2 term selection, and that ranking is what justified the three term deletions
+> (`reflection` −20.9, url/ip −20.7, `self_signed` +0.1). The claim of a clean separation
+> between measurement corpus and holdout is **retracted**.
+>
+> Effect on the conclusion, stated so it is not overread in either direction: all three changes
+> were **deletions**, and the gate AUC moved 0.3841 → 0.4113. Contamination therefore biased the
+> figure **upward** — it worked against the conclusion drawn from it, not for it. The
+> quantitative provenance claim is retracted; the direction of the result was not manufactured
+> by the leak.
+>
+> **A second correction, same date, larger.** `harness/identify_holdout_16.py` established that
+> `banking_holdout_16/` contains **no banking apps** — all sixteen are malware from
+> `Banking.tar.gz`, the same CICMalDroid Banking archive `cicmaldroid_banking/` came from
+> (2,489 + 16 = 2,505, zero overlap, every certificate self-signed). See
+> `harness/BANKING_HOLDOUT_16_PROVENANCE.md`. This makes the contamination above a **labelling
+> error rather than mere leakage**: sixteen malware samples sat in the *negative* class of the
+> term ranking, roughly 5% label noise in the negatives. It also voids the gate AUC itself —
+> 0.4113 compares malware to malware — and inverts the "16/16 false positives" reading recorded
+> at line 172 of this file into 15/16 malware samples correctly detected. `CONTEXT.md` §0 and
+> `REPORT_FACTS.md` carry the full consequences.
+>
+> Both corrections are appended in place. A log that corrects itself is evidence; a log that
+> quietly deletes a wrong claim is not.
 - Permission/API co-occurrence signature design (option b) was scoped and justified by the
   ranking but not specified in detail or calibrated — needs its own before/after measurement
   against the two non-holdout corpora, flagged as next step, not done this session.
