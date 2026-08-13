@@ -84,6 +84,7 @@ node_modules/
 # =====================================================================
 *.csv
 !raw_graph_features.csv
+!harness/banking_packages.csv
 *.xlsx
 !data/Description.xlsx
 *.crdownload
