@@ -1,0 +1,18 @@
+Loaded 16 samples from sample_set_banking_holdout_16.txt
+0 already done (resume), 16 remaining
+  [1/16] 06c9ce6a7ba2c0c012bcc1079af86349b345e79ffe03e1156f8755987e2c13c3.apk (banking_holdout) -> malicious (0.97) [rule_based/ollama_rag] 7.3s
+  [2/16] 1b325c7e18a482530e56543e6dd38de1aaf1a902a11be98c1c64d93eb24e18fd.apk (banking_holdout) -> malicious (0.94) [rule_based/ollama_rag] 6.0s
+  [3/16] 2ddd86998d947c964e2cc8c118e95134fc904615a8786fc033e3c06800d1f6c3.apk (banking_holdout) -> malicious (1.00) [rule_based/ollama_rag] 6.9s
+  [4/16] 3b2ad9b5565559ca49ec6d65ba6cf85cd05690cbdfe40a8cd48f0bc522cd977d.apk (banking_holdout) -> suspicious (0.72) [rule_based/ollama_rag] 6.8s
+  [5/16] 3d3480beefc3e626e091605ff85b583de82e0df4baeedd8e28e7e8dd228b1187.apk (banking_holdout) -> malicious (0.99) [rule_based/ollama_rag] 7.5s
+  [6/16] 67b4f63416ca1e48719af363ad61f6de0f546d67ade69b7a155094367810f660.apk (banking_holdout) -> malicious (1.00) [rule_based/ollama_rag] 8.7s
+  [7/16] 74add9d4b966eeb67c89827fd49d2df560218095a88c0e0392a980a1407776f8.apk (banking_holdout) -> suspicious (0.74) [rule_based/ollama_rag] 7.2s
+  [8/16] 751517b7eae5ebed18a17020085b0f2cbf683e55d0343c7e19cf5130f1c2c4b2.apk (banking_holdout) -> malicious (0.99) [rule_based/ollama_rag] 9.7s
+  [9/16] 7d5e9ffdded1928a933f14975cb2e912a2be0b891c89acd2bb3c111bd26a2a82.apk (banking_holdout) -> malicious (0.83) [rule_based/ollama_rag] 8.5s
+  [10/16] 8786dcb1c99025de9c315fd2d907930c5799343154ac4ba14c4756d446a2397e.apk (banking_holdout) -> suspicious (0.74) [rule_based/ollama_rag] 7.0s
+  [11/16] 8b2f61e0dd81a4208a7cfc6445f21c2cd3fa78612b5b1a9651c2f97d47e65eae.apk (banking_holdout) -> malicious (0.94) [rule_based/ollama_rag] 8.0s
+  [12/16] a7cb6266d4ba4aeb80bb6f5fac99c7d87b009d2c770887f9d447a28dd1375d35.apk (banking_holdout) -> malicious (0.94) [rule_based/ollama_rag] 10.7s
+  [13/16] ac1dbcd817fb57e303b389a086f0a2626e36d2934cce535090b80784334eb069.apk (banking_holdout) -> malicious (1.00) [rule_based/ollama_rag] 9.3s
+  [14/16] b3e9e62d049355478a3f4fee0d53f9e4e121181c6e5c71adc95563a116cfb63d.apk (banking_holdout) -> suspicious (0.79) [rule_based/ollama_rag] 12.9s
+  [15/16] d5928a3c9bf517daf7f96dd49024d2fe3c243551dc256ed4bb07763ce68bd806.apk (banking_holdout) -> malicious (0.94) [rule_based/ollama_rag] 10.1s
+  [16/16] e8f99da6ab478e7aaada8f88e03894dd9f9618e1ae70c4778afd5c30f51b7239.apk (banking_holdout) -> malicious (1.00) [rule_based/ollama_rag] 9.4s

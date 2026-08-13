@@ -32,6 +32,14 @@ setuguard_ps1/fix3_fp_baseline/
 setuguard_ps1/fix3_fp_baseline_run.log
 setuguard_ps1/d2_ab_results/
 harness/measure_run.log
+# threshold_sweep.py / capped-scorer console output, already summarised in
+# SESSION_LOG.md. NOTE: harness/measure_run_holdout.log is deliberately NOT
+# ignored -- it is the console record of the run that produced
+# results_banking_holdout.csv (the void 16/16 figure) and is committed as
+# evidence alongside the corpus correction. See harness/CORPUS_PROVENANCE.md.
+harness/measure_run_capped.log
+harness/sweep_log.txt
+harness/sweep_output.txt
 harness/feature_cache/
 harness/extract_run*.log
 harness/process_large_outliers*.log
