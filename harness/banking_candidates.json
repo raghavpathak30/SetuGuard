@@ -1,0 +1,1651 @@
+{
+  "source_csv_identity": {
+    "path": "/home/raghavp/latest.csv.gz",
+    "sha256": "770ce0cc92b6d9b5bcd6f657466fc8a2c43f101326c1fdaba7393294d3a8c4a6",
+    "size_bytes": 3510531575,
+    "recorded_at_utc": "2026-08-14T19:22:14.457182"
+  },
+  "inclusion_rule": "harness/BANKING_CORPUS_INCLUSION_RULE.md",
+  "n_candidate_lines_from_grep": 3193,
+  "zero_hit_packages": [
+    "com.bankofbaroda.bobworlddmb",
+    "com.bcg.psbbank",
+    "com.boi.erupee.prod",
+    "com.bom.lifestylebanking",
+    "com.infrasoft.cbiMiniMerchant",
+    "com.montran.merchant.boiapp",
+    "com.uco.cbdc",
+    "com.unitybank.app.mobilebanking",
+    "com.yesbank.yespaynex",
+    "com.yespaylite",
+    "org.npci.erupeeI",
+    "org.npci.erupeeIDFC",
+    "org.npci.erupeeSBI",
+    "org.npci.erupeeUBI",
+    "com.idfc.etoll",
+    "com.psb.lendperfect"
+  ],
+  "tier_summary": {
+    "A": {
+      "requested": 62,
+      "found_in_latest_csv": 52,
+      "passed_filters_any_row": 52,
+      "has_era_matched": 20,
+      "era_picks": 20,
+      "current_picks": 52
+    },
+    "B": {
+      "requested": 8,
+      "found_in_latest_csv": 4,
+      "passed_filters_any_row": 4,
+      "has_era_matched": 1,
+      "era_picks": 1,
+      "current_picks": 4
+    },
+    "C": {
+      "requested": 5,
+      "found_in_latest_csv": 3,
+      "passed_filters_any_row": 3,
+      "has_era_matched": 1,
+      "era_picks": 1,
+      "current_picks": 3
+    },
+    "D": {
+      "requested": 8,
+      "found_in_latest_csv": 8,
+      "passed_filters_any_row": 8,
+      "has_era_matched": 5,
+      "era_picks": 5,
+      "current_picks": 8
+    }
+  },
+  "era_matched_picks": {
+    "indwin.c3.shareapp": {
+      "sha256": "95E694A347F63727D269100BC229ED013B19C61CC8CF71FB2894C595869A29DD",
+      "pkg_name": "indwin.c3.shareapp",
+      "vercode": "270",
+      "apk_size": "12405182",
+      "vt_detection": "0",
+      "vt_scan_date": "2019-12-06 16:19:14",
+      "markets": "play.google.com"
+    },
+    "com.csam.icici.bank.imobile": {
+      "sha256": "2E8800C401CA9CE3FBE5E2638E3C7DC18AEEDEEC2C3FB299AA509CDFC843ECE9",
+      "pkg_name": "com.csam.icici.bank.imobile",
+      "vercode": "194",
+      "apk_size": "40082446",
+      "vt_detection": "0",
+      "vt_scan_date": "2019-09-07 14:34:13",
+      "markets": "play.google.com"
+    },
+    "com.lcode.ucomobilebanking": {
+      "sha256": "22213A31147480996F7CAE0236914BF373D38DB6D3D3B7B4DA9865979BD95061",
+      "pkg_name": "com.lcode.ucomobilebanking",
+      "vercode": "5",
+      "apk_size": "8745179",
+      "vt_detection": "0",
+      "vt_scan_date": "2019-10-31 22:17:34",
+      "markets": "play.google.com"
+    },
+    "net.one97.paytm": {
+      "sha256": "65C7EF693989E88AB20264C505F5401831CA74E31B84577E3545906C58FF7BC3",
+      "pkg_name": "net.one97.paytm",
+      "vercode": "700531",
+      "apk_size": "25653698",
+      "vt_detection": "0",
+      "vt_scan_date": "2019-11-27 09:36:55",
+      "markets": "play.google.com"
+    },
+    "com.corporatefedmobile": {
+      "sha256": "00354054A74022392158A884A861E6F1CCF0DBA121A851913E29EA3C179421B3",
+      "pkg_name": "com.corporatefedmobile",
+      "vercode": "212",
+      "apk_size": "6635154",
+      "vt_detection": "0",
+      "vt_scan_date": "2019-12-13 14:13:38",
+      "markets": "play.google.com"
+    },
+    "com.bankofbaroda.mconnect": {
+      "sha256": "69AB008B9693EFA7416EB16404C0351E4AB30DA4A4F800623120C6549096F745",
+      "pkg_name": "com.bankofbaroda.mconnect",
+      "vercode": "32",
+      "apk_size": "17583778",
+      "vt_detection": "0",
+      "vt_scan_date": "2019-12-09 10:48:04",
+      "markets": "play.google.com"
+    },
+    "com.Version1": {
+      "sha256": "9CF57AFFDDB046732A4C2202DEFE70C04AC1AC5E7EBBD70E3CAD060E9EC16ADC",
+      "pkg_name": "com.Version1",
+      "vercode": "34",
+      "apk_size": "37741160",
+      "vt_detection": "0",
+      "vt_scan_date": "2019-12-10 18:29:07",
+      "markets": "play.google.com"
+    },
+    "com.dbs.sg.dbsmbanking": {
+      "sha256": "EDD4D121F98F30F74236B6393568818162A94E00833566AFCD0CFFAFE9542EDC",
+      "pkg_name": "com.dbs.sg.dbsmbanking",
+      "vercode": "35110",
+      "apk_size": "53812260",
+      "vt_detection": "0",
+      "vt_scan_date": "2019-12-14 17:59:09",
+      "markets": "play.google.com"
+    },
+    "air.app.scb.breeze.android.main.in.prod": {
+      "sha256": "091341C57741BDF5D399ED6305FFF7EC51AE75C02C871A75967215C95A68E267",
+      "pkg_name": "air.app.scb.breeze.android.main.in.prod",
+      "vercode": "30700037",
+      "apk_size": "66751145",
+      "vt_detection": "0",
+      "vt_scan_date": "2019-11-16 17:35:56",
+      "markets": "play.google.com"
+    },
+    "com.sc.privatebank.pvm": {
+      "sha256": "C004F467EE8603A389E7D334ECBDA561546BED87D1AED6D2145B81C79A2045CC",
+      "pkg_name": "com.sc.privatebank.pvm",
+      "vercode": "100189",
+      "apk_size": "28997155",
+      "vt_detection": "0",
+      "vt_scan_date": "2019-06-25 11:24:11",
+      "markets": "play.google.com"
+    },
+    "com.sbi.lotusintouch": {
+      "sha256": "6EA25AF6D5D31DD39ECB8056CC3135FE9BA71F88E2E9C0E93905DBB972030DA9",
+      "pkg_name": "com.sbi.lotusintouch",
+      "vercode": "12212",
+      "apk_size": "16530653",
+      "vt_detection": "0",
+      "vt_scan_date": "2019-02-21 02:41:07",
+      "markets": "play.google.com"
+    },
+    "com.axis.mobile": {
+      "sha256": "F66039981FC3719D7E351C97F0A954C5AF728F0B731E549DCB34DD49BA48C6AE",
+      "pkg_name": "com.axis.mobile",
+      "vercode": "43",
+      "apk_size": "33763849",
+      "vt_detection": "0",
+      "vt_scan_date": "2019-08-28 15:20:15",
+      "markets": "play.google.com"
+    },
+    "com.msf.kbank.mobile": {
+      "sha256": "C7D431AF86A32E21A7EAF8D71CB80A223040DF1F91D3E346B382E0FBA61F487C",
+      "pkg_name": "com.msf.kbank.mobile",
+      "vercode": "106",
+      "apk_size": "13788233",
+      "vt_detection": "0",
+      "vt_scan_date": "2019-11-09 09:18:03",
+      "markets": "play.google.com"
+    },
+    "com.db.pbc.mibanco": {
+      "sha256": "34EFE385D6A200549FE01E1DF4B8DAC3EC5D42BEB15D4B1270E10187D1D6665B",
+      "pkg_name": "com.db.pbc.mibanco",
+      "vercode": "21",
+      "apk_size": "24459904",
+      "vt_detection": "0",
+      "vt_scan_date": "2018-09-18 09:25:14",
+      "markets": "play.google.com"
+    },
+    "com.fedmobile": {
+      "sha256": "2D7FBD230999F311829ECE02F79459E3632CD6752547AE3851E4CCC827B6B66E",
+      "pkg_name": "com.fedmobile",
+      "vercode": "43400226",
+      "apk_size": "15296320",
+      "vt_detection": "0",
+      "vt_scan_date": "2019-10-13 00:47:26",
+      "markets": "play.google.com"
+    },
+    "com.canarabank.mobility": {
+      "sha256": "E4323D923956C467D19D3D859EC6B3F2517BD15FF28F712D9076BE39E48004F6",
+      "pkg_name": "com.canarabank.mobility",
+      "vercode": "44",
+      "apk_size": "24185264",
+      "vt_detection": "0",
+      "vt_scan_date": "2019-12-22 04:11:00",
+      "markets": "play.google.com"
+    },
+    "com.db.pwcc.dbmobile": {
+      "sha256": "0BFC4B451677CE042B0B53F1AE626D29E39B66FBD3235B5AC29D2AD29D778D42",
+      "pkg_name": "com.db.pwcc.dbmobile",
+      "vercode": "13995",
+      "apk_size": "48039152",
+      "vt_detection": "0",
+      "vt_scan_date": "2019-07-28 00:37:25",
+      "markets": "play.google.com"
+    },
+    "com.infrasoft.uboi": {
+      "sha256": "ADB8E6D1580BED91DA8506AA787F859EFB19849C699132C353270CB7FA9633F7",
+      "pkg_name": "com.infrasoft.uboi",
+      "vercode": "1016",
+      "apk_size": "23146054",
+      "vt_detection": "0",
+      "vt_scan_date": "2019-12-10 09:20:16",
+      "markets": "play.google.com"
+    },
+    "com.icicibank.ibizz": {
+      "sha256": "DF3D7D319A6DADC9490D1340A8D681AEE6FA9F568FEFDC1D4341F070B7CA4E35",
+      "pkg_name": "com.icicibank.ibizz",
+      "vercode": "75",
+      "apk_size": "31060313",
+      "vt_detection": "0",
+      "vt_scan_date": "2019-11-21 17:11:22",
+      "markets": "play.google.com"
+    },
+    "com.snapwork.hdfc": {
+      "sha256": "43EE6DC1BD10B3DE0F6F19732839958C66A0805DE70D573BBE7B98E505BB5CC5",
+      "pkg_name": "com.snapwork.hdfc",
+      "vercode": "121",
+      "apk_size": "27693290",
+      "vt_detection": "0",
+      "vt_scan_date": "2019-08-20 19:40:25",
+      "markets": "play.google.com"
+    },
+    "com.sc.breezeje.banking": {
+      "sha256": "508308344EACB5A767339F2F5AE791D4543E105BC5BFA7C3D691628AE12781BC",
+      "pkg_name": "com.sc.breezeje.banking",
+      "vercode": "40",
+      "apk_size": "12290043",
+      "vt_detection": "0",
+      "vt_scan_date": "2019-11-29 16:29:25",
+      "markets": "play.google.com"
+    },
+    "com.sbi.SBIFreedomPlus": {
+      "sha256": "2DD141F375714CFB4CCF0201C656DD610C428107DE97B43991F4B46AEE191DAF",
+      "pkg_name": "com.sbi.SBIFreedomPlus",
+      "vercode": "1087",
+      "apk_size": "40900027",
+      "vt_detection": "0",
+      "vt_scan_date": "2019-11-14 15:52:34",
+      "markets": "play.google.com"
+    },
+    "com.dbs.in.digitalbank": {
+      "sha256": "F29F594442566E7F3BA9B7493766CA7768E005E3A3628E79474868A9FEC064CE",
+      "pkg_name": "com.dbs.in.digitalbank",
+      "vercode": "3921214",
+      "apk_size": "29985764",
+      "vt_detection": "0",
+      "vt_scan_date": "2019-11-08 04:20:04",
+      "markets": "play.google.com"
+    },
+    "com.indusindbank.IndusDirect": {
+      "sha256": "E458C9E904B3431538BFEE18D1DAE8B5C19E86367197DE84C34544568A80F73D",
+      "pkg_name": "com.indusindbank.IndusDirect",
+      "vercode": "7",
+      "apk_size": "16230135",
+      "vt_detection": "0",
+      "vt_scan_date": "2019-03-21 13:33:46",
+      "markets": "play.google.com"
+    },
+    "com.lcode.clabmbanking": {
+      "sha256": "0E71BAB2986B69BC5B294E59D5319A356DEE4562689C5B47EB2ED1B6B4BFF71D",
+      "pkg_name": "com.lcode.clabmbanking",
+      "vercode": "12",
+      "apk_size": "14858636",
+      "vt_detection": "0",
+      "vt_scan_date": "2019-09-26 01:01:38",
+      "markets": "play.google.com"
+    },
+    "com.db.pbc.mybank.in": {
+      "sha256": "432FC8898DBEF3096245E2AE12492AA27DC8F7F162DCA550AD5D538AB7D754F6",
+      "pkg_name": "com.db.pbc.mybank.in",
+      "vercode": "12",
+      "apk_size": "5898737",
+      "vt_detection": "0",
+      "vt_scan_date": "2018-09-22 15:21:37",
+      "markets": "play.google.com"
+    },
+    "com.lcode.ucoupi": {
+      "sha256": "A747B6611A2DC777C242DEA4C38EEDE69FE8FDC43ADB5E02902E7F8F66D7651D",
+      "pkg_name": "com.lcode.ucoupi",
+      "vercode": "21",
+      "apk_size": "8533247",
+      "vt_detection": "0",
+      "vt_scan_date": "2019-11-05 05:22:26",
+      "markets": "play.google.com"
+    }
+  },
+  "current_picks": {
+    "indwin.c3.shareapp": {
+      "sha256": "87427F2D8F409A3421B698248F65724ECA54FBC36BF0A365521BEB42760A314D",
+      "pkg_name": "indwin.c3.shareapp",
+      "vercode": "1040",
+      "apk_size": "131785708",
+      "vt_detection": "0",
+      "vt_scan_date": "2025-10-17 01:46:08",
+      "markets": "play.google.com"
+    },
+    "com.csam.icici.bank.imobile": {
+      "sha256": "95F493C900733482B2A53B9A6E04743B3A0D4E9527EFE4109E72BA10ED28E620",
+      "pkg_name": "com.csam.icici.bank.imobile",
+      "vercode": "448",
+      "apk_size": "251417501",
+      "vt_detection": "0",
+      "vt_scan_date": "2025-11-10 02:28:50",
+      "markets": "play.google.com"
+    },
+    "com.lcode.ucomobilebanking": {
+      "sha256": "CB4CB8EB77ED41D0BFC5C7F3225612FAF7D80D7FDF79553DB0ECB179D241CC1F",
+      "pkg_name": "com.lcode.ucomobilebanking",
+      "vercode": "96",
+      "apk_size": "142684721",
+      "vt_detection": "0",
+      "vt_scan_date": "2026-07-19 18:49:53",
+      "markets": "play.google.com"
+    },
+    "net.one97.paytm": {
+      "sha256": "5DEE1024995FF7F84F1C3F4C6AAF43C5FE1A309941B18A943ADD69742078692B",
+      "pkg_name": "net.one97.paytm",
+      "vercode": "721977",
+      "apk_size": "50101177",
+      "vt_detection": "0",
+      "vt_scan_date": "2026-08-09 18:46:52",
+      "markets": "play.google.com"
+    },
+    "com.corporatefedmobile": {
+      "sha256": "847B564EBC390C51F7F6E5A0991F79F25087E37542239F4DBBE72F88A3A750A2",
+      "pkg_name": "com.corporatefedmobile",
+      "vercode": "261",
+      "apk_size": "61912505",
+      "vt_detection": "0",
+      "vt_scan_date": "2025-09-10 09:09:08",
+      "markets": "play.google.com"
+    },
+    "com.bankofbaroda.mconnect": {
+      "sha256": "DBEFC318762090F33D91426DA9FC87CBBB224B7309086F915E89959A8FE4830F",
+      "pkg_name": "com.bankofbaroda.mconnect",
+      "vercode": "117",
+      "apk_size": "96948568",
+      "vt_detection": "0",
+      "vt_scan_date": "2026-06-19 18:56:21",
+      "markets": "play.google.com"
+    },
+    "com.psb.omniretail": {
+      "sha256": "1E071AF25818230ECFC5B3CDBCABB7803EABD3D87404E0F00F7CB597C94F1B39",
+      "pkg_name": "com.psb.omniretail",
+      "vercode": "117",
+      "apk_size": "79614506",
+      "vt_detection": "0",
+      "vt_scan_date": "2025-08-02 07:54:03",
+      "markets": "play.google.com"
+    },
+    "com.Version1": {
+      "sha256": "48C6C919F919B86BACE280FC899C8700D2B20A283E86072EC2BE13622F9C98F9",
+      "pkg_name": "com.Version1",
+      "vercode": "187",
+      "apk_size": "138731517",
+      "vt_detection": "0",
+      "vt_scan_date": "2025-11-30 05:01:39",
+      "markets": "play.google.com"
+    },
+    "com.dbs.sg.dbsmbanking": {
+      "sha256": "81F5649E1545E77755B1F25867C4106A40796D04CFF1B756FBA03D7586397D4D",
+      "pkg_name": "com.dbs.sg.dbsmbanking",
+      "vercode": "286753",
+      "apk_size": "92225050",
+      "vt_detection": "0",
+      "vt_scan_date": "2025-09-07 21:59:13",
+      "markets": "play.google.com"
+    },
+    "air.app.scb.breeze.android.main.in.prod": {
+      "sha256": "F66D2D7CEBB9E471CC31A6E58817A6A920B0009C0BFB1AF5E49C51251DD2A298",
+      "pkg_name": "air.app.scb.breeze.android.main.in.prod",
+      "vercode": "105695134",
+      "apk_size": "96393614",
+      "vt_detection": "0",
+      "vt_scan_date": "2025-07-13 07:55:47",
+      "markets": "play.google.com"
+    },
+    "com.sc.privatebank.pvm": {
+      "sha256": "1D88537C4266566AF1FE0E6D74915D2E03EBC74AA2B793FC24128F6564EA8ED8",
+      "pkg_name": "com.sc.privatebank.pvm",
+      "vercode": "11113715",
+      "apk_size": "185743556",
+      "vt_detection": "0",
+      "vt_scan_date": "2026-06-29 18:53:46",
+      "markets": "play.google.com"
+    },
+    "com.sbi.lotusintouch": {
+      "sha256": "2B8A8A9FAD9AE71F30A35EBFD1B5A006CE6E49E2CC1BBC482F4A955FABD9FB9F",
+      "pkg_name": "com.sbi.lotusintouch",
+      "vercode": "1243506",
+      "apk_size": "114723000",
+      "vt_detection": "0",
+      "vt_scan_date": "2025-11-09 00:04:19",
+      "markets": "play.google.com"
+    },
+    "com.axis.mobile": {
+      "sha256": "A985DF31B5FB7A93A543A28CA265BBE2BCE5D1CCCC697BB84268DDF6BDDC7811",
+      "pkg_name": "com.axis.mobile",
+      "vercode": "183",
+      "apk_size": "89592179",
+      "vt_detection": "0",
+      "vt_scan_date": "2025-12-04 07:47:31",
+      "markets": "play.google.com"
+    },
+    "com.msf.kbank.mobile": {
+      "sha256": "614FDF72E33C1F1CEC38D9903690E3AC8292CB6462D106492DC1B8B1A44BFB5E",
+      "pkg_name": "com.msf.kbank.mobile",
+      "vercode": "258",
+      "apk_size": "38261767",
+      "vt_detection": "0",
+      "vt_scan_date": "2026-07-17 18:40:47",
+      "markets": "play.google.com"
+    },
+    "com.db.pbc.mibanco": {
+      "sha256": "BB9B2349D8614A3AAAA47ABE5B5E26CC4836AFB90F44554B9865700C34C4311B",
+      "pkg_name": "com.db.pbc.mibanco",
+      "vercode": "224",
+      "apk_size": "142101232",
+      "vt_detection": "0",
+      "vt_scan_date": "2026-07-01 18:40:13",
+      "markets": "play.google.com"
+    },
+    "com.fedmobile": {
+      "sha256": "B5EC2A58741C096650D4351987C36C4DF26E0D5F32D7A93B14AB12DC2B9E984D",
+      "pkg_name": "com.fedmobile",
+      "vercode": "85400363",
+      "apk_size": "104521739",
+      "vt_detection": "0",
+      "vt_scan_date": "2025-10-21 21:44:43",
+      "markets": "play.google.com"
+    },
+    "com.idfcfirstbank.optimus": {
+      "sha256": "54708CDAC98C05A1A76C5142561665D7BD3FC9F3EAA3F84D325DE2DDFC5FF3F1",
+      "pkg_name": "com.idfcfirstbank.optimus",
+      "vercode": "20300",
+      "apk_size": "59946219",
+      "vt_detection": "0",
+      "vt_scan_date": "2026-08-11 18:42:20",
+      "markets": "play.google.com"
+    },
+    "com.google.android.apps.nbu.paisa.user": {
+      "sha256": "DF5A892C682521452E89655DF6F5271D67B879FEFCB4A9FB910AC58567561732",
+      "pkg_name": "com.google.android.apps.nbu.paisa.user",
+      "vercode": "3509638",
+      "apk_size": "19179130",
+      "vt_detection": "0",
+      "vt_scan_date": "2025-10-26 07:50:57",
+      "markets": "play.google.com"
+    },
+    "com.canarabank.mobility": {
+      "sha256": "699E801BCAAB35DD7914955363238251DDCF91CF765810E35C881B145614E436",
+      "pkg_name": "com.canarabank.mobility",
+      "vercode": "1065",
+      "apk_size": "50160582",
+      "vt_detection": "0",
+      "vt_scan_date": "2026-07-16 18:43:33",
+      "markets": "play.google.com"
+    },
+    "com.YONOUKMobileApp": {
+      "sha256": "71209700E8791BA25F2CB3A377712D5A1DD5BCE7AD167EB34325C8F91ECE081A",
+      "pkg_name": "com.YONOUKMobileApp",
+      "vercode": "32500",
+      "apk_size": "92184476",
+      "vt_detection": "0",
+      "vt_scan_date": "2023-03-10 08:40:36",
+      "markets": "play.google.com"
+    },
+    "com.db.pwcc.dbmobile": {
+      "sha256": "034D44D7E9037D980C0E4FEC8F13BF8E574701E04E735DD74B297EBF2B06C0E1",
+      "pkg_name": "com.db.pwcc.dbmobile",
+      "vercode": "40340",
+      "apk_size": "34358487",
+      "vt_detection": "0",
+      "vt_scan_date": "2026-08-06 18:51:31",
+      "markets": "play.google.com"
+    },
+    "com.infrasoft.uboi": {
+      "sha256": "2178D875D9D5CB0BBD290B2D5D5ED71C0108C972B6180820E8FE2B4B52BD64A9",
+      "pkg_name": "com.infrasoft.uboi",
+      "vercode": "1173",
+      "apk_size": "162109843",
+      "vt_detection": "0",
+      "vt_scan_date": "2025-10-22 21:58:01",
+      "markets": "play.google.com"
+    },
+    "com.equitas.elevate": {
+      "sha256": "02746ED30191D14669E3A620B63389C031EBA21A5914980DD3FB46EC81963AED",
+      "pkg_name": "com.equitas.elevate",
+      "vercode": "155",
+      "apk_size": "75814796",
+      "vt_detection": "0",
+      "vt_scan_date": "2026-06-16 18:39:31",
+      "markets": "play.google.com"
+    },
+    "com.icicibank.ibizz": {
+      "sha256": "CE48F88D4EFAA5342F383AF09D683D08819E664CFD108AC9777F39BD7DEDABB8",
+      "pkg_name": "com.icicibank.ibizz",
+      "vercode": "260",
+      "apk_size": "168199123",
+      "vt_detection": "0",
+      "vt_scan_date": "2025-11-16 11:21:21",
+      "markets": "play.google.com"
+    },
+    "com.snapwork.hdfc": {
+      "sha256": "47D8B443197698C8E07DFAC2DF530A8CC1980157FFC16B29C8FA69D65BE655C1",
+      "pkg_name": "com.snapwork.hdfc",
+      "vercode": "318",
+      "apk_size": "54403006",
+      "vt_detection": "0",
+      "vt_scan_date": "2025-11-23 09:08:24",
+      "markets": "play.google.com"
+    },
+    "com.janabank.mtc": {
+      "sha256": "038DFEDC8611E3EF4452F3D69AE67CFF992201D09E5881919191AF0D89A2EAB0",
+      "pkg_name": "com.janabank.mtc",
+      "vercode": "132",
+      "apk_size": "37289542",
+      "vt_detection": "0",
+      "vt_scan_date": "2025-10-25 05:01:28",
+      "markets": "play.google.com"
+    },
+    "com.capitalfirst.connector": {
+      "sha256": "83617D2E048A2FC6EDA82CABF6FFD2B06A5CFEC7B4813AA8D83680C23FB6AF9C",
+      "pkg_name": "com.capitalfirst.connector",
+      "vercode": "302",
+      "apk_size": "28310975",
+      "vt_detection": "0",
+      "vt_scan_date": "2025-10-22 09:56:55",
+      "markets": "play.google.com"
+    },
+    "in.hsbc.hsbcindia": {
+      "sha256": "9FD9D3EB4F8285696203A7DB6E34BD5E7CECE4D0C5170743D24B86A51B949319",
+      "pkg_name": "in.hsbc.hsbcindia",
+      "vercode": "109866",
+      "apk_size": "251074244",
+      "vt_detection": "0",
+      "vt_scan_date": "2025-11-01 10:39:07",
+      "markets": "play.google.com"
+    },
+    "in.irisbyyes.app": {
+      "sha256": "DF5F1947B069500DD0CA5033798C04375913B35082A31959B5722C26BA895E8A",
+      "pkg_name": "in.irisbyyes.app",
+      "vercode": "2009004207",
+      "apk_size": "74689062",
+      "vt_detection": "0",
+      "vt_scan_date": "2025-09-15 09:20:32",
+      "markets": "play.google.com"
+    },
+    "com.sc.breezeje.banking": {
+      "sha256": "FD7015A382FFD008161B0DFE6A73DFE50AEE3913512CE7AEB3AD2F8B20F3186C",
+      "pkg_name": "com.sc.breezeje.banking",
+      "vercode": "9619091",
+      "apk_size": "14611265",
+      "vt_detection": "0",
+      "vt_scan_date": "2026-07-25 18:39:25",
+      "markets": "play.google.com"
+    },
+    "com.sbi.SBIFreedomPlus": {
+      "sha256": "27C2841BBCD387A8105EB8D8EEEC6FDC7A9CBCF18674ABB35B1F6AE7957ADE6D",
+      "pkg_name": "com.sbi.SBIFreedomPlus",
+      "vercode": "1163",
+      "apk_size": "86657461",
+      "vt_detection": "0",
+      "vt_scan_date": "2025-10-16 09:57:36",
+      "markets": "play.google.com"
+    },
+    "com.dbs.in.digitalbank": {
+      "sha256": "5A953CAAF9A07F6B2BE4F00A934B7AFD76767C0C664796CD84435AADE36742BC",
+      "pkg_name": "com.dbs.in.digitalbank",
+      "vercode": "4100100",
+      "apk_size": "72850168",
+      "vt_detection": "0",
+      "vt_scan_date": "2025-10-11 04:10:09",
+      "markets": "play.google.com"
+    },
+    "bm.com.hsbc.hsbcbermuda": {
+      "sha256": "E56542C61E15E196AEBE03F367B9E46D4BBCB497E9720FB4ED376BDD96B35E00",
+      "pkg_name": "bm.com.hsbc.hsbcbermuda",
+      "vercode": "109866",
+      "apk_size": "125053455",
+      "vt_detection": "0",
+      "vt_scan_date": "2025-11-16 11:34:28",
+      "markets": "play.google.com"
+    },
+    "com.ujjivanbank.mobilebanking": {
+      "sha256": "56033FFCF574BB046EE32800017D474D855ADCA2A5F883827AEB53ADAD43F26C",
+      "pkg_name": "com.ujjivanbank.mobilebanking",
+      "vercode": "83",
+      "apk_size": "18719950",
+      "vt_detection": "0",
+      "vt_scan_date": "2023-11-03 09:18:35",
+      "markets": "play.google.com"
+    },
+    "com.iexceed.ib.digitalbankingprod": {
+      "sha256": "2E16B731E3A849115512178276DFB960A21B075CC2AD803345E225F9CDE2595B",
+      "pkg_name": "com.iexceed.ib.digitalbankingprod",
+      "vercode": "105",
+      "apk_size": "154903847",
+      "vt_detection": "0",
+      "vt_scan_date": "2026-08-08 18:44:39",
+      "markets": "play.google.com"
+    },
+    "com.centralbank.retail.omni": {
+      "sha256": "45146A226D0AC67F29280C49A9433A7446E2FD4426DE9F95F03B5B863D080516",
+      "pkg_name": "com.centralbank.retail.omni",
+      "vercode": "73",
+      "apk_size": "87873147",
+      "vt_detection": "0",
+      "vt_scan_date": "2026-07-14 19:01:46",
+      "markets": "play.google.com"
+    },
+    "ae.hsbc.hsbcuae": {
+      "sha256": "B60EECAD6D5877F1C89A67834E71148F737DA38618F021B9E6FBB9C96D0B6131",
+      "pkg_name": "ae.hsbc.hsbcuae",
+      "vercode": "109874",
+      "apk_size": "282514954",
+      "vt_detection": "0",
+      "vt_scan_date": "2025-11-17 16:11:27",
+      "markets": "play.google.com"
+    },
+    "com.infrasofttech.CentralBank": {
+      "sha256": "BB8C05F2D441519AD70C04E76457AC26B8057DD5B18290F934A950B85702BD04",
+      "pkg_name": "com.infrasofttech.CentralBank",
+      "vercode": "1180",
+      "apk_size": "56431007",
+      "vt_detection": "0",
+      "vt_scan_date": "2025-12-04 09:21:14",
+      "markets": "play.google.com"
+    },
+    "com.indusindbank.IndusDirect": {
+      "sha256": "D61E6C7B3D1AB862ABE0320C20B1EDD0611C4E2B6A8027730C7835CDE6A43F59",
+      "pkg_name": "com.indusindbank.IndusDirect",
+      "vercode": "5200",
+      "apk_size": "124685834",
+      "vt_detection": "0",
+      "vt_scan_date": "2026-04-18 08:17:53",
+      "markets": "play.google.com"
+    },
+    "com.ausmallfinancebank.amb": {
+      "sha256": "E4F6E053B0B5A8277F12DB2231039F6114EC6740CF5F9F4C3D5AA8BF00C16AC9",
+      "pkg_name": "com.ausmallfinancebank.amb",
+      "vercode": "2109260",
+      "apk_size": "80228506",
+      "vt_detection": "0",
+      "vt_scan_date": "2026-07-29 18:57:22",
+      "markets": "play.google.com"
+    },
+    "com.kotak811mobilebankingapp.instantsavingsupiscanandpayrecharge": {
+      "sha256": "8F71C10F2D2FA4A9E571B9E50871BE36FDF24417A859FDFA0C5B431EB0CFD157",
+      "pkg_name": "com.kotak811mobilebankingapp.instantsavingsupiscanandpayrecharge",
+      "vercode": "515",
+      "apk_size": "93645172",
+      "vt_detection": "0",
+      "vt_scan_date": "2026-08-08 18:45:54",
+      "markets": "play.google.com"
+    },
+    "com.indusind.indie": {
+      "sha256": "12BEF588C2347BC7030B0EC543986778AC23B9C716D145E631388CCCA79068BA",
+      "pkg_name": "com.indusind.indie",
+      "vercode": "92",
+      "apk_size": "107877090",
+      "vt_detection": "0",
+      "vt_scan_date": "2026-04-21 13:46:05",
+      "markets": "play.google.com"
+    },
+    "com.lcode.clabmbanking": {
+      "sha256": "D220B4F96C9FD3140B4E5628F33E13184E513BAC992372B7859E2ED1C1CA769D",
+      "pkg_name": "com.lcode.clabmbanking",
+      "vercode": "25",
+      "apk_size": "16874981",
+      "vt_detection": "0",
+      "vt_scan_date": "2026-01-17 08:55:31",
+      "markets": "play.google.com"
+    },
+    "com.db.pbc.mybank.in": {
+      "sha256": "7EC6888D9728290F4300D804CE2CEC4D62014FD7B5F75687E7B7996710BDCE85",
+      "pkg_name": "com.db.pbc.mybank.in",
+      "vercode": "79",
+      "apk_size": "39833086",
+      "vt_detection": "0",
+      "vt_scan_date": "2026-02-07 13:47:20",
+      "markets": "play.google.com"
+    },
+    "com.lcode.ucoupi": {
+      "sha256": "920B536DFC3BBF6CDAC9B8937ECA22E4B0B5193F2B1D4D3F06913E4C0E3C6DE7",
+      "pkg_name": "com.lcode.ucoupi",
+      "vercode": "58",
+      "apk_size": "81948489",
+      "vt_detection": "0",
+      "vt_scan_date": "2026-01-29 08:38:39",
+      "markets": "play.google.com"
+    },
+    "com.utkarsh.mobile": {
+      "sha256": "AB8C07E49597F2777D8462487D7A261226C19A97ACF8159E33286AFE19D91298",
+      "pkg_name": "com.utkarsh.mobile",
+      "vercode": "330035",
+      "apk_size": "63517770",
+      "vt_detection": "0",
+      "vt_scan_date": "2026-06-15 18:44:59",
+      "markets": "play.google.com"
+    },
+    "com.esaf.mobileBanking": {
+      "sha256": "CB5E93002B4D42BC0DC00D1D6C9F7BA302ED8C8FEB505CF675FFDE7BED1C1ACD",
+      "pkg_name": "com.esaf.mobileBanking",
+      "vercode": "30006",
+      "apk_size": "14452295",
+      "vt_detection": "0",
+      "vt_scan_date": "2025-09-10 09:21:32",
+      "markets": "play.google.com"
+    },
+    "com.suryoday.MB": {
+      "sha256": "340547E57DF9207B65591905BAC91DAF6D41067F86689CFFC46BDFB05D28EA17",
+      "pkg_name": "com.suryoday.MB",
+      "vercode": "1018",
+      "apk_size": "29062037",
+      "vt_detection": "0",
+      "vt_scan_date": "2025-10-23 10:20:47",
+      "markets": "play.google.com"
+    },
+    "com.hdfcbank.android.now": {
+      "sha256": "1DEE7D78CC8684B27EFF63C2AF71AD273C45067D929C2FADD59C37BD4836B6AE",
+      "pkg_name": "com.hdfcbank.android.now",
+      "vercode": "116",
+      "apk_size": "74632165",
+      "vt_detection": "0",
+      "vt_scan_date": "2026-01-20 09:31:22",
+      "markets": "play.google.com"
+    },
+    "com.boi.ua.android": {
+      "sha256": "3CF7D9F847AECA2D98CCFBF67CFB0602E0F5367F11786E138F9DA61183437B99",
+      "pkg_name": "com.boi.ua.android",
+      "vercode": "112",
+      "apk_size": "70059587",
+      "vt_detection": "0",
+      "vt_scan_date": "2025-07-22 07:55:09",
+      "markets": "play.google.com"
+    },
+    "com.kotak.bank.mobile": {
+      "sha256": "93DC69A8036AA1FAEB1F46E112048BBC4258A3856ADF571AB45CCEB81529CC95",
+      "pkg_name": "com.kotak.bank.mobile",
+      "vercode": "457",
+      "apk_size": "86966752",
+      "vt_detection": "0",
+      "vt_scan_date": "2026-08-01 18:46:53",
+      "markets": "play.google.com"
+    },
+    "com.euronet.iobupi": {
+      "sha256": "FD9A5EF34EC7A6ACA78392F1628029F1C93F4766E9B69ADAA362EE076412AA39",
+      "pkg_name": "com.euronet.iobupi",
+      "vercode": "30600",
+      "apk_size": "24896356",
+      "vt_detection": "0",
+      "vt_scan_date": "2026-03-03 08:41:32",
+      "markets": "play.google.com"
+    },
+    "com.indianbank.creditcard": {
+      "sha256": "B7D14AE05406AFE44D70EE402862CB547C9580D620D87817B51DEAF354CF8806",
+      "pkg_name": "com.indianbank.creditcard",
+      "vercode": "82",
+      "apk_size": "17234201",
+      "vt_detection": "0",
+      "vt_scan_date": "2025-11-17 09:46:37",
+      "markets": "play.google.com"
+    },
+    "com.indusind.indiebiz": {
+      "sha256": "380CAF1303906CBDB2E6841692EE5829B3BDB015B6EF579E6E4656950ED77B10",
+      "pkg_name": "com.indusind.indiebiz",
+      "vercode": "30",
+      "apk_size": "93358415",
+      "vt_detection": "0",
+      "vt_scan_date": "2025-10-22 10:49:17",
+      "markets": "play.google.com"
+    },
+    "com.iob.iobconnect": {
+      "sha256": "D53D37482B2D729F46D6F41A86468C8E7C6231DBF5B60B6CDD9567728599B316",
+      "pkg_name": "com.iob.iobconnect",
+      "vercode": "24",
+      "apk_size": "35147643",
+      "vt_detection": "0",
+      "vt_scan_date": "2025-10-12 02:08:09",
+      "markets": "play.google.com"
+    },
+    "com.ubi.parivar": {
+      "sha256": "7B1A1348794100FFBABCB6ADCE168E236D720BBD9C5AAED8914C838093EC83AC",
+      "pkg_name": "com.ubi.parivar",
+      "vercode": "17",
+      "apk_size": "2207025",
+      "vt_detection": "0",
+      "vt_scan_date": "2025-09-07 08:04:15",
+      "markets": "play.google.com"
+    },
+    "com.euronet.merchantapp": {
+      "sha256": "630339D0D6B04C8FFC3631102D46B8F643BA89A23E4ABB31A06C754431EAAE7E",
+      "pkg_name": "com.euronet.merchantapp",
+      "vercode": "23",
+      "apk_size": "7028778",
+      "vt_detection": "0",
+      "vt_scan_date": "2025-09-06 08:43:20",
+      "markets": "play.google.com"
+    },
+    "com.mgs.pnbupi": {
+      "sha256": "7B899D5785BDB1C81060432C7528B0B417BD6673CA4D58CAC73339F14BF5E1DF",
+      "pkg_name": "com.mgs.pnbupi",
+      "vercode": "67",
+      "apk_size": "19174003",
+      "vt_detection": "0",
+      "vt_scan_date": "2025-10-23 10:38:31",
+      "markets": "play.google.com"
+    },
+    "com.pnb.cbdc": {
+      "sha256": "7D8F408CE979917C425B5E12779A8A37A7057FBDDED8093EA4047096B3EB7C5D",
+      "pkg_name": "com.pnb.cbdc",
+      "vercode": "33",
+      "apk_size": "19443867",
+      "vt_detection": "0",
+      "vt_scan_date": "2025-10-24 17:03:37",
+      "markets": "play.google.com"
+    },
+    "com.canarabank.candimerchant": {
+      "sha256": "7F69A97E633101FA414B2637AE99C3F83199C525E66B718E8D34CFF5FDA88F77",
+      "pkg_name": "com.canarabank.candimerchant",
+      "vercode": "15",
+      "apk_size": "11312403",
+      "vt_detection": "0",
+      "vt_scan_date": "2025-09-07 07:59:51",
+      "markets": "play.google.com"
+    },
+    "com.bankofbaroda.upi": {
+      "sha256": "F01ECF18B6A3D1AE86CC888D64E49627D39AD97F4308CD5767814136D6C8D834",
+      "pkg_name": "com.bankofbaroda.upi",
+      "vercode": "148",
+      "apk_size": "132077063",
+      "vt_detection": "0",
+      "vt_scan_date": "2026-02-05 08:01:10",
+      "markets": "play.google.com"
+    },
+    "com.shivalik.mb": {
+      "sha256": "85D9D64616DA01E2BE7219E141620F453B97DA25AA23AF7D80F01532BBB9A395",
+      "pkg_name": "com.shivalik.mb",
+      "vercode": "23",
+      "apk_size": "16488179",
+      "vt_detection": "0",
+      "vt_scan_date": "2025-10-27 11:33:44",
+      "markets": "play.google.com"
+    },
+    "com.naviapp": {
+      "sha256": "9EAE3D15663E74B6667248D177C24D3C0B555102A24411DB3074DE8556DB5261",
+      "pkg_name": "com.naviapp",
+      "vercode": "262",
+      "apk_size": "30262998",
+      "vt_detection": "0",
+      "vt_scan_date": "2022-10-21 08:00:50",
+      "markets": "play.google.com"
+    },
+    "org.npci.erupeeINDIAN": {
+      "sha256": "C32100528109815CD81DE0727E6B88F45BE3275A44FE8D17C878CAA62868BA4B",
+      "pkg_name": "org.npci.erupeeINDIAN",
+      "vercode": "24",
+      "apk_size": "34436798",
+      "vt_detection": "0",
+      "vt_scan_date": "2025-10-22 10:10:21",
+      "markets": "play.google.com"
+    },
+    "com.sbi.upi": {
+      "sha256": "D557536F3CFA7141B695C6AB9D8764DF9E82A0C03335A2CF578F3561288DE543",
+      "pkg_name": "com.sbi.upi",
+      "vercode": "98",
+      "apk_size": "59234299",
+      "vt_detection": "0",
+      "vt_scan_date": "2022-11-17 11:06:41",
+      "markets": "play.google.com"
+    },
+    "com.infra.aryavartupi": {
+      "sha256": "D863BA44F48F43413BBAAE89E580F31CE75C34212127A99F7F7E4E276AE2F697",
+      "pkg_name": "com.infra.aryavartupi",
+      "vercode": "49",
+      "apk_size": "6145512",
+      "vt_detection": "0",
+      "vt_scan_date": "2025-10-27 11:56:48",
+      "markets": "play.google.com"
+    },
+    "org.npci.erupeeFEDERAL": {
+      "sha256": "DE6EAD37179472D112BA31FF0E242934C1E93DEC01D16C237A25AC19C7BDBA6F",
+      "pkg_name": "org.npci.erupeeFEDERAL",
+      "vercode": "14",
+      "apk_size": "38895592",
+      "vt_detection": "0",
+      "vt_scan_date": "2025-07-22 07:55:50",
+      "markets": "play.google.com"
+    }
+  },
+  "per_package": {
+    "indwin.c3.shareapp": {
+      "tier": "C",
+      "app_hint": "CRED",
+      "raw_rows_from_grep": 336,
+      "rows_passing_filters": 327,
+      "has_era_matched_version": true,
+      "era_matched_sha256": "95E694A347F63727D269100BC229ED013B19C61CC8CF71FB2894C595869A29DD",
+      "era_matched_vercode": "270",
+      "current_sha256": "87427F2D8F409A3421B698248F65724ECA54FBC36BF0A365521BEB42760A314D",
+      "current_vercode": "1040"
+    },
+    "com.csam.icici.bank.imobile": {
+      "tier": "A",
+      "app_hint": "ICICI Bank",
+      "raw_rows_from_grep": 138,
+      "rows_passing_filters": 126,
+      "has_era_matched_version": true,
+      "era_matched_sha256": "2E8800C401CA9CE3FBE5E2638E3C7DC18AEEDEEC2C3FB299AA509CDFC843ECE9",
+      "era_matched_vercode": "194",
+      "current_sha256": "95F493C900733482B2A53B9A6E04743B3A0D4E9527EFE4109E72BA10ED28E620",
+      "current_vercode": "448"
+    },
+    "com.lcode.ucomobilebanking": {
+      "tier": "A",
+      "app_hint": "UCO Bank",
+      "raw_rows_from_grep": 63,
+      "rows_passing_filters": 61,
+      "has_era_matched_version": true,
+      "era_matched_sha256": "22213A31147480996F7CAE0236914BF373D38DB6D3D3B7B4DA9865979BD95061",
+      "era_matched_vercode": "5",
+      "current_sha256": "CB4CB8EB77ED41D0BFC5C7F3225612FAF7D80D7FDF79553DB0ECB179D241CC1F",
+      "current_vercode": "96"
+    },
+    "net.one97.paytm": {
+      "tier": "B",
+      "app_hint": "Paytm",
+      "raw_rows_from_grep": 279,
+      "rows_passing_filters": 260,
+      "has_era_matched_version": true,
+      "era_matched_sha256": "65C7EF693989E88AB20264C505F5401831CA74E31B84577E3545906C58FF7BC3",
+      "era_matched_vercode": "700531",
+      "current_sha256": "5DEE1024995FF7F84F1C3F4C6AAF43C5FE1A309941B18A943ADD69742078692B",
+      "current_vercode": "721977"
+    },
+    "com.corporatefedmobile": {
+      "tier": "A",
+      "app_hint": "Federal Bank",
+      "raw_rows_from_grep": 12,
+      "rows_passing_filters": 12,
+      "has_era_matched_version": true,
+      "era_matched_sha256": "00354054A74022392158A884A861E6F1CCF0DBA121A851913E29EA3C179421B3",
+      "era_matched_vercode": "212",
+      "current_sha256": "847B564EBC390C51F7F6E5A0991F79F25087E37542239F4DBBE72F88A3A750A2",
+      "current_vercode": "261"
+    },
+    "com.bankofbaroda.mconnect": {
+      "tier": "A",
+      "app_hint": "Bank of Baroda",
+      "raw_rows_from_grep": 53,
+      "rows_passing_filters": 52,
+      "has_era_matched_version": true,
+      "era_matched_sha256": "69AB008B9693EFA7416EB16404C0351E4AB30DA4A4F800623120C6549096F745",
+      "era_matched_vercode": "32",
+      "current_sha256": "DBEFC318762090F33D91426DA9FC87CBBB224B7309086F915E89959A8FE4830F",
+      "current_vercode": "117"
+    },
+    "com.psb.omniretail": {
+      "tier": "A",
+      "app_hint": "Punjab and Sind Bank",
+      "raw_rows_from_grep": 15,
+      "rows_passing_filters": 6,
+      "has_era_matched_version": false,
+      "era_matched_sha256": null,
+      "era_matched_vercode": null,
+      "current_sha256": "1E071AF25818230ECFC5B3CDBCABB7803EABD3D87404E0F00F7CB597C94F1B39",
+      "current_vercode": "117"
+    },
+    "com.Version1": {
+      "tier": "A",
+      "app_hint": "Punjab National Bank",
+      "raw_rows_from_grep": 111,
+      "rows_passing_filters": 107,
+      "has_era_matched_version": true,
+      "era_matched_sha256": "9CF57AFFDDB046732A4C2202DEFE70C04AC1AC5E7EBBD70E3CAD060E9EC16ADC",
+      "era_matched_vercode": "34",
+      "current_sha256": "48C6C919F919B86BACE280FC899C8700D2B20A283E86072EC2BE13622F9C98F9",
+      "current_vercode": "187"
+    },
+    "com.dbs.sg.dbsmbanking": {
+      "tier": "D",
+      "app_hint": "DBS Singapore",
+      "raw_rows_from_grep": 100,
+      "rows_passing_filters": 89,
+      "has_era_matched_version": true,
+      "era_matched_sha256": "EDD4D121F98F30F74236B6393568818162A94E00833566AFCD0CFFAFE9542EDC",
+      "era_matched_vercode": "35110",
+      "current_sha256": "81F5649E1545E77755B1F25867C4106A40796D04CFF1B756FBA03D7586397D4D",
+      "current_vercode": "286753"
+    },
+    "air.app.scb.breeze.android.main.in.prod": {
+      "tier": "A",
+      "app_hint": "Standard Chartered India",
+      "raw_rows_from_grep": 78,
+      "rows_passing_filters": 74,
+      "has_era_matched_version": true,
+      "era_matched_sha256": "091341C57741BDF5D399ED6305FFF7EC51AE75C02C871A75967215C95A68E267",
+      "era_matched_vercode": "30700037",
+      "current_sha256": "F66D2D7CEBB9E471CC31A6E58817A6A920B0009C0BFB1AF5E49C51251DD2A298",
+      "current_vercode": "105695134"
+    },
+    "com.sc.privatebank.pvm": {
+      "tier": "D",
+      "app_hint": "Standard Chartered Private Bank",
+      "raw_rows_from_grep": 54,
+      "rows_passing_filters": 53,
+      "has_era_matched_version": true,
+      "era_matched_sha256": "C004F467EE8603A389E7D334ECBDA561546BED87D1AED6D2145B81C79A2045CC",
+      "era_matched_vercode": "100189",
+      "current_sha256": "1D88537C4266566AF1FE0E6D74915D2E03EBC74AA2B793FC24128F6564EA8ED8",
+      "current_vercode": "11113715"
+    },
+    "com.sbi.lotusintouch": {
+      "tier": "A",
+      "app_hint": "State Bank of India",
+      "raw_rows_from_grep": 110,
+      "rows_passing_filters": 96,
+      "has_era_matched_version": true,
+      "era_matched_sha256": "6EA25AF6D5D31DD39ECB8056CC3135FE9BA71F88E2E9C0E93905DBB972030DA9",
+      "era_matched_vercode": "12212",
+      "current_sha256": "2B8A8A9FAD9AE71F30A35EBFD1B5A006CE6E49E2CC1BBC482F4A955FABD9FB9F",
+      "current_vercode": "1243506"
+    },
+    "com.axis.mobile": {
+      "tier": "A",
+      "app_hint": "Axis Bank",
+      "raw_rows_from_grep": 68,
+      "rows_passing_filters": 67,
+      "has_era_matched_version": true,
+      "era_matched_sha256": "F66039981FC3719D7E351C97F0A954C5AF728F0B731E549DCB34DD49BA48C6AE",
+      "era_matched_vercode": "43",
+      "current_sha256": "A985DF31B5FB7A93A543A28CA265BBE2BCE5D1CCCC697BB84268DDF6BDDC7811",
+      "current_vercode": "183"
+    },
+    "com.msf.kbank.mobile": {
+      "tier": "A",
+      "app_hint": "Kotak Mahindra Bank",
+      "raw_rows_from_grep": 81,
+      "rows_passing_filters": 81,
+      "has_era_matched_version": true,
+      "era_matched_sha256": "C7D431AF86A32E21A7EAF8D71CB80A223040DF1F91D3E346B382E0FBA61F487C",
+      "era_matched_vercode": "106",
+      "current_sha256": "614FDF72E33C1F1CEC38D9903690E3AC8292CB6462D106492DC1B8B1A44BFB5E",
+      "current_vercode": "258"
+    },
+    "com.db.pbc.mibanco": {
+      "tier": "D",
+      "app_hint": "Deutsche Bank Spain",
+      "raw_rows_from_grep": 41,
+      "rows_passing_filters": 32,
+      "has_era_matched_version": true,
+      "era_matched_sha256": "34EFE385D6A200549FE01E1DF4B8DAC3EC5D42BEB15D4B1270E10187D1D6665B",
+      "era_matched_vercode": "21",
+      "current_sha256": "BB9B2349D8614A3AAAA47ABE5B5E26CC4836AFB90F44554B9865700C34C4311B",
+      "current_vercode": "224"
+    },
+    "com.fedmobile": {
+      "tier": "A",
+      "app_hint": "Federal Bank",
+      "raw_rows_from_grep": 37,
+      "rows_passing_filters": 36,
+      "has_era_matched_version": true,
+      "era_matched_sha256": "2D7FBD230999F311829ECE02F79459E3632CD6752547AE3851E4CCC827B6B66E",
+      "era_matched_vercode": "43400226",
+      "current_sha256": "B5EC2A58741C096650D4351987C36C4DF26E0D5F32D7A93B14AB12DC2B9E984D",
+      "current_vercode": "85400363"
+    },
+    "com.idfcfirstbank.optimus": {
+      "tier": "A",
+      "app_hint": "IDFC First Bank",
+      "raw_rows_from_grep": 151,
+      "rows_passing_filters": 148,
+      "has_era_matched_version": false,
+      "era_matched_sha256": null,
+      "era_matched_vercode": null,
+      "current_sha256": "54708CDAC98C05A1A76C5142561665D7BD3FC9F3EAA3F84D325DE2DDFC5FF3F1",
+      "current_vercode": "20300"
+    },
+    "com.google.android.apps.nbu.paisa.user": {
+      "tier": "B",
+      "app_hint": "Google",
+      "raw_rows_from_grep": 126,
+      "rows_passing_filters": 118,
+      "has_era_matched_version": false,
+      "era_matched_sha256": null,
+      "era_matched_vercode": null,
+      "current_sha256": "DF5A892C682521452E89655DF6F5271D67B879FEFCB4A9FB910AC58567561732",
+      "current_vercode": "3509638"
+    },
+    "com.canarabank.mobility": {
+      "tier": "A",
+      "app_hint": "Canara Bank",
+      "raw_rows_from_grep": 131,
+      "rows_passing_filters": 131,
+      "has_era_matched_version": true,
+      "era_matched_sha256": "E4323D923956C467D19D3D859EC6B3F2517BD15FF28F712D9076BE39E48004F6",
+      "era_matched_vercode": "44",
+      "current_sha256": "699E801BCAAB35DD7914955363238251DDCF91CF765810E35C881B145614E436",
+      "current_vercode": "1065"
+    },
+    "com.YONOUKMobileApp": {
+      "tier": "D",
+      "app_hint": "SBI UK",
+      "raw_rows_from_grep": 17,
+      "rows_passing_filters": 9,
+      "has_era_matched_version": false,
+      "era_matched_sha256": null,
+      "era_matched_vercode": null,
+      "current_sha256": "71209700E8791BA25F2CB3A377712D5A1DD5BCE7AD167EB34325C8F91ECE081A",
+      "current_vercode": "32500"
+    },
+    "com.db.pwcc.dbmobile": {
+      "tier": "D",
+      "app_hint": "Deutsche Bank Germany",
+      "raw_rows_from_grep": 39,
+      "rows_passing_filters": 38,
+      "has_era_matched_version": true,
+      "era_matched_sha256": "0BFC4B451677CE042B0B53F1AE626D29E39B66FBD3235B5AC29D2AD29D778D42",
+      "era_matched_vercode": "13995",
+      "current_sha256": "034D44D7E9037D980C0E4FEC8F13BF8E574701E04E735DD74B297EBF2B06C0E1",
+      "current_vercode": "40340"
+    },
+    "com.infrasoft.uboi": {
+      "tier": "A",
+      "app_hint": "Union Bank of India",
+      "raw_rows_from_grep": 44,
+      "rows_passing_filters": 42,
+      "has_era_matched_version": true,
+      "era_matched_sha256": "ADB8E6D1580BED91DA8506AA787F859EFB19849C699132C353270CB7FA9633F7",
+      "era_matched_vercode": "1016",
+      "current_sha256": "2178D875D9D5CB0BBD290B2D5D5ED71C0108C972B6180820E8FE2B4B52BD64A9",
+      "current_vercode": "1173"
+    },
+    "com.equitas.elevate": {
+      "tier": "A",
+      "app_hint": "Equitas Small Finance Bank",
+      "raw_rows_from_grep": 16,
+      "rows_passing_filters": 16,
+      "has_era_matched_version": false,
+      "era_matched_sha256": null,
+      "era_matched_vercode": null,
+      "current_sha256": "02746ED30191D14669E3A620B63389C031EBA21A5914980DD3FB46EC81963AED",
+      "current_vercode": "155"
+    },
+    "com.icicibank.ibizz": {
+      "tier": "A",
+      "app_hint": "ICICI Bank",
+      "raw_rows_from_grep": 83,
+      "rows_passing_filters": 82,
+      "has_era_matched_version": true,
+      "era_matched_sha256": "DF3D7D319A6DADC9490D1340A8D681AEE6FA9F568FEFDC1D4341F070B7CA4E35",
+      "era_matched_vercode": "75",
+      "current_sha256": "CE48F88D4EFAA5342F383AF09D683D08819E664CFD108AC9777F39BD7DEDABB8",
+      "current_vercode": "260"
+    },
+    "com.snapwork.hdfc": {
+      "tier": "A",
+      "app_hint": "HDFC Bank",
+      "raw_rows_from_grep": 56,
+      "rows_passing_filters": 41,
+      "has_era_matched_version": true,
+      "era_matched_sha256": "43EE6DC1BD10B3DE0F6F19732839958C66A0805DE70D573BBE7B98E505BB5CC5",
+      "era_matched_vercode": "121",
+      "current_sha256": "47D8B443197698C8E07DFAC2DF530A8CC1980157FFC16B29C8FA69D65BE655C1",
+      "current_vercode": "318"
+    },
+    "com.janabank.mtc": {
+      "tier": "A",
+      "app_hint": "Jana Small Finance Bank",
+      "raw_rows_from_grep": 30,
+      "rows_passing_filters": 30,
+      "has_era_matched_version": false,
+      "era_matched_sha256": null,
+      "era_matched_vercode": null,
+      "current_sha256": "038DFEDC8611E3EF4452F3D69AE67CFF992201D09E5881919191AF0D89A2EAB0",
+      "current_vercode": "132"
+    },
+    "com.capitalfirst.connector": {
+      "tier": "A",
+      "app_hint": "IDFC First Bank",
+      "raw_rows_from_grep": 8,
+      "rows_passing_filters": 7,
+      "has_era_matched_version": false,
+      "era_matched_sha256": null,
+      "era_matched_vercode": null,
+      "current_sha256": "83617D2E048A2FC6EDA82CABF6FFD2B06A5CFEC7B4813AA8D83680C23FB6AF9C",
+      "current_vercode": "302"
+    },
+    "in.hsbc.hsbcindia": {
+      "tier": "A",
+      "app_hint": "HSBC India",
+      "raw_rows_from_grep": 49,
+      "rows_passing_filters": 49,
+      "has_era_matched_version": false,
+      "era_matched_sha256": null,
+      "era_matched_vercode": null,
+      "current_sha256": "9FD9D3EB4F8285696203A7DB6E34BD5E7CECE4D0C5170743D24B86A51B949319",
+      "current_vercode": "109866"
+    },
+    "in.irisbyyes.app": {
+      "tier": "A",
+      "app_hint": "Yes Bank",
+      "raw_rows_from_grep": 25,
+      "rows_passing_filters": 18,
+      "has_era_matched_version": false,
+      "era_matched_sha256": null,
+      "era_matched_vercode": null,
+      "current_sha256": "DF5F1947B069500DD0CA5033798C04375913B35082A31959B5722C26BA895E8A",
+      "current_vercode": "2009004207"
+    },
+    "com.sc.breezeje.banking": {
+      "tier": "D",
+      "app_hint": "Standard Chartered Jersey",
+      "raw_rows_from_grep": 32,
+      "rows_passing_filters": 32,
+      "has_era_matched_version": true,
+      "era_matched_sha256": "508308344EACB5A767339F2F5AE791D4543E105BC5BFA7C3D691628AE12781BC",
+      "era_matched_vercode": "40",
+      "current_sha256": "FD7015A382FFD008161B0DFE6A73DFE50AEE3913512CE7AEB3AD2F8B20F3186C",
+      "current_vercode": "9619091"
+    },
+    "com.sbi.SBIFreedomPlus": {
+      "tier": "A",
+      "app_hint": "State Bank of India",
+      "raw_rows_from_grep": 80,
+      "rows_passing_filters": 71,
+      "has_era_matched_version": true,
+      "era_matched_sha256": "2DD141F375714CFB4CCF0201C656DD610C428107DE97B43991F4B46AEE191DAF",
+      "era_matched_vercode": "1087",
+      "current_sha256": "27C2841BBCD387A8105EB8D8EEEC6FDC7A9CBCF18674ABB35B1F6AE7957ADE6D",
+      "current_vercode": "1163"
+    },
+    "com.dbs.in.digitalbank": {
+      "tier": "A",
+      "app_hint": "DBS Bank India",
+      "raw_rows_from_grep": 83,
+      "rows_passing_filters": 71,
+      "has_era_matched_version": true,
+      "era_matched_sha256": "F29F594442566E7F3BA9B7493766CA7768E005E3A3628E79474868A9FEC064CE",
+      "era_matched_vercode": "3921214",
+      "current_sha256": "5A953CAAF9A07F6B2BE4F00A934B7AFD76767C0C664796CD84435AADE36742BC",
+      "current_vercode": "4100100"
+    },
+    "bm.com.hsbc.hsbcbermuda": {
+      "tier": "D",
+      "app_hint": "HSBC Bermuda",
+      "raw_rows_from_grep": 21,
+      "rows_passing_filters": 20,
+      "has_era_matched_version": false,
+      "era_matched_sha256": null,
+      "era_matched_vercode": null,
+      "current_sha256": "E56542C61E15E196AEBE03F367B9E46D4BBCB497E9720FB4ED376BDD96B35E00",
+      "current_vercode": "109866"
+    },
+    "com.ujjivanbank.mobilebanking": {
+      "tier": "A",
+      "app_hint": "Ujjivan Small Finance Bank",
+      "raw_rows_from_grep": 22,
+      "rows_passing_filters": 15,
+      "has_era_matched_version": false,
+      "era_matched_sha256": null,
+      "era_matched_vercode": null,
+      "current_sha256": "56033FFCF574BB046EE32800017D474D855ADCA2A5F883827AEB53ADAD43F26C",
+      "current_vercode": "83"
+    },
+    "com.iexceed.ib.digitalbankingprod": {
+      "tier": "A",
+      "app_hint": "Indian Bank",
+      "raw_rows_from_grep": 36,
+      "rows_passing_filters": 34,
+      "has_era_matched_version": false,
+      "era_matched_sha256": null,
+      "era_matched_vercode": null,
+      "current_sha256": "2E16B731E3A849115512178276DFB960A21B075CC2AD803345E225F9CDE2595B",
+      "current_vercode": "105"
+    },
+    "com.centralbank.retail.omni": {
+      "tier": "A",
+      "app_hint": "Central Bank of India",
+      "raw_rows_from_grep": 13,
+      "rows_passing_filters": 12,
+      "has_era_matched_version": false,
+      "era_matched_sha256": null,
+      "era_matched_vercode": null,
+      "current_sha256": "45146A226D0AC67F29280C49A9433A7446E2FD4426DE9F95F03B5B863D080516",
+      "current_vercode": "73"
+    },
+    "ae.hsbc.hsbcuae": {
+      "tier": "D",
+      "app_hint": "HSBC UAE",
+      "raw_rows_from_grep": 51,
+      "rows_passing_filters": 50,
+      "has_era_matched_version": false,
+      "era_matched_sha256": null,
+      "era_matched_vercode": null,
+      "current_sha256": "B60EECAD6D5877F1C89A67834E71148F737DA38618F021B9E6FBB9C96D0B6131",
+      "current_vercode": "109874"
+    },
+    "com.infrasofttech.CentralBank": {
+      "tier": "A",
+      "app_hint": "Central Bank of India",
+      "raw_rows_from_grep": 23,
+      "rows_passing_filters": 23,
+      "has_era_matched_version": false,
+      "era_matched_sha256": null,
+      "era_matched_vercode": null,
+      "current_sha256": "BB8C05F2D441519AD70C04E76457AC26B8057DD5B18290F934A950B85702BD04",
+      "current_vercode": "1180"
+    },
+    "com.indusindbank.IndusDirect": {
+      "tier": "A",
+      "app_hint": "IndusInd Bank",
+      "raw_rows_from_grep": 27,
+      "rows_passing_filters": 26,
+      "has_era_matched_version": true,
+      "era_matched_sha256": "E458C9E904B3431538BFEE18D1DAE8B5C19E86367197DE84C34544568A80F73D",
+      "era_matched_vercode": "7",
+      "current_sha256": "D61E6C7B3D1AB862ABE0320C20B1EDD0611C4E2B6A8027730C7835CDE6A43F59",
+      "current_vercode": "5200"
+    },
+    "com.ausmallfinancebank.amb": {
+      "tier": "A",
+      "app_hint": "AU Small Finance Bank",
+      "raw_rows_from_grep": 59,
+      "rows_passing_filters": 56,
+      "has_era_matched_version": false,
+      "era_matched_sha256": null,
+      "era_matched_vercode": null,
+      "current_sha256": "E4F6E053B0B5A8277F12DB2231039F6114EC6740CF5F9F4C3D5AA8BF00C16AC9",
+      "current_vercode": "2109260"
+    },
+    "com.kotak811mobilebankingapp.instantsavingsupiscanandpayrecharge": {
+      "tier": "A",
+      "app_hint": "Kotak Mahindra Bank",
+      "raw_rows_from_grep": 33,
+      "rows_passing_filters": 31,
+      "has_era_matched_version": false,
+      "era_matched_sha256": null,
+      "era_matched_vercode": null,
+      "current_sha256": "8F71C10F2D2FA4A9E571B9E50871BE36FDF24417A859FDFA0C5B431EB0CFD157",
+      "current_vercode": "515"
+    },
+    "com.indusind.indie": {
+      "tier": "A",
+      "app_hint": "IndusInd Bank",
+      "raw_rows_from_grep": 16,
+      "rows_passing_filters": 6,
+      "has_era_matched_version": false,
+      "era_matched_sha256": null,
+      "era_matched_vercode": null,
+      "current_sha256": "12BEF588C2347BC7030B0EC543986778AC23B9C716D145E631388CCCA79068BA",
+      "current_vercode": "92"
+    },
+    "com.lcode.clabmbanking": {
+      "tier": "A",
+      "app_hint": "Capital Small Finance Bank",
+      "raw_rows_from_grep": 11,
+      "rows_passing_filters": 11,
+      "has_era_matched_version": true,
+      "era_matched_sha256": "0E71BAB2986B69BC5B294E59D5319A356DEE4562689C5B47EB2ED1B6B4BFF71D",
+      "era_matched_vercode": "12",
+      "current_sha256": "D220B4F96C9FD3140B4E5628F33E13184E513BAC992372B7859E2ED1C1CA769D",
+      "current_vercode": "25"
+    },
+    "com.db.pbc.mybank.in": {
+      "tier": "A",
+      "app_hint": "Deutsche Bank India",
+      "raw_rows_from_grep": 19,
+      "rows_passing_filters": 19,
+      "has_era_matched_version": true,
+      "era_matched_sha256": "432FC8898DBEF3096245E2AE12492AA27DC8F7F162DCA550AD5D538AB7D754F6",
+      "era_matched_vercode": "12",
+      "current_sha256": "7EC6888D9728290F4300D804CE2CEC4D62014FD7B5F75687E7B7996710BDCE85",
+      "current_vercode": "79"
+    },
+    "com.lcode.ucoupi": {
+      "tier": "A",
+      "app_hint": "UCO Bank",
+      "raw_rows_from_grep": 26,
+      "rows_passing_filters": 26,
+      "has_era_matched_version": true,
+      "era_matched_sha256": "A747B6611A2DC777C242DEA4C38EEDE69FE8FDC43ADB5E02902E7F8F66D7651D",
+      "era_matched_vercode": "21",
+      "current_sha256": "920B536DFC3BBF6CDAC9B8937ECA22E4B0B5193F2B1D4D3F06913E4C0E3C6DE7",
+      "current_vercode": "58"
+    },
+    "com.utkarsh.mobile": {
+      "tier": "A",
+      "app_hint": "Utkarsh Small Finance Bank",
+      "raw_rows_from_grep": 12,
+      "rows_passing_filters": 11,
+      "has_era_matched_version": false,
+      "era_matched_sha256": null,
+      "era_matched_vercode": null,
+      "current_sha256": "AB8C07E49597F2777D8462487D7A261226C19A97ACF8159E33286AFE19D91298",
+      "current_vercode": "330035"
+    },
+    "com.esaf.mobileBanking": {
+      "tier": "A",
+      "app_hint": "ESAF Small Finance Bank",
+      "raw_rows_from_grep": 16,
+      "rows_passing_filters": 12,
+      "has_era_matched_version": false,
+      "era_matched_sha256": null,
+      "era_matched_vercode": null,
+      "current_sha256": "CB5E93002B4D42BC0DC00D1D6C9F7BA302ED8C8FEB505CF675FFDE7BED1C1ACD",
+      "current_vercode": "30006"
+    },
+    "com.suryoday.MB": {
+      "tier": "A",
+      "app_hint": "Suryoday Small Finance Bank",
+      "raw_rows_from_grep": 16,
+      "rows_passing_filters": 16,
+      "has_era_matched_version": false,
+      "era_matched_sha256": null,
+      "era_matched_vercode": null,
+      "current_sha256": "340547E57DF9207B65591905BAC91DAF6D41067F86689CFFC46BDFB05D28EA17",
+      "current_vercode": "1018"
+    },
+    "com.hdfcbank.android.now": {
+      "tier": "A",
+      "app_hint": "HDFC Bank",
+      "raw_rows_from_grep": 4,
+      "rows_passing_filters": 4,
+      "has_era_matched_version": false,
+      "era_matched_sha256": null,
+      "era_matched_vercode": null,
+      "current_sha256": "1DEE7D78CC8684B27EFF63C2AF71AD273C45067D929C2FADD59C37BD4836B6AE",
+      "current_vercode": "116"
+    },
+    "com.boi.ua.android": {
+      "tier": "A",
+      "app_hint": "Bank of India",
+      "raw_rows_from_grep": 6,
+      "rows_passing_filters": 4,
+      "has_era_matched_version": false,
+      "era_matched_sha256": null,
+      "era_matched_vercode": null,
+      "current_sha256": "3CF7D9F847AECA2D98CCFBF67CFB0602E0F5367F11786E138F9DA61183437B99",
+      "current_vercode": "112"
+    },
+    "com.kotak.bank.mobile": {
+      "tier": "A",
+      "app_hint": "Kotak Mahindra Bank",
+      "raw_rows_from_grep": 12,
+      "rows_passing_filters": 10,
+      "has_era_matched_version": false,
+      "era_matched_sha256": null,
+      "era_matched_vercode": null,
+      "current_sha256": "93DC69A8036AA1FAEB1F46E112048BBC4258A3856ADF571AB45CCEB81529CC95",
+      "current_vercode": "457"
+    },
+    "com.euronet.iobupi": {
+      "tier": "A",
+      "app_hint": "Indian Overseas Bank",
+      "raw_rows_from_grep": 3,
+      "rows_passing_filters": 3,
+      "has_era_matched_version": false,
+      "era_matched_sha256": null,
+      "era_matched_vercode": null,
+      "current_sha256": "FD9A5EF34EC7A6ACA78392F1628029F1C93F4766E9B69ADAA362EE076412AA39",
+      "current_vercode": "30600"
+    },
+    "com.indianbank.creditcard": {
+      "tier": "A",
+      "app_hint": "Indian Bank",
+      "raw_rows_from_grep": 4,
+      "rows_passing_filters": 4,
+      "has_era_matched_version": false,
+      "era_matched_sha256": null,
+      "era_matched_vercode": null,
+      "current_sha256": "B7D14AE05406AFE44D70EE402862CB547C9580D620D87817B51DEAF354CF8806",
+      "current_vercode": "82"
+    },
+    "com.indusind.indiebiz": {
+      "tier": "A",
+      "app_hint": "IndusInd Bank",
+      "raw_rows_from_grep": 3,
+      "rows_passing_filters": 3,
+      "has_era_matched_version": false,
+      "era_matched_sha256": null,
+      "era_matched_vercode": null,
+      "current_sha256": "380CAF1303906CBDB2E6841692EE5829B3BDB015B6EF579E6E4656950ED77B10",
+      "current_vercode": "30"
+    },
+    "com.iob.iobconnect": {
+      "tier": "A",
+      "app_hint": "Indian Overseas Bank",
+      "raw_rows_from_grep": 3,
+      "rows_passing_filters": 3,
+      "has_era_matched_version": false,
+      "era_matched_sha256": null,
+      "era_matched_vercode": null,
+      "current_sha256": "D53D37482B2D729F46D6F41A86468C8E7C6231DBF5B60B6CDD9567728599B316",
+      "current_vercode": "24"
+    },
+    "com.ubi.parivar": {
+      "tier": "A",
+      "app_hint": "Union Bank of India",
+      "raw_rows_from_grep": 3,
+      "rows_passing_filters": 2,
+      "has_era_matched_version": false,
+      "era_matched_sha256": null,
+      "era_matched_vercode": null,
+      "current_sha256": "7B1A1348794100FFBABCB6ADCE168E236D720BBD9C5AAED8914C838093EC83AC",
+      "current_vercode": "17"
+    },
+    "com.euronet.merchantapp": {
+      "tier": "C",
+      "app_hint": "Euronet",
+      "raw_rows_from_grep": 1,
+      "rows_passing_filters": 1,
+      "has_era_matched_version": false,
+      "era_matched_sha256": null,
+      "era_matched_vercode": null,
+      "current_sha256": "630339D0D6B04C8FFC3631102D46B8F643BA89A23E4ABB31A06C754431EAAE7E",
+      "current_vercode": "23"
+    },
+    "com.mgs.pnbupi": {
+      "tier": "A",
+      "app_hint": "Punjab National Bank",
+      "raw_rows_from_grep": 2,
+      "rows_passing_filters": 2,
+      "has_era_matched_version": false,
+      "era_matched_sha256": null,
+      "era_matched_vercode": null,
+      "current_sha256": "7B899D5785BDB1C81060432C7528B0B417BD6673CA4D58CAC73339F14BF5E1DF",
+      "current_vercode": "67"
+    },
+    "com.pnb.cbdc": {
+      "tier": "A",
+      "app_hint": "Punjab National Bank",
+      "raw_rows_from_grep": 1,
+      "rows_passing_filters": 1,
+      "has_era_matched_version": false,
+      "era_matched_sha256": null,
+      "era_matched_vercode": null,
+      "current_sha256": "7D8F408CE979917C425B5E12779A8A37A7057FBDDED8093EA4047096B3EB7C5D",
+      "current_vercode": "33"
+    },
+    "com.canarabank.candimerchant": {
+      "tier": "A",
+      "app_hint": "Canara Bank",
+      "raw_rows_from_grep": 1,
+      "rows_passing_filters": 1,
+      "has_era_matched_version": false,
+      "era_matched_sha256": null,
+      "era_matched_vercode": null,
+      "current_sha256": "7F69A97E633101FA414B2637AE99C3F83199C525E66B718E8D34CFF5FDA88F77",
+      "current_vercode": "15"
+    },
+    "com.bankofbaroda.upi": {
+      "tier": "A",
+      "app_hint": "Bank of Baroda",
+      "raw_rows_from_grep": 4,
+      "rows_passing_filters": 4,
+      "has_era_matched_version": false,
+      "era_matched_sha256": null,
+      "era_matched_vercode": null,
+      "current_sha256": "F01ECF18B6A3D1AE86CC888D64E49627D39AD97F4308CD5767814136D6C8D834",
+      "current_vercode": "148"
+    },
+    "com.shivalik.mb": {
+      "tier": "A",
+      "app_hint": "Shivalik Small Finance Bank",
+      "raw_rows_from_grep": 2,
+      "rows_passing_filters": 2,
+      "has_era_matched_version": false,
+      "era_matched_sha256": null,
+      "era_matched_vercode": null,
+      "current_sha256": "85D9D64616DA01E2BE7219E141620F453B97DA25AA23AF7D80F01532BBB9A395",
+      "current_vercode": "23"
+    },
+    "com.naviapp": {
+      "tier": "C",
+      "app_hint": "Navi",
+      "raw_rows_from_grep": 4,
+      "rows_passing_filters": 4,
+      "has_era_matched_version": false,
+      "era_matched_sha256": null,
+      "era_matched_vercode": null,
+      "current_sha256": "9EAE3D15663E74B6667248D177C24D3C0B555102A24411DB3074DE8556DB5261",
+      "current_vercode": "262"
+    },
+    "org.npci.erupeeINDIAN": {
+      "tier": "B",
+      "app_hint": "NPCI",
+      "raw_rows_from_grep": 1,
+      "rows_passing_filters": 1,
+      "has_era_matched_version": false,
+      "era_matched_sha256": null,
+      "era_matched_vercode": null,
+      "current_sha256": "C32100528109815CD81DE0727E6B88F45BE3275A44FE8D17C878CAA62868BA4B",
+      "current_vercode": "24"
+    },
+    "com.sbi.upi": {
+      "tier": "A",
+      "app_hint": "State Bank of India",
+      "raw_rows_from_grep": 1,
+      "rows_passing_filters": 1,
+      "has_era_matched_version": false,
+      "era_matched_sha256": null,
+      "era_matched_vercode": null,
+      "current_sha256": "D557536F3CFA7141B695C6AB9D8764DF9E82A0C03335A2CF578F3561288DE543",
+      "current_vercode": "98"
+    },
+    "com.infra.aryavartupi": {
+      "tier": "A",
+      "app_hint": "Aryavart Bank",
+      "raw_rows_from_grep": 1,
+      "rows_passing_filters": 1,
+      "has_era_matched_version": false,
+      "era_matched_sha256": null,
+      "era_matched_vercode": null,
+      "current_sha256": "D863BA44F48F43413BBAAE89E580F31CE75C34212127A99F7F7E4E276AE2F697",
+      "current_vercode": "49"
+    },
+    "org.npci.erupeeFEDERAL": {
+      "tier": "B",
+      "app_hint": "NPCI",
+      "raw_rows_from_grep": 1,
+      "rows_passing_filters": 1,
+      "has_era_matched_version": false,
+      "era_matched_sha256": null,
+      "era_matched_vercode": null,
+      "current_sha256": "DE6EAD37179472D112BA31FF0E242934C1E93DEC01D16C237A25AC19C7BDBA6F",
+      "current_vercode": "14"
+    }
+  }
+}

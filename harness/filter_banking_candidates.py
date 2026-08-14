@@ -113,7 +113,7 @@ def main():
     pkg_rows = load_packages(args.packages)
     target_pkgs = [r["pkg_name"] for r in pkg_rows]
     tier_of = {r["pkg_name"]: r["tier"] for r in pkg_rows}
-    hint_of = {r["pkg_name"]: r["app_name_hint"] for r in pkg_rows}
+    hint_of = {r["pkg_name"]: r["issuer"] for r in pkg_rows}
 
     print(f"[filter] {len(target_pkgs)} target packages, "
           f"{sum(1 for t in tier_of.values() if t=='A')} Tier A", file=sys.stderr)

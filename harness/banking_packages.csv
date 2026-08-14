@@ -1,36 +1,84 @@
-pkg_name,tier,app_name_hint,confidence,source
-com.sbi.SBIFreedomPlus,A,Yono Lite SBI,confirmed_2026-08-13,web
-com.sbi.lotusintouch,A,YONO SBI,confirmed_2026-08-13,web
-com.csam.icici.bank.imobile,A,ICICI iMobile Pay,confirmed_2026-08-13,web
-com.hdfcbank.android.now,A,HDFC Bank App,confirmed_2026-08-13,web
-com.axis.mobile,A,Axis Mobile,confirmed_2026-08-13,web
-com.kotak.bank.mobile,A,Kotak Bank,confirmed_2026-08-13,web
-com.kotak811mobilebankingapp.instantsavingsupiscanandpayrecharge,A,Kotak 811,confirmed_2026-08-13,web
-com.mgs.pnbupi,A,BHIM PNB,confirmed_2026-08-13,web
-com.Version1,A,PNB ONE,confirmed_2026-08-13,web
-com.canarabank.mobility,A,Canara ai1,confirmed_2026-08-13,web
-com.infrasoft.uboi,A,Union Bank Union-ease,confirmed_2026-08-13,web
-com.idfcfirstbank.optimus,A,IDFC First Bank MobileBanking,confirmed_2026-08-13,web
-com.bankofbaroda.mconnect,A,bob World,confirmed_2026-08-13,web
-com.bankofbaroda.upi,A,bob Pay,confirmed_2026-08-13,web
-com.lcode.ucomobilebanking,A,UCO mBanking Plus,confirmed_2026-08-13,web
-com.fedmobile,A,Federal Bank FedMobile,confirmed_2026-08-13,web
-com.indusind.indie,A,IndusInd Bank INDIE,confirmed_2026-08-13,web
-com.iexceed.ib.digitalbankingprod,A,Indian Bank IndSMART,confirmed_2026-08-13,web
-com.ausmallfinancebank.amb,A,AU Small Finance Bank AU 0101,confirmed_2026-08-13,web
-com.equitas.elevate,A,Equitas Small Finance Bank Equitas 2.0,confirmed_2026-08-13,web
-com.ujjivanbank.mobilebankingApk,A,Ujjivan Small Finance Bank EZY,confirmed_2026-08-13,web
-com.rblbank.CorpBankApp,A,RBL Bank BizBank -- CAVEAT: this is the corporate/business banking app; RBL's retail consumer app package was not found this session,confirmed_2026-08-13,web
-in.org.npci.upiapp,B,BHIM,confirmed_2026-08-13,web
-com.phonepe.app,B,PhonePe,confirmed_2026-08-13,web
-net.one97.paytm,B,Paytm,confirmed_2026-08-13,web
-com.naviapp,B,Navi,confirmed_2026-08-13,web
-com.google.android.apps.nbu.paisa.user,B,Google Pay India -- NOT reconfirmed this session; general knowledge only,unconfirmed_recall,memory
-com.mobikwik_new,C,MobiKwik,confirmed_2026-08-13,web
-com.freecharge.android,C,Freecharge (Axis Bank-owned since 2023),confirmed_2026-08-13,web
-money.jupiter,C,Jupiter,confirmed_2026-08-13,web
-com.bharatpe.app,C,BharatPe for Business -- merchant-side app; borderline Tier B/C,confirmed_2026-08-13,web
-in.hsbc.hsbcindia,D,HSBC India,confirmed_2026-08-13,web
-air.app.scb.breeze.android.main.in.prod,D,Standard Chartered SC Mobile India,confirmed_2026-08-13,web
-com.citi.citimobile,D,Citi Mobile -- CAVEAT: Citibank India retail sold to Axis Bank March 2023; app may be defunct/renamed post-2023. Era-matched (<=2019) arm unaffected.,confirmed_2026-08-13,web
-com.dbs.in.digitalbank,D,digibank by DBS India,confirmed_2026-08-13,web
+pkg_name,tier,issuer,source,note
+air.app.scb.breeze.android.main.in.prod,A,Standard Chartered India,manual,foreign bank India operations RBI regulated
+com.Version1,A,Punjab National Bank,manual,PNB One
+com.ausmallfinancebank.amb,A,AU Small Finance Bank,manual,SFB is a scheduled commercial bank
+com.axis.mobile,A,Axis Bank,manual,
+com.bankofbaroda.bobworlddmb,A,Bank of Baroda,manual,
+com.bankofbaroda.mconnect,A,Bank of Baroda,manual,
+com.bankofbaroda.upi,A,Bank of Baroda,manual,bank-issued UPI
+com.bcg.psbbank,A,Punjab and Sind Bank,manual,
+com.boi.erupee.prod,A,Bank of India,manual,bank-issued CBDC
+com.boi.ua.android,A,Bank of India,manual,
+com.bom.lifestylebanking,A,Bank of Maharashtra,manual,
+com.canarabank.candimerchant,A,Canara Bank,manual,
+com.canarabank.mobility,A,Canara Bank,manual,
+com.capitalfirst.connector,A,IDFC First Bank,manual,legacy Capital First package prefix
+com.centralbank.retail.omni,A,Central Bank of India,manual,
+com.corporatefedmobile,A,Federal Bank,manual,
+com.csam.icici.bank.imobile,A,ICICI Bank,manual,
+com.dbs.in.digitalbank,A,DBS Bank India,manual,foreign bank India operations RBI regulated
+com.db.pbc.mybank.in,A,Deutsche Bank India,manual,foreign bank India operations RBI regulated
+com.equitas.elevate,A,Equitas Small Finance Bank,manual,
+com.esaf.mobileBanking,A,ESAF Small Finance Bank,manual,
+com.euronet.iobupi,A,Indian Overseas Bank,manual,VENDOR Euronet white-label
+com.fedmobile,A,Federal Bank,manual,
+com.hdfcbank.android.now,A,HDFC Bank,adb-own-device,device-verified
+com.icicibank.ibizz,A,ICICI Bank,manual,corporate
+com.idfcfirstbank.optimus,A,IDFC First Bank,manual,
+com.iexceed.ib.digitalbankingprod,A,Indian Bank,manual,VENDOR iExceed white-label IndOASIS
+com.indianbank.creditcard,A,Indian Bank,manual,
+com.indusind.indie,A,IndusInd Bank,manual,
+com.indusind.indiebiz,A,IndusInd Bank,manual,
+com.indusindbank.IndusDirect,A,IndusInd Bank,manual,
+com.infra.aryavartupi,A,Aryavart Bank,manual,VERIFY regional rural bank not a scheduled commercial bank
+com.infrasoft.cbiMiniMerchant,A,Central Bank of India,manual,VENDOR Infrasoft; malformed row in source repaired
+com.infrasoft.uboi,A,Union Bank of India,manual,VENDOR Infrasoft; duplicate A/B in source resolved to A
+com.infrasofttech.CentralBank,A,Central Bank of India,manual,VENDOR Infrasoft
+com.iob.iobconnect,A,Indian Overseas Bank,manual,
+com.janabank.mtc,A,Jana Small Finance Bank,manual,
+com.kotak.bank.mobile,A,Kotak Mahindra Bank,manual,
+com.kotak811mobilebankingapp.instantsavingsupiscanandpayrecharge,A,Kotak Mahindra Bank,manual,Kotak 811
+com.lcode.clabmbanking,A,Capital Small Finance Bank,manual,VERIFY issuer; VENDOR Lcode
+com.lcode.ucomobilebanking,A,UCO Bank,manual,VENDOR Lcode
+com.lcode.ucoupi,A,UCO Bank,manual,VENDOR Lcode
+com.mgs.pnbupi,A,Punjab National Bank,manual,VENDOR MGS
+com.montran.merchant.boiapp,A,Bank of India,manual,VENDOR Montran
+com.msf.kbank.mobile,A,Kotak Mahindra Bank,manual,
+com.pnb.cbdc,A,Punjab National Bank,manual,bank-issued CBDC
+com.psb.omniretail,A,Punjab and Sind Bank,manual,
+com.sbi.SBIFreedomPlus,A,State Bank of India,manual,
+com.sbi.lotusintouch,A,State Bank of India,adb-both-devices,device-verified YONO Lite
+com.sbi.upi,A,State Bank of India,manual,bank-issued UPI
+com.shivalik.mb,A,Shivalik Small Finance Bank,manual,
+com.snapwork.hdfc,A,HDFC Bank,adb-own-device,device-verified VENDOR Snapwork
+com.suryoday.MB,A,Suryoday Small Finance Bank,manual,
+com.ubi.parivar,A,Union Bank of India,manual,
+com.uco.cbdc,A,UCO Bank,manual,bank-issued CBDC
+com.ujjivanbank.mobilebanking,A,Ujjivan Small Finance Bank,manual,
+com.unitybank.app.mobilebanking,A,Unity Small Finance Bank,manual,
+com.utkarsh.mobile,A,Utkarsh Small Finance Bank,manual,
+com.yesbank.yespaynex,A,Yes Bank,manual,
+com.yespaylite,A,Yes Bank,manual,VERIFY publisher
+in.hsbc.hsbcindia,A,HSBC India,manual,foreign bank India operations RBI regulated
+in.irisbyyes.app,A,Yes Bank,manual,iris by Yes Bank
+com.google.android.apps.nbu.paisa.user,B,Google,adb-own-device,device-verified Google Pay India
+net.one97.paytm,B,Paytm,adb-both-devices,device-verified
+org.npci.erupeeFEDERAL,B,NPCI,manual,CBDC white-label shared codebase
+org.npci.erupeeI,B,NPCI,manual,CBDC white-label shared codebase; VERIFY which bank
+org.npci.erupeeIDFC,B,NPCI,manual,CBDC white-label shared codebase
+org.npci.erupeeINDIAN,B,NPCI,manual,CBDC white-label shared codebase
+org.npci.erupeeSBI,B,NPCI,manual,CBDC white-label shared codebase
+org.npci.erupeeUBI,B,NPCI,manual,CBDC white-label shared codebase
+com.euronet.merchantapp,C,Euronet,manual,VERIFY generic merchant app may not be bank-branded
+com.idfc.etoll,C,IDFC First Bank,manual,FASTag toll not banking
+com.naviapp,C,Navi,manual,NBFC lending
+com.psb.lendperfect,C,Punjab and Sind Bank,manual,lending origination platform
+indwin.c3.shareapp,C,CRED,manual,fintech
+ae.hsbc.hsbcuae,D,HSBC UAE,manual,
+bm.com.hsbc.hsbcbermuda,D,HSBC Bermuda,manual,
+com.db.pbc.mibanco,D,Deutsche Bank Spain,manual,
+com.db.pwcc.dbmobile,D,Deutsche Bank Germany,manual,
+com.dbs.sg.dbsmbanking,D,DBS Singapore,manual,
+com.sc.breezeje.banking,D,Standard Chartered Jersey,manual,
+com.sc.privatebank.pvm,D,Standard Chartered Private Bank,manual,
+com.YONOUKMobileApp,D,SBI UK,manual,same group different market and regulator
