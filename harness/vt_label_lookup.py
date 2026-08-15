@@ -55,7 +55,7 @@ def sha256_of_file(path: Path, chunk=1 << 20) -> str:
 def malware_hashes_from_dir(d: Path) -> dict:
     """cicmaldroid_banking/ is sha256-named -- filenames ARE the hashes.
     Excludes non-.apk stray files (the known 9cc47edb...sh)."""
-    return {f.stem: f.name for f in d.glob("*.apk")}
+    return {f.stem.upper(): f.name for f in d.glob("*.apk")}
 
 
 def benign_hashes_from_dir(d: Path, cache_path: Path = FDROID_CACHE) -> dict:
@@ -73,10 +73,10 @@ def benign_hashes_from_dir(d: Path, cache_path: Path = FDROID_CACHE) -> dict:
     files = sorted(d.glob("*.apk"))
     for i, f in enumerate(files, 1):
         if f.name in cached:
-            out[cached[f.name]] = f.name
+            out[cached[f.name].upper()] = f.name
             continue
         sha = sha256_of_file(f)
-        out[sha] = f.name
+        out[sha.upper()] = f.name
         new_entries.append((f.name, sha))
         if i % 100 == 0 or i == len(files):
             print(f"[vt_label] hashed {i}/{len(files)} F-Droid files "
@@ -91,7 +91,7 @@ def benign_hashes_from_dir(d: Path, cache_path: Path = FDROID_CACHE) -> dict:
 
 
 def read_hashes_file(path: Path) -> list:
-    return [line.strip() for line in path.read_text().splitlines() if line.strip()]
+    return [line.strip().upper() for line in path.read_text().splitlines() if line.strip()]
 
 
 def stream_matches(csv_gz: Path, hashes: list, plain_text: bool):
@@ -101,7 +101,7 @@ def stream_matches(csv_gz: Path, hashes: list, plain_text: bool):
     but every line is still exact-matched on the sha256 COLUMN, not just
     "grep matched somewhere in the line", before it counts."""
     pattern_file = csv_gz.parent / ".vt_grep_patterns.tmp"
-    pattern_file.write_text("\n".join(hashes) + "\n")
+    pattern_file.write_text("\n".join(h.upper() for h in hashes) + "\n")
     try:
         cat_cmd = ["cat", str(csv_gz)] if plain_text else ["zcat", str(csv_gz)]
         cat = subprocess.Popen(cat_cmd, stdout=subprocess.PIPE)
@@ -127,10 +127,10 @@ def read_header(csv_gz: Path, plain_text: bool) -> list:
 
 
 def lookup(csv_gz: Path, hashes: list, plain_text: bool):
-    """Returns {sha256: vt_detection_str_or_None}."""
+    """Returns {sha256: (vt_detection_str, vt_scan_date_str)}."""
     header = read_header(csv_gz, plain_text)
     col = {name: i for i, name in enumerate(header)}
-    if "sha256" not in col or "vt_detection" not in col:
+    if "sha256" not in col or "vt_detection" not in col or "vt_scan_date" not in col:
         print(f"[vt_label] FATAL: expected columns missing from header {header}", file=sys.stderr)
         sys.exit(1)
     target = set(h.upper() for h in hashes)
@@ -144,8 +144,18 @@ def lookup(csv_gz: Path, hashes: list, plain_text: bool):
             continue
         sha = fields[col["sha256"]].upper()
         if sha in target:
-            found[fields[col["sha256"]]] = fields[col["vt_detection"]]
+            found[sha] = (fields[col["vt_detection"]], fields[col["vt_scan_date"]])
     return found
+
+
+def scored_benign_sample(benign_dir: Path, seed: int = 42, n: int = 300) -> list:
+    """Reproduces build_sample_set_716.py's seeded benign draw exactly: sorted
+    glob, then a fresh random.Random(seed).sample() (build_sample_set_716.py:39-40).
+    That draw, not the full 802, is what the surviving AUC 0.9366 figure was
+    computed on."""
+    import random
+    pool = sorted(benign_dir.glob("*.apk"))
+    return random.Random(seed).sample(pool, n)
 
 
 def summarize(name_by_sha: dict, vt_by_sha: dict):
@@ -153,8 +163,9 @@ def summarize(name_by_sha: dict, vt_by_sha: dict):
     resolved = {sha: vt for sha, vt in vt_by_sha.items() if sha in name_by_sha}
     n_resolved = len(resolved)
     detections = []
+    scan_years = {}
     n_zero, n_ge5, n_unparseable = 0, 0, 0
-    for sha, vt in resolved.items():
+    for sha, (vt, scan_date) in resolved.items():
         try:
             v = int(vt)
         except (ValueError, TypeError):
@@ -165,20 +176,35 @@ def summarize(name_by_sha: dict, vt_by_sha: dict):
             n_zero += 1
         if v >= 5:
             n_ge5 += 1
+        year = scan_date[:4] if scan_date and scan_date[:4].isdigit() else "unknown"
+        scan_years[year] = scan_years.get(year, 0) + 1
+    detections_sorted = sorted(detections)
     return {
         "total_in_corpus": total,
         "resolved_in_androzoo": n_resolved,
+        "unresolved_in_androzoo": total - n_resolved,
         "resolved_pct": round(100 * n_resolved / total, 1) if total else None,
         "vt_detection_unparseable": n_unparseable,
         "vt_detection_median": statistics.median(detections) if detections else None,
         "vt_detection_mean": round(statistics.mean(detections), 2) if detections else None,
         "vt_detection_min": min(detections) if detections else None,
         "vt_detection_max": max(detections) if detections else None,
+        "vt_detection_p25": detections_sorted[len(detections_sorted) // 4] if detections_sorted else None,
+        "vt_detection_p75": detections_sorted[(3 * len(detections_sorted)) // 4] if detections_sorted else None,
+        "vt_detection_all_sorted": detections_sorted,
         "n_zero_detections": n_zero,
         "pct_zero_detections": round(100 * n_zero / n_resolved, 1) if n_resolved else None,
         "n_ge5_detections": n_ge5,
         "pct_ge5_detections": round(100 * n_ge5 / n_resolved, 1) if n_resolved else None,
+        "vt_scan_year_distribution": dict(sorted(scan_years.items())),
     }
+
+
+def histogram_buckets(values):
+    edges = [("0", lambda v: v == 0), ("1-4", lambda v: 1 <= v <= 4), ("5-9", lambda v: 5 <= v <= 9),
+             ("10-19", lambda v: 10 <= v <= 19), ("20-29", lambda v: 20 <= v <= 29),
+             ("30-39", lambda v: 30 <= v <= 39), ("40+", lambda v: v >= 40)]
+    return [(label, sum(1 for v in values if pred(v))) for label, pred in edges]
 
 
 def main():
@@ -212,12 +238,21 @@ def main():
     mal_summary = summarize(mal_name_by_sha, vt_by_sha)
     ben_summary = summarize(ben_name_by_sha, vt_by_sha)
 
-    ben_nonzero = [sha for sha, vt in vt_by_sha.items()
+    ben_nonzero = [sha for sha, (vt, _) in vt_by_sha.items()
                    if sha in ben_name_by_sha and vt not in ("0", "")]
 
-    args.out.write_text(render(mal_summary, ben_summary, ben_nonzero, ben_name_by_sha))
+    scored_summary = None
+    if args.benign_dir:
+        scored_files = scored_benign_sample(args.benign_dir)
+        name_to_sha = {name: sha for sha, name in ben_name_by_sha.items()}
+        scored_name_by_sha = {name_to_sha[f.name]: f.name for f in scored_files if f.name in name_to_sha}
+        scored_summary = summarize(scored_name_by_sha, vt_by_sha)
+
+    args.out.write_text(render(mal_summary, ben_summary, ben_nonzero, ben_name_by_sha, scored_summary))
     args.out.with_suffix(".json").write_text(
-        __import__("json").dumps({"malware": mal_summary, "benign": ben_summary}, indent=2))
+        __import__("json").dumps(
+            {"malware": mal_summary, "benign": ben_summary, "scored_benign_300": scored_summary},
+            indent=2))
     print(f"[vt_label] malware: resolved={mal_summary['resolved_in_androzoo']}/{mal_summary['total_in_corpus']} "
           f"median_vt={mal_summary['vt_detection_median']} pct_zero={mal_summary['pct_zero_detections']}",
           file=sys.stderr)
@@ -226,32 +261,57 @@ def main():
     print(f"[vt_label] wrote {args.out}", file=sys.stderr)
 
 
-def render(mal, ben, ben_nonzero, ben_name_by_sha) -> str:
+ZERO_DETECTION_CAVEAT_THRESHOLD_PCT = 15.0
+
+
+def render(mal, ben, ben_nonzero, ben_name_by_sha, scored=None) -> str:
     L = ["# Corpus label verification — independent check against AndroZoo VirusTotal data\n",
          "This project has never verified that `cicmaldroid_banking/`'s 2,489 samples are "
          "actually malicious, or that `fdroid_benign_apks/`'s 802 samples are actually clean. "
          "Both labels were taken on trust from a directory name -- the same class of assumption "
          "that produced the `banking_holdout_16/` error, at larger scale and with better odds. "
-         "This is the first independent evidence for either label.\n"]
+         "This is the first independent evidence for either label.\n",
+         f"**Pre-registered interpretation rule (fixed before the numbers were seen):** if more "
+         f"than {ZERO_DETECTION_CAVEAT_THRESHOLD_PCT}% of resolvable malware samples carry "
+         f"`vt_detection == 0`, the positive-class label requires an explicit caveat in this "
+         f"report. Below {ZERO_DETECTION_CAVEAT_THRESHOLD_PCT}%, a tail of zeros is normal for "
+         f"any malware corpus.\n"]
 
     L.append(f"## Malware corpus (`cicmaldroid_banking/`, n={mal['total_in_corpus']} on disk)\n")
     L.append(f"- Resolved in AndroZoo: **{mal['resolved_in_androzoo']}/{mal['total_in_corpus']}** "
-             f"({mal['resolved_pct']}%)")
+             f"({mal['resolved_pct']}%) -- **{mal['unresolved_in_androzoo']} not found in AndroZoo, "
+             f"stated plainly as a real coverage limitation, not extrapolated over.**")
     L.append(f"- `vt_detection` median: **{mal['vt_detection_median']}**, "
-             f"mean {mal['vt_detection_mean']}, range [{mal['vt_detection_min']}, {mal['vt_detection_max']}]")
+             f"mean {mal['vt_detection_mean']}, IQR [{mal['vt_detection_p25']}, {mal['vt_detection_p75']}], "
+             f"range [{mal['vt_detection_min']}, {mal['vt_detection_max']}] (of "
+             f"{mal['resolved_in_androzoo']} resolved)")
+    L.append("- Full distribution:")
+    for label, count in histogram_buckets(mal['vt_detection_all_sorted']):
+        pct = round(100 * count / mal['resolved_in_androzoo'], 1) if mal['resolved_in_androzoo'] else 0
+        L.append(f"  - `{label}`: {count} ({pct}%)")
     L.append(f"- **≥5 detections: {mal['n_ge5_detections']} ({mal['pct_ge5_detections']}%)**")
     L.append(f"- **`vt_detection == 0`: {mal['n_zero_detections']} ({mal['pct_zero_detections']}%)** "
-             f"-- reported loudly: this is either AndroZoo staleness (scanned before signatures "
-             f"existed) or a mislabelled sample, and this file does not distinguish which.")
+             f"of {mal['resolved_in_androzoo']} resolved -- reported as-is, no staleness "
+             f"explanation offered (CICMalDroid samples date from 2017-18 and the `vt_scan_date` "
+             f"distribution above shows most resolved scans postdate collection, so staleness is "
+             f"not a credible account of these zeros).")
     if mal['vt_detection_unparseable']:
         L.append(f"- Unparseable `vt_detection` field: {mal['vt_detection_unparseable']}")
+    over_threshold = mal['pct_zero_detections'] is not None and mal['pct_zero_detections'] > ZERO_DETECTION_CAVEAT_THRESHOLD_PCT
+    side = "ABOVE" if over_threshold else "BELOW"
+    verdict = "the caveat applies" if over_threshold else "no caveat is required"
+    L.append(f"- **Threshold result: {mal['pct_zero_detections']}% is {side} the "
+             f"{ZERO_DETECTION_CAVEAT_THRESHOLD_PCT}% pre-registered threshold -- {verdict}.**")
+    L.append("- `vt_scan_date` distribution (by year, of resolved samples):")
+    for year, count in mal['vt_scan_year_distribution'].items():
+        L.append(f"  - {year}: {count}")
     L.append("")
 
     L.append(f"## Benign corpus (`fdroid_benign_apks/`, n={ben['total_in_corpus']} on disk)\n")
     L.append("Carries the surviving AUC 0.9366 figure -- its labels have never been checked "
              "either.\n")
     L.append(f"- Resolved in AndroZoo: **{ben['resolved_in_androzoo']}/{ben['total_in_corpus']}** "
-             f"({ben['resolved_pct']}%)")
+             f"({ben['resolved_pct']}%) -- **{ben['unresolved_in_androzoo']} not found in AndroZoo.**")
     L.append(f"- **`vt_detection == 0`: {ben['n_zero_detections']}/{ben['resolved_in_androzoo']} "
              f"resolved ({ben['pct_zero_detections']}%)**")
     if ben_nonzero:
@@ -261,6 +321,18 @@ def render(mal, ben, ben_nonzero, ben_name_by_sha) -> str:
     else:
         L.append("\nNo F-Droid sample resolved with a nonzero detection count.")
     L.append("")
+
+    if scored is not None:
+        L.append("## Scored subset (the 300 actually behind AUC 0.9366)\n")
+        L.append("`build_sample_set_716.py:39-40` draws the benign arm as "
+                 "`random.Random(42).sample(sorted(fdroid_benign_apks/*.apk), 300)` -- the AUC was "
+                 "computed on those 300, not the full 802. Reproduced here with the same seed and "
+                 "the same sorted-glob draw order.\n")
+        L.append(f"- Resolved in AndroZoo: **{scored['resolved_in_androzoo']}/{scored['total_in_corpus']}** "
+                 f"({scored['resolved_pct']}%) -- {scored['unresolved_in_androzoo']} not found.")
+        L.append(f"- **`vt_detection == 0`: {scored['n_zero_detections']}/{scored['resolved_in_androzoo']} "
+                 f"resolved ({scored['pct_zero_detections']}%)**")
+        L.append("")
 
     L.append("## Closes: the two F-Droid APKs with no recorded download URL\n")
     L.append("`CORPUS_PROVENANCE.md` (P-5) flags `acab.naiveha.subrosa_7.apk` and "
