@@ -1,6 +1,9 @@
 # SetuGuard — Repository Context
 
-**As of 12 August 2026.** Written for a reader with no prior exposure to this repo.
+**As of 15 August 2026.** Written for a reader with no prior exposure to this
+repo. Sections 0 and 4 were verified 12 August and are unchanged; the corpus
+rows in §2, the new §5 subsection on sha256 case normalisation, and the first
+limitation in §8 were updated 15 August.
 
 This is a description of what the repo *is*. The narrative history lives in `SESSION_LOG.md` and
 stays there. Quotable numbers live in `REPORT_FACTS.md`. Forward work lives in `PLAN.md`.
@@ -92,12 +95,13 @@ Deliverable: one Flask backend (`setuguard_app/backend/app.py`) plus a static da
 | Chart.js | Vendored locally | `frontend/chart.umd.js`; `index.html:7-8,249` all-local | — |
 | Holdout provenance | **New, 12 Aug** | `harness/identify_holdout_16.py` → `harness/BANKING_HOLDOUT_16_PROVENANCE.md` | non-frozen |
 | `ps2/01`–`ps2/07` | Offline research, dead in the live path | zero import hits from `setuguard_app/` or `bridge/` | `ps2/README.md` |
-| Legitimate-banking-app corpus | **Does not exist** | §0 | — |
+| Legitimate-banking-app corpus | **On disk 15 Aug — verified, 0 corrupt, 0 collisions.** 95 APKs / 5.6 GB from AndroZoo, 95 after collision exclusion (none found). **Unscored.** | `harness/download_run.log`; `harness/banking_legit_corpus/`; `harness/verify_banking_corpus.py` output | `harness/banking_packages.csv`, `harness/BANKING_PACKAGE_TIERING_DECISIONS.md`; inclusion rule pre-registered and committed before any scoring |
 | Dynamic analysis | Not started | no emulator/pcap/Frida code anywhere | — |
 
 **Corpora on disk (gitignored):** `Banking.tar.gz` 3.9 GB / 2,505 APKs, extracted as
 `cicmaldroid_banking/` (2,489) + `banking_holdout_16/` (16); `fdroid_benign_apks/` 802 APKs /
-12 GB; `DataSet.csv` 117 MB.
+12 GB; `DataSet.csv` 117 MB; `harness/banking_legit_corpus/` 95 APKs / 5.6 GB (AndroZoo,
+downloaded and verified 15 Aug).
 
 ---
 
@@ -249,6 +253,25 @@ while a headline number was computed on them (§0). The discipline worth keeping
 one the rule was reaching for — **a holdout must not be used for term selection or threshold
 choice** — and on that the repo has a recorded failure (§7 C2).
 
+### sha256 case normalisation — added 15 August 2026
+
+AndroZoo publishes sha256 UPPERCASE. `hashlib` and every local cache in this repo emit lowercase.
+Four harness scripts have produced a plausible wrong answer by comparing across that boundary,
+each caught only after the wrong answer was believed for some period:
+
+| Script | Failure | Symptom |
+|---|---|---|
+| `vt_label_lookup.py` | manifest lookup | 0/3,291 resolved |
+| `download_banking_corpus.py` | post-download hash check | deleted every good APK for three hours |
+| `verify_banking_corpus.py` | collision check vs `universe` | check silently never fired |
+| `verify_banking_corpus.py` | content-hash check (found 15 Aug) | reported all 95 good APKs as corrupt/truncated |
+
+**Rule:** every sha256 is normalised to UPPERCASE at the point it is read into memory, via a local
+`norm_sha()`. Uppercase is canonical because AndroZoo is the source we cannot change. Stored
+caches, manifests and TSVs keep whatever case they were written with and are never rewritten. Any
+script that compares two sha256 values from different sources without normalising both is
+defective by construction.
+
 ### Git workflow
 
 Single branch `main`, PR-into-main with Copilot auto-review. Three stale local branches
@@ -366,11 +389,11 @@ represents consumer Android, is unestablished either way.
 
 ## 8. Known limitations, stated plainly
 
-**No measurement against legitimate banking apps exists.** The corpus believed to serve that
-purpose was malware (§0). The class-convergence hypothesis — that a real banking app needs the
-same permission set as a banking trojan, making them statically inseparable — is plausible and
-**untested**. It may be presented as the motivating hypothesis for the corpus build; it may not
-be presented as a finding.
+**No measurement against legitimate banking apps exists yet.** The corpus was assembled and
+verified 15 August (§2) but has not been scored. The class-convergence hypothesis — that a real
+banking app needs the same permission set as a banking trojan, making them statically
+inseparable — remains **untested**. It may be presented as the motivating hypothesis for the
+corpus build; it may not be presented as a finding.
 
 **No dynamic analysis.** DEX string pool, manifest, certificate. Nothing executed. A packed
 dropper that resolves its C2 at runtime looks like an app with few permissions and no strings.
