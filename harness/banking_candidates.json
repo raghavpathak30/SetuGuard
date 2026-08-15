@@ -3,7 +3,7 @@
     "path": "/home/raghavp/latest.csv.gz",
     "sha256": "770ce0cc92b6d9b5bcd6f657466fc8a2c43f101326c1fdaba7393294d3a8c4a6",
     "size_bytes": 3510531575,
-    "recorded_at_utc": "2026-08-14T19:22:14.457182"
+    "recorded_at_utc": "2026-08-15T08:20:09.695854"
   },
   "inclusion_rule": "harness/BANKING_CORPUS_INCLUSION_RULE.md",
   "n_candidate_lines_from_grep": 3193,
@@ -16,7 +16,6 @@
     "com.montran.merchant.boiapp",
     "com.uco.cbdc",
     "com.unitybank.app.mobilebanking",
-    "com.yesbank.yespaynex",
     "com.yespaylite",
     "org.npci.erupeeI",
     "org.npci.erupeeIDFC",
@@ -28,11 +27,11 @@
   "tier_summary": {
     "A": {
       "requested": 62,
-      "found_in_latest_csv": 52,
-      "passed_filters_any_row": 52,
+      "found_in_latest_csv": 53,
+      "passed_filters_any_row": 53,
       "has_era_matched": 20,
       "era_picks": 20,
-      "current_picks": 52
+      "current_picks": 53
     },
     "B": {
       "requested": 8,
@@ -764,6 +763,15 @@
       "vt_scan_date": "2026-08-01 18:46:53",
       "markets": "play.google.com"
     },
+    "com.yesbank.yespaynext": {
+      "sha256": "23005064FF63D6695F525DFF1D342CE9532A2EADA8A2C50EC71B96C57A66F6B5",
+      "pkg_name": "com.yesbank.yespaynext",
+      "vercode": "93",
+      "apk_size": "26408745",
+      "vt_detection": "0",
+      "vt_scan_date": "2025-10-22 10:36:40",
+      "markets": "play.google.com"
+    },
     "com.euronet.iobupi": {
       "sha256": "FD9A5EF34EC7A6ACA78392F1628029F1C93F4766E9B69ADAA362EE076412AA39",
       "pkg_name": "com.euronet.iobupi",
@@ -1470,6 +1478,17 @@
       "era_matched_vercode": null,
       "current_sha256": "93DC69A8036AA1FAEB1F46E112048BBC4258A3856ADF571AB45CCEB81529CC95",
       "current_vercode": "457"
+    },
+    "com.yesbank.yespaynext": {
+      "tier": "A",
+      "app_hint": "Yes Bank",
+      "raw_rows_from_grep": 2,
+      "rows_passing_filters": 2,
+      "has_era_matched_version": false,
+      "era_matched_sha256": null,
+      "era_matched_vercode": null,
+      "current_sha256": "23005064FF63D6695F525DFF1D342CE9532A2EADA8A2C50EC71B96C57A66F6B5",
+      "current_vercode": "93"
     },
     "com.euronet.iobupi": {
       "tier": "A",
