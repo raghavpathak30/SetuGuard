@@ -41,6 +41,7 @@ harness/measure_run_capped.log
 harness/sweep_log.txt
 harness/sweep_output.txt
 harness/feature_cache/
+harness/banking_feature_cache/
 harness/extract_run*.log
 harness/process_large_outliers*.log
 harness/sample_set_716_normal.txt

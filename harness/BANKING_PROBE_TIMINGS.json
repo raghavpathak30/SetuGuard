@@ -1,0 +1,146 @@
+{
+  "label": "measured, n=13 (3-point large-file probe + 10-file checkpoint), single machine, sequential-or-2-wide, NEVER a percentile",
+  "note_on_methodology": "The 3 probe files ran at parallelism=1 (fully sequential, isolated). The 10 checkpoint files ran at parallelism=2 (two concurrent workers). elapsed_s for the checkpoint batch may be modestly inflated by contention between the two concurrent workers; peak_rss_bytes for the checkpoint batch was captured via the worker's own getrusage self-report printed at the time (not independently cross-checked by an external poller, unlike the probe batch).",
+  "machine": {
+    "cpu_count": 20,
+    "total_ram_gb": 15,
+    "platform": "Linux-6.17.13+2-amd64-x86_64-with-glibc2.41"
+  },
+  "command_used_for_probe": "python3 harness/extract_banking_corpus.py --only <SHA256> --workers 1",
+  "command_used_for_checkpoint": "python3 harness/extract_banking_corpus.py --limit 10",
+  "records": [
+    {
+      "sha256": "7B1A1348794100FFBABCB6ADCE168E236D720BBD9C5AAED8914C838093EC83AC",
+      "pkg_name": "com.ubi.parivar",
+      "size_bytes": 2207025,
+      "elapsed_s": 3.323,
+      "peak_rss_bytes": 432013312,
+      "outcome": "ok",
+      "batch": "checkpoint_10",
+      "parallelism_at_measurement": 2
+    },
+    {
+      "sha256": "D863BA44F48F43413BBAAE89E580F31CE75C34212127A99F7F7E4E276AE2F697",
+      "pkg_name": "com.infra.aryavartupi",
+      "size_bytes": 6145512,
+      "elapsed_s": 5.893,
+      "peak_rss_bytes": 769654784,
+      "outcome": "ok",
+      "batch": "checkpoint_10",
+      "parallelism_at_measurement": 2
+    },
+    {
+      "sha256": "7F69A97E633101FA414B2637AE99C3F83199C525E66B718E8D34CFF5FDA88F77",
+      "pkg_name": "com.canarabank.candimerchant",
+      "size_bytes": 11312403,
+      "elapsed_s": 6.219,
+      "peak_rss_bytes": 827326464,
+      "outcome": "ok",
+      "batch": "checkpoint_10",
+      "parallelism_at_measurement": 2
+    },
+    {
+      "sha256": "CB5E93002B4D42BC0DC00D1D6C9F7BA302ED8C8FEB505CF675FFDE7BED1C1ACD",
+      "pkg_name": "com.esaf.mobileBanking",
+      "size_bytes": 14452295,
+      "elapsed_s": 3.031,
+      "peak_rss_bytes": 429916160,
+      "outcome": "ok",
+      "batch": "checkpoint_10",
+      "parallelism_at_measurement": 2
+    },
+    {
+      "sha256": "85D9D64616DA01E2BE7219E141620F453B97DA25AA23AF7D80F01532BBB9A395",
+      "pkg_name": "com.shivalik.mb",
+      "size_bytes": 16488179,
+      "elapsed_s": 9.281,
+      "peak_rss_bytes": 1264582656,
+      "outcome": "ok",
+      "batch": "checkpoint_10",
+      "parallelism_at_measurement": 2
+    },
+    {
+      "sha256": "D220B4F96C9FD3140B4E5628F33E13184E513BAC992372B7859E2ED1C1CA769D",
+      "pkg_name": "com.lcode.clabmbanking",
+      "size_bytes": 16874981,
+      "elapsed_s": 5.581,
+      "peak_rss_bytes": 749731840,
+      "outcome": "ok",
+      "batch": "checkpoint_10",
+      "parallelism_at_measurement": 2
+    },
+    {
+      "sha256": "B7D14AE05406AFE44D70EE402862CB547C9580D620D87817B51DEAF354CF8806",
+      "pkg_name": "com.indianbank.creditcard",
+      "size_bytes": 17234201,
+      "elapsed_s": 5.768,
+      "peak_rss_bytes": 768606208,
+      "outcome": "ok",
+      "batch": "checkpoint_10",
+      "parallelism_at_measurement": 2
+    },
+    {
+      "sha256": "56033FFCF574BB046EE32800017D474D855ADCA2A5F883827AEB53ADAD43F26C",
+      "pkg_name": "com.ujjivanbank.mobilebanking",
+      "size_bytes": 18719950,
+      "elapsed_s": 3.066,
+      "peak_rss_bytes": 451936256,
+      "outcome": "ok",
+      "batch": "checkpoint_10",
+      "parallelism_at_measurement": 2
+    },
+    {
+      "sha256": "7B899D5785BDB1C81060432C7528B0B417BD6673CA4D58CAC73339F14BF5E1DF",
+      "pkg_name": "com.mgs.pnbupi",
+      "size_bytes": 19174003,
+      "elapsed_s": 17.237,
+      "peak_rss_bytes": 2002780160,
+      "outcome": "ok",
+      "batch": "checkpoint_10",
+      "parallelism_at_measurement": 2
+    },
+    {
+      "sha256": "7D8F408CE979917C425B5E12779A8A37A7057FBDDED8093EA4047096B3EB7C5D",
+      "pkg_name": "com.pnb.cbdc",
+      "size_bytes": 19443867,
+      "elapsed_s": 13.667,
+      "peak_rss_bytes": 1648361472,
+      "outcome": "ok",
+      "batch": "checkpoint_10",
+      "parallelism_at_measurement": 2
+    },
+    {
+      "sha256": "DBEFC318762090F33D91426DA9FC87CBBB224B7309086F915E89959A8FE4830F",
+      "pkg_name": "com.bankofbaroda.mconnect",
+      "size_bytes": 96948568,
+      "elapsed_s": 47.464,
+      "peak_rss_bytes": 6643777536,
+      "peak_rss_bytes_ps_poller_cross_check": 6649020416,
+      "outcome": "ok",
+      "batch": "probe_3",
+      "parallelism_at_measurement": 1
+    },
+    {
+      "sha256": "2E16B731E3A849115512178276DFB960A21B075CC2AD803345E225F9CDE2595B",
+      "pkg_name": "com.iexceed.ib.digitalbankingprod",
+      "size_bytes": 154903847,
+      "elapsed_s": 24.137,
+      "peak_rss_bytes": 3544186880,
+      "peak_rss_bytes_ps_poller_cross_check": 3566206976,
+      "outcome": "ok",
+      "batch": "probe_3",
+      "parallelism_at_measurement": 1
+    },
+    {
+      "sha256": "95F493C900733482B2A53B9A6E04743B3A0D4E9527EFE4109E72BA10ED28E620",
+      "pkg_name": "com.csam.icici.bank.imobile",
+      "size_bytes": 251417501,
+      "elapsed_s": 77.895,
+      "peak_rss_bytes": 10392436736,
+      "peak_rss_bytes_ps_poller_cross_check": 10162798592,
+      "outcome": "ok",
+      "batch": "probe_3",
+      "parallelism_at_measurement": 1
+    }
+  ]
+}
