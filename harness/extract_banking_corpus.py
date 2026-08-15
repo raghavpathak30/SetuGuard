@@ -64,9 +64,12 @@ def norm_sha(value: str) -> str:
     return value.strip().upper()
 
 
-def load_worklist():
-    """Priority order: (Tier A, current) -> (Tier A, era_matched) -> everything else,
-    ascending size_bytes within each group."""
+def load_worklist(order: str = "asc", tier_a_only: bool = False):
+    """Priority order: (Tier A, current) -> (Tier A, era_matched) -> everything else.
+    order="asc": cheap wins first. order="desc": largest-first within each group --
+    the 10-12GB headroom-gate fallback, so a failure on the biggest file surfaces in
+    ~90s rather than 30 minutes into the run. tier_a_only=True excludes group 2
+    (Tier B/C/D) entirely -- used when that group is deferred by decision."""
     rows = []
     with open(MANIFEST, newline="") as f:
         for row in csv.DictReader(f, delimiter="\t"):
@@ -83,8 +86,32 @@ def load_worklist():
             return 1
         return 2
 
-    rows.sort(key=lambda r: (group(r), r["size_bytes"]))
+    if tier_a_only:
+        rows = [r for r in rows if group(r) in (0, 1)]
+
+    size_sign = -1 if order == "desc" else 1
+    rows.sort(key=lambda r: (group(r), size_sign * r["size_bytes"]))
     return rows
+
+
+def _read_vmstat_swap():
+    """(pswpin, pswpout) cumulative page counters from /proc/vmstat."""
+    pswpin = pswpout = 0
+    with open("/proc/vmstat") as f:
+        for line in f:
+            if line.startswith("pswpin "):
+                pswpin = int(line.split()[1])
+            elif line.startswith("pswpout "):
+                pswpout = int(line.split()[1])
+    return pswpin, pswpout
+
+
+def _read_mem_available_bytes():
+    with open("/proc/meminfo") as f:
+        for line in f:
+            if line.startswith("MemAvailable:"):
+                return int(line.split()[1]) * 1024  # kB -> bytes
+    return None
 
 
 def _already_cached():
@@ -174,11 +201,15 @@ def main():
                      help="process exactly one file by sha256 (probe mode), ignoring priority order")
     ap.add_argument("--workers", type=int, default=PARALLELISM,
                      help=f"override parallelism (default {PARALLELISM})")
+    ap.add_argument("--order", choices=["asc", "desc"], default="asc",
+                     help="size ordering within each priority group")
+    ap.add_argument("--tier-a-only", action="store_true",
+                     help="restrict worklist to Tier A current + era_matched; excludes B/C/D")
     args = ap.parse_args()
     parallelism = args.workers
 
     CACHE_DIR.mkdir(exist_ok=True)
-    worklist = load_worklist()
+    worklist = load_worklist(order=args.order, tier_a_only=args.tier_a_only)
     done = _already_cached()
 
     if args.only:
@@ -218,9 +249,17 @@ def main():
     results_summary = []
     t0 = time.perf_counter()
     idx_lock_counter = {"i": 0}
+    peak_rss_so_far_mb = 0.0
+    over_12gb = []
 
     def process_one(row):
+        swap_before = _read_vmstat_swap()
+        mem_avail_before = _read_mem_available_bytes()
         r = run_one(row)
+        swap_after = _read_vmstat_swap()
+        r["swap_in_bytes"] = (swap_after[0] - swap_before[0]) * 4096
+        r["swap_out_bytes"] = (swap_after[1] - swap_before[1]) * 4096
+        r["mem_available_at_start_bytes"] = mem_avail_before
         return row, r
 
     with ThreadPoolExecutor(max_workers=parallelism) as ex:
@@ -255,18 +294,35 @@ def main():
                 status = f"SKIP:{r['reason']}"
 
             rss_mb = (r.get("peak_rss_kb") or 0) / 1024
+            peak_rss_so_far_mb = max(peak_rss_so_far_mb, rss_mb)
             rss_str = f"{rss_mb:.0f}MB" if rss_mb else "n/a"
+
+            swap_out_mb = r["swap_out_bytes"] / (1024 * 1024)
+            swap_flag = f" SWAP_OUT={swap_out_mb:.0f}MB" if r["swap_out_bytes"] > 0 else ""
+
             print(f"[extract] {i}/{len(todo)} {sha[:16]} {row['pkg_name']:<45s} "
-                  f"{size_mb:6.1f}MB {r['elapsed_s']:7.1f}s rss={rss_str:>8s} {status}",
+                  f"{size_mb:6.1f}MB {r['elapsed_s']:7.1f}s rss={rss_str:>8s} "
+                  f"peak_so_far={peak_rss_so_far_mb:.0f}MB {status}{swap_flag}",
                   flush=True)
+
+            if rss_mb > 12 * 1024:
+                over_12gb.append((row, rss_mb))
+                print(f"[extract] *** {sha[:16]} ({row['pkg_name']}) exceeded 12GB RSS: "
+                      f"{rss_mb:.0f}MB ***", file=sys.stderr, flush=True)
+
             results_summary.append((row, r))
 
     skips_f.close()
     elapsed_total = time.perf_counter() - t0
     n_ok = sum(1 for _, r in results_summary if r["ok"])
     n_skip = len(results_summary) - n_ok
+    n_swap_dirty = sum(1 for _, r in results_summary if r["swap_out_bytes"] > 0)
     print(f"[extract] this run: {len(results_summary)} attempted, ok={n_ok} skipped={n_skip}, "
-          f"{elapsed_total:.0f}s wall", file=sys.stderr)
+          f"{elapsed_total:.0f}s wall, peak_rss={peak_rss_so_far_mb:.0f}MB, "
+          f"swap_dirty_files={n_swap_dirty}", file=sys.stderr)
+    if over_12gb:
+        print(f"[extract] *** {len(over_12gb)} file(s) exceeded 12GB RSS: "
+              f"{[(row['pkg_name'], f'{mb:.0f}MB') for row, mb in over_12gb]} ***", file=sys.stderr)
 
 
 if __name__ == "__main__":

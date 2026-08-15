@@ -93,6 +93,7 @@ node_modules/
 # files are committed.
 !harness/results_banking_legit.csv
 !harness/fixtures/*.csv
+!harness/banking_extract_skips.csv
 *.xlsx
 !data/Description.xlsx
 *.crdownload
