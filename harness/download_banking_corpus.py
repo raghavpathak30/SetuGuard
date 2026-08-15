@@ -128,7 +128,7 @@ def scan_existing(out_dir: Path) -> dict:
             actual = sha256_of_file(f)
         except OSError:
             continue
-        if actual == expected:
+        if actual.lower() == expected.lower():
             good[expected] = True
         else:
             print(f"[download] {f.name}: on-disk hash mismatch "
@@ -152,7 +152,7 @@ def download_one(sha256: str, api_key: str, out_dir: Path, timeout=180):
                 f.write(chunk)
                 n_bytes += len(chunk)
         actual = sha256_of_file(tmp)
-        if actual != sha256:
+        if actual.lower() != sha256.lower():
             tmp.unlink(missing_ok=True)
             return {"sha256": sha256, "ok": False, "reason": f"sha_mismatch got={actual[:12]}",
                     "bytes": n_bytes, "elapsed_s": time.perf_counter() - t0}
