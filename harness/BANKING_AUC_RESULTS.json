@@ -1,0 +1,81 @@
+{
+  "convention": "higher score = more malicious; AUC below 0.5 means legitimate apps scored higher than malware, never sign-flipped",
+  "scorer_provenance": {
+    "function": "rescore_from_cache._score_new (imported, not reimplemented)",
+    "pinned_from": "setuguard_app/backend/app.py:_rule_based_verdict",
+    "pinned_at_commit": "89077ef (one minute before scorer-v2 pruning b3ff83b)",
+    "verified_identical_to_live_scorer_before_this_measurement": true,
+    "same_function_produced_committed_auc_0.9366_fdroid_figure": true
+  },
+  "bootstrap_method": "95% CI, 10,000 resamples, seed=42. NEGATIVE class (legitimate banking apps) resampled BY ISSUER CLUSTER with replacement: for each resample, draw n_issuer_clusters issuers with replacement, then take ALL packages belonging to each drawn issuer (so an issuer with multiple packages can be sampled as a block, and dropping an issuer means dropping all of its packages at once). POSITIVE class (360 CICMalDroid malicious samples) resampled by individual sample with replacement, standard bootstrap. Primary and secondary arms are resampled independently -- never pooled -- each over its own issuer-cluster set. Higher score = more malicious throughout; an AUC below 0.5 means legitimate apps scored higher than malware and is reported as such, never sign-flipped.",
+  "primary": {
+    "label": "AUC(360 malicious vs Tier A current-arm legitimate banking apps)",
+    "auc": 0.1444,
+    "ci_95_low": 0.0905,
+    "ci_95_high": 0.2081,
+    "n_issuer_clusters": 32,
+    "n_bootstrap": 10000,
+    "seed": 42,
+    "n_files": 51,
+    "n_packages": 51,
+    "score_distribution_malicious": {
+      "n": 360,
+      "min": 0.0,
+      "q1": 0.4,
+      "median": 0.63,
+      "q3": 0.83,
+      "max": 1.0
+    },
+    "score_distribution_legitimate": {
+      "n": 51,
+      "min": 0.22000000000000003,
+      "q1": 0.94,
+      "median": 1.0,
+      "q3": 1.0,
+      "max": 1.0
+    },
+    "operational_fp_at_0.30": {
+      "n_above_threshold": 50,
+      "n_total": 51,
+      "pct_above_threshold": 98.0
+    }
+  },
+  "secondary": {
+    "label": "AUC(360 malicious vs Tier A era-matched legitimate banking apps)",
+    "auc": 0.319,
+    "ci_95_low": 0.2202,
+    "ci_95_high": 0.429,
+    "n_issuer_clusters": 16,
+    "n_bootstrap": 10000,
+    "seed": 42,
+    "n_files": 20,
+    "n_packages": 20,
+    "operational_fp_at_0.30": {
+      "n_above_threshold": 20,
+      "n_total": 20,
+      "pct_above_threshold": 100.0
+    }
+  },
+  "tertiary": {
+    "label": "Tier B/C/D",
+    "status": "NOT EXTRACTED, deferred by decision -- not attempted"
+  },
+  "extraction_coverage": {
+    "primary_attempted": 53,
+    "primary_cached": 51,
+    "primary_timeouts": [
+      "com.Version1 (Punjab National Bank)",
+      "com.janabank.mtc (Jana Small Finance Bank)"
+    ],
+    "secondary_attempted": 20,
+    "secondary_cached": 20,
+    "tertiary_attempted": 0,
+    "tertiary_deferred_by_decision": true
+  },
+  "parse_failure_comparison": {
+    "banking_apps_strict_parse_failure_rate_pct": 0.0,
+    "banking_apps_including_timeouts_pct": 2.7,
+    "cicmaldroid_obfuscated_malware_pct": 9.75
+  },
+  "malicious_n": 360
+}
