@@ -868,3 +868,98 @@ Commits this session (in order): `9432612` (Task 1), Task 2 (report-only, no com
 (Task 3), `1f1ad44` (Task 4), `81c73ab` (Task 5). This entry is the tenth in the file. Backend was
 started/stopped repeatedly for measurement during this session and is not left running at session
 end; the real `ollama.service` was not touched this session.
+
+## 2026-08-17 / 2026-08-18 — global `STATE` replaced with addressable analysis ids (bridge inputs)
+
+Full design spec: `ANALYSIS_ID_MIGRATION.md`. Summary here for the narrative record.
+
+**Problem, found before writing any spec:** `setuguard_app/backend/app.py:107` held a single
+module-level `STATE = {"last_apk": None, "last_dataset": None}`, written by
+`/api/analyze_apk`/`/api/analyze_dataset` and read directly by `/api/bridge`, which parsed no
+request body at all. The bridge therefore joined whichever two artifacts were uploaded most
+recently by anyone, not two named artifacts — unevaluable over a set of pairs, and silently
+wrong under either a concurrent request or a stray demo-day upload. Checked, not assumed: Flask
+3.1.1's `Flask.run()` does `options.setdefault("threaded", True)` (read directly from the
+installed source via `inspect.getsource`), and this app's `app.run(...)` at line 805 sets no
+explicit `threaded=`, so the concurrency race is real, not theoretical.
+
+**A spec was written for this migration (2026-08-15 pasted content) before `app.py` had been
+read.** Its own Section 0 listed five assumptions to verify first. All five were checked against
+the real code on 2026-08-17 and held, with one correction: the file is
+`setuguard_app/backend/app.py`, not top-level `app.py` as originally assumed — every path in the
+spec was corrected accordingly before any code was written. The corrected spec, with Section 0
+replaced by the verified results, was saved as `ANALYSIS_ID_MIGRATION.md` (it hadn't existed as a
+file before — the original spec was message text only).
+
+**Split into two batches, deliberately, at the user's instruction — not into one continuous run:**
+
+*Batch A (2026-08-17), additive only:* a lock-guarded, bounded `OrderedDict` store
+(`store_analysis`/`get_analysis`/`latest_analysis`, cap 64, TTL 3600s, ids `apk_<8hex>`/
+`ds_<8hex>`) added above `STATE`. `/api/analyze_apk` and `/api/analyze_dataset` gained
+`analysis_id`/`kind` on their existing responses. `/api/bridge` was rewritten to resolve
+`apk_id`/`dataset_id` from the new store (explicit → validate prefix → 400 `malformed_id` if
+wrong; well-formed but unknown/expired → 404 `unknown_analysis`; absent → fall back to
+`latest_analysis`, 409 `no_analysis_available` if none exists) and to echo an `inputs` block
+(`id`, `label`, `source`) in its response. `STATE` and both its writes were deliberately left in
+place through this batch, unread by the rewritten bridge, specifically so a bug in the new
+resolution logic could be undone by reverting `bridge_endpoint` alone. Verified by live curl
+against a running server (five checks: analyze_apk/analyze_dataset carry ids with all prior
+fields intact; bridge with `{}` resolves both operands `"source": "fallback"`; bridge with
+explicit ids resolves both `"source": "explicit"`) — the human-in-the-loop acceptance check the
+user required before authorizing Batch B, run and confirmed by the user, not just reported as
+"looks fine" by the assistant.
+
+*Batch B (2026-08-18), the irreversible half:* `STATE` and both remaining writes deleted.
+`grep -rn "STATE" setuguard_app --include=*.py` returns zero hits post-edit (the only other
+repo-wide hits, in `setuguard_ps1/*.py`, are the unrelated `READ_PHONE_STATE` Android permission
+string and were not touched). Server restarted; all five Batch-A checks re-run against the
+`STATE`-free code and passed with identical results (`apk_ad66cebd`/`ds_99d11a36` in this run's
+ids, fallback/explicit sources correct, swapped ids → 400 `malformed_id` with the expected
+detail string).
+
+Frontend (`setuguard_app/frontend/app.js`): all four steps shipped, not just 1-2, since they
+landed cleanly against the inherited dashboard. `state.lastApkId`/`state.lastDatasetId` are set
+from each analyze response; `/api/bridge` now POSTs a JSON body with both ids when non-null
+(previously no body at all); the bridge result panel gets a `linked_inputs` line rendering
+`inputs.apk.label`/`inputs.dataset.label` plus `source`; error rendering now prefers the
+structured `detail` string over the bare error-code slug. Verified end-to-end through the actual
+dashboard, not just by reading the diff: driven with Selenium + headless Chromium
+(`chromedriver`) against the real frontend (`python3 -m http.server`) and real backend — uploaded
+a real APK and `DataSet.csv` through the UI, captured the live `fetch()` call via an injected
+wrapper, confirmed the outgoing `/api/bridge` body was
+`{"apk_id":"apk_24653c9a","dataset_id":"ds_c3367af9"}` and the rendered panel showed
+`linked_inputs apk=com.sms.google (explicit) dataset=DataSet.csv (explicit)`. Zero links for that
+particular APK/dataset pair — expected, per the bridge's own note text, for a synthetic ground
+truth that doesn't cover most pairs; not a bug.
+
+**Documentation-scope correction, not silently resolved:** the migration's own §7 said to log the
+finding in `FROZEN_FILE_FINDINGS.md`. That file (`setuguard_ps1/FROZEN_FILE_FINDINGS.md`) states
+its own scope in its first paragraph: unfixed defects *inside* the six frozen files, held for
+team sign-off before anyone touches them. This migration touches no frozen file and was applied,
+not sign-off-gated — appending it there would have misrepresented both the finding and the
+document. Surfaced to the user rather than guessed past; resolved as: full writeup here (this
+entry), plus a one-line, clearly-labeled cross-reference in that file's Status section pointing
+back to this entry and to `ANALYSIS_ID_MIGRATION.md`, so a reader of the frozen-file findings
+doesn't wonder if the migration was silently dropped.
+
+**Branch discrepancy, also surfaced rather than guessed past:** the Batch-B task brief assumed
+work was happening on a branch `fix/analysis-id-store`. It never existed — Batch A and the start
+of Batch B were both done directly on `main`, uncommitted, alongside unrelated pre-existing
+uncommitted/untracked files in the working tree (`STUDY_GUIDE.md`, `harness/download_run.log`,
+etc.) that predate this migration and are not part of it. Handled by branching from the current
+`main` HEAD (which carries the uncommitted work forward) and staging only the migration's own
+files into the first commit on that branch, leaving the unrelated files uncommitted and untouched
+either way.
+
+**Not changed by this migration, restated:** the bridge still rests on one synthetic
+cert-hash/C2-host linkage (`matcher.SYNTHETIC_LINKAGE_GROUND_TRUTH`); `shap_drivers`/
+`generated_rules`/`rule_validated` hardcoding in the PS2 exporter; the unused `bridge/matcher.py`
+surface outside its one real `/api/bridge` call site; the non-functional bridge validation
+script; the Play-signed allowlist. Also explicitly out of scope for this session per the task
+brief and not touched: `account_hash` being a row ordinal rather than a hash,
+`cv_aucpr_mean`/`n_cv_folds: 0` co-reporting, missing-space string-concatenation typos in
+rendered text, and the absolute-path leak in `raw_features.apk_path`.
+
+No file under `setuguard_ps1/` was edited to produce or verify this migration. No analysis logic,
+scorer behavior, model artifact, or metric was changed — this migration is additive
+(`analysis_id`/`kind`/`inputs` fields) plus one deletion (`STATE`), nothing else.

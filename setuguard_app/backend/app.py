@@ -46,8 +46,11 @@ import ipaddress
 import json
 import re
 import sys
+import threading
 import time
 import traceback
+import uuid
+from collections import OrderedDict
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -100,11 +103,57 @@ UPLOAD_DIR = Path(__file__).parent / "_uploads"
 UPLOAD_DIR.mkdir(exist_ok=True)
 
 # ---------------------------------------------------------------------------
-# In-memory "last result" store so /api/bridge has something to link.
-# A real deployment would persist these; for this app a process-lifetime
-# cache is enough since the frontend is a single-session dashboard.
+# Addressable analysis store (ANALYSIS_ID_MIGRATION.md). Lock-guarded,
+# bounded OrderedDict keyed by generated ids. /api/analyze_apk and
+# /api/analyze_dataset write here; /api/bridge resolves its inputs from
+# here, accepting explicit apk_id/dataset_id or falling back to the most
+# recent entry of each kind.
 # ---------------------------------------------------------------------------
-STATE = {"last_apk": None, "last_dataset": None}
+_ANALYSES_LOCK = threading.Lock()
+_ANALYSES: "OrderedDict[str, dict]" = OrderedDict()
+_ANALYSES_MAX = 64          # hard cap; oldest evicted first
+_ANALYSES_TTL_SEC = 3600    # entries older than this are treated as absent
+_ID_PREFIX = {"apk": "apk", "dataset": "ds"}
+
+
+def _analysis_expired(entry: dict) -> bool:
+    return (time.time() - entry["created_at"]) > _ANALYSES_TTL_SEC
+
+
+def store_analysis(kind: str, label: str, result: dict) -> str:
+    """Insert an analysis, evict if over cap, return its id."""
+    analysis_id = f"{_ID_PREFIX[kind]}_{uuid.uuid4().hex[:8]}"
+    entry = {
+        "id": analysis_id,
+        "kind": kind,
+        "created_at": time.time(),
+        "label": label,
+        "result": result,
+    }
+    with _ANALYSES_LOCK:
+        _ANALYSES[analysis_id] = entry
+        while len(_ANALYSES) > _ANALYSES_MAX:
+            _ANALYSES.popitem(last=False)
+    return analysis_id
+
+
+def get_analysis(analysis_id: str, expect_kind: str) -> dict | None:
+    """Fetch by id. Returns None if absent, expired, or kind mismatch."""
+    with _ANALYSES_LOCK:
+        entry = _ANALYSES.get(analysis_id)
+        if entry is None or entry["kind"] != expect_kind or _analysis_expired(entry):
+            return None
+        return entry
+
+
+def latest_analysis(kind: str) -> dict | None:
+    """Most recent non-expired entry of that kind. Backward-compat path only."""
+    with _ANALYSES_LOCK:
+        for entry in reversed(_ANALYSES.values()):
+            if entry["kind"] == kind and not _analysis_expired(entry):
+                return entry
+    return None
+
 
 BANKING_APP_KEYWORDS = [
     "com.sbi.", "com.icicibank", "com.hdfcbank", "com.axisbank", "com.paytm",
@@ -395,7 +444,8 @@ def analyze_apk_endpoint():
         if report["verdict"] != "benign":
             yar_text = yara_gen.generate_yara(features, report)
         resp = _adapt_apk_response(features, report, yar_text, time.perf_counter() - t0)
-        STATE["last_apk"] = resp
+        resp["analysis_id"] = store_analysis("apk", resp["package"], resp)
+        resp["kind"] = "apk"
         return jsonify(resp)
     except Exception as e:
         traceback.print_exc()
@@ -703,7 +753,8 @@ def analyze_dataset_endpoint():
             "tier_counts": tier_counts,
             "top_alerts": top_alerts,
         }
-        STATE["last_dataset"] = resp
+        resp["analysis_id"] = store_analysis("dataset", f.filename, resp)
+        resp["kind"] = "dataset"
         return jsonify(resp)
     except Exception as e:
         traceback.print_exc()
@@ -737,13 +788,52 @@ def _shared_ioc_string(matched_on: str, apk_ioc: dict, account_id: str) -> str:
     return f"c2_host:{ground.get('c2_host')}"
 
 
+def _resolve_bridge_input(explicit_id, kind: str, field_name: str):
+    """Resolution order per ANALYSIS_ID_MIGRATION.md §3. Returns (entry,
+    source, error_response_or_None). On error, entry/source are None and the
+    caller must return the error response immediately without falling back.
+    """
+    prefix = f"{_ID_PREFIX[kind]}_"
+    if explicit_id:
+        if not explicit_id.startswith(prefix):
+            return None, None, (jsonify({
+                "error": "malformed_id",
+                "detail": f"{field_name} must start with '{prefix}'",
+                "field": field_name,
+            }), 400)
+        entry = get_analysis(explicit_id, kind)
+        if entry is None:
+            return None, None, (jsonify({
+                "error": "unknown_analysis",
+                "detail": f"{explicit_id} not found or expired",
+                "field": field_name,
+            }), 404)
+        return entry, "explicit", None
+
+    entry = latest_analysis(kind)
+    if entry is None:
+        return None, None, (jsonify({
+            "error": "no_analysis_available",
+            "detail": f"no {kind} analysis available yet; run the analyze endpoint first",
+            "field": field_name,
+        }), 409)
+    return entry, "fallback", None
+
+
 @app.route("/api/bridge", methods=["POST"])
 def bridge_endpoint():
-    apk = STATE["last_apk"]
-    ds = STATE["last_dataset"]
-    if not apk:
-        return jsonify({"error": "run /api/analyze_apk at least once before bridging"}), 400
-    if not ds or not ds["top_alerts"]:
+    body = request.get_json(silent=True) or {}
+
+    apk_entry, apk_source, err = _resolve_bridge_input(body.get("apk_id"), "apk", "apk_id")
+    if err:
+        return err
+    ds_entry, ds_source, err = _resolve_bridge_input(body.get("dataset_id"), "dataset", "dataset_id")
+    if err:
+        return err
+
+    apk = apk_entry["result"]
+    ds = ds_entry["result"]
+    if not ds["top_alerts"]:
         return jsonify({"error": "run /api/analyze_dataset at least once before bridging"}), 400
 
     apk_ioc = bridge_matcher.extract_ioc_from_ps1(apk["raw_features"])
@@ -783,6 +873,10 @@ def bridge_endpoint():
         "match_count": len(links),
         "links": links,
         "note": note,
+        "inputs": {
+            "apk": {"id": apk_entry["id"], "label": apk_entry["label"], "source": apk_source},
+            "dataset": {"id": ds_entry["id"], "label": ds_entry["label"], "source": ds_source},
+        },
     }
     # Back-compat top-level fields for the existing single-record frontend
     # template: mirror the first (highest-score) link when one exists, else

@@ -4,6 +4,8 @@ const state = {
   labelColDefault: localStorage.getItem("sg_label_col") || "",
   apkAnalyses: [],      // { filename, result, ts }
   datasetAnalyses: [],  // { filename, result, ts }
+  lastApkId: null,
+  lastDatasetId: null,
   auditLog: [],
   alerts: [],
   timeline: [],         // { malware, fraud, ioc }
@@ -93,6 +95,7 @@ apkBtn.addEventListener("click", async () => {
     renderApkResults(data);
 
     state.backendOnline = true;
+    state.lastApkId = data.analysis_id || null;
     state.apkAnalyses.unshift({ filename: apkInput.files[0].name, result: data, ts: Date.now() });
     state.running.malware += (data.severity !== "LOW" ? 1 : 0);
     state.running.ioc += (data.target_banking_apps.length + data.c2_candidates.length);
@@ -185,6 +188,7 @@ csvBtn.addEventListener("click", async () => {
     renderCsvResults(data);
 
     state.backendOnline = true;
+    state.lastDatasetId = data.analysis_id || null;
     state.datasetAnalyses.unshift({ filename: csvInput.files[0].name, result: data, ts: Date.now() });
     state.running.fraud += (data.tier_counts.T3 + data.tier_counts.T4);
     state.timeline.push({ ...state.running });
@@ -247,18 +251,30 @@ document.getElementById("bridge-btn").addEventListener("click", async () => {
   try {
     const url = api("/api/bridge");
     console.debug("POST", url);
-    const res = await fetch(url, { method: "POST" });
+    const body = {};
+    if (state.lastApkId) body.apk_id = state.lastApkId;
+    if (state.lastDatasetId) body.dataset_id = state.lastDatasetId;
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
     let d;
     try { d = await res.json(); } catch (derr) { d = null; }
     if (!res.ok) {
-      const text = d && d.error ? d.error : `HTTP ${res.status}`;
+      // malformed_id / unknown_analysis / no_analysis_available all carry a
+      // human-readable "detail" — prefer it over the bare error slug.
+      const text = d && (d.detail || d.error) ? (d.detail || d.error) : `HTTP ${res.status}`;
       throw new Error(text);
     }
-    if (d && d.error) throw new Error(d.error);
+    if (d && d.error) throw new Error(d.detail || d.error);
+    const inputsLine = d.inputs
+      ? `linked_inputs   apk=${esc(d.inputs.apk.label)} (${esc(d.inputs.apk.source)})   dataset=${esc(d.inputs.dataset.label)} (${esc(d.inputs.dataset.source)})\n\n`
+      : "";
     el.innerHTML = `
       <div class="code-block">unified_dashboard / case_view
 
-ALERT   account <span class="k">${esc(d.account_hash)}</span>   tier <span class="k">${esc(d.tier)}</span> (${d.score})   status: PENDING REVIEW
+${inputsLine}ALERT   account <span class="k">${esc(d.account_hash)}</span>   tier <span class="k">${esc(d.tier)}</span> (${d.score})   status: PENDING REVIEW
   linked_apk     ${esc(d.linked_apk_package)}   family: ${esc(d.family)}   severity: ${esc(d.severity)}
   shared_ioc     ${esc(d.shared_ioc)}
   yara_rule      ${esc(d.yara_rule)}   validated: ${d.yara_validated}
