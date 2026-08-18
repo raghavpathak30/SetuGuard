@@ -398,11 +398,12 @@ represents consumer Android, is unestablished either way.
 
 ## 8. Known limitations, stated plainly
 
-**No measurement against legitimate banking apps exists yet.** The corpus was assembled and
-verified 15 August (§2) but has not been scored. The class-convergence hypothesis — that a real
-banking app needs the same permission set as a banking trojan, making them statically
-inseparable — remains **untested**. It may be presented as the motivating hypothesis for the
-corpus build; it may not be presented as a finding.
+**Legitimate banking apps have now been scored.** The measured result is Outcome 3 per
+pre-registration: PRIMARY AUC 0.1444 [0.0905, 0.2081], SECONDARY AUC 0.3190
+[0.2202, 0.4290], both CIs entirely below 0.5 — legitimate banking apps rank above
+confirmed malware. Recorded in `harness/BANKING_AUC_RESULTS.json`, pre-registered in
+`harness/PREREGISTERED_BANKING_AUC_CLAIMS.md` before scoring ran. The class-convergence
+explanation for this result remains an untested hypothesis, not a finding.
 
 **No dynamic analysis.** DEX string pool, manifest, certificate. Nothing executed. A packed
 dropper that resolves its C2 at runtime looks like an app with few permissions and no strings.

@@ -444,7 +444,7 @@ def analyze_apk_endpoint():
         if report["verdict"] != "benign":
             yar_text = yara_gen.generate_yara(features, report)
         resp = _adapt_apk_response(features, report, yar_text, time.perf_counter() - t0)
-        resp["analysis_id"] = store_analysis("apk", resp["package"], resp)
+        resp["analysis_id"] = store_analysis("apk", resp["package"], dict(resp))
         resp["kind"] = "apk"
         return jsonify(resp)
     except Exception as e:
@@ -753,7 +753,7 @@ def analyze_dataset_endpoint():
             "tier_counts": tier_counts,
             "top_alerts": top_alerts,
         }
-        resp["analysis_id"] = store_analysis("dataset", f.filename, resp)
+        resp["analysis_id"] = store_analysis("dataset", f.filename, dict(resp))
         resp["kind"] = "dataset"
         return jsonify(resp)
     except Exception as e:
