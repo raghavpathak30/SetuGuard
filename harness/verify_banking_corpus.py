@@ -38,6 +38,18 @@ from androguard.core.apk import APK  # noqa: E402
 REPO_ROOT = Path(__file__).resolve().parents[1]
 TIER_A_SURVIVOR_GATE = 30
 
+
+def norm_sha(value: str) -> str:
+    """Canonical in-memory form for every sha256 in this script: UPPERCASE hex.
+
+    AndroZoo publishes sha256 uppercase; hashlib and every local cache in this
+    repo emit lowercase. Comparing across that boundary has produced plausible
+    wrong answers in four harness scripts (see CONTEXT.md, "sha256 case
+    normalisation"). Rule: normalise at every READ boundary; never write the
+    normalised form back to a stored cache.
+    """
+    return value.strip().upper()
+
 AOSP_TEST_KEY_MARKERS = ("android@android.com",)
 DEBUG_KEY_MARKERS = ("android debug", "android-debug")
 
@@ -59,7 +71,7 @@ def cert_fields(apk: APK):
         return None, None, None, "unsigned / no certificate recovered"
     c = certs[0]
     try:
-        return c.subject.human_friendly, c.issuer.human_friendly, c.sha256.hex(), None
+        return c.subject.human_friendly, c.issuer.human_friendly, norm_sha(c.sha256.hex()), None
     except Exception as e:
         return None, None, None, f"{type(e).__name__}: {e}"
 
@@ -87,7 +99,7 @@ def load_expected(candidates_path: Path):
     expected = {}
     for arm_name, picks in (("era_matched", d["era_matched_picks"]), ("current", d["current_picks"])):
         for pkg, row in picks.items():
-            expected[row["sha256"]] = {
+            expected[norm_sha(row["sha256"])] = {
                 "pkg_name": pkg, "tier": tier_of[pkg], "arm": arm_name,
                 "vt_scan_date": row.get("vt_scan_date"), "apk_size": row.get("apk_size"),
             }
@@ -104,11 +116,21 @@ def existing_sha256_sets():
                 continue
             parts = line.split("\t")
             if len(parts) >= 2:
-                sha = parts[1].removesuffix(".apk")
+                sha = norm_sha(parts[1].removesuffix(".apk"))
                 archive_manifest[sha] = parts[2] if len(parts) > 2 else "?"
 
-    cic_dir = {f.stem for f in (REPO_ROOT / "cicmaldroid_banking").glob("*.apk")} \
+    cic_dir = {norm_sha(f.stem) for f in (REPO_ROOT / "cicmaldroid_banking").glob("*.apk")} \
         if (REPO_ROOT / "cicmaldroid_banking").exists() else set()
+
+    # archive_manifest and cic_dir are pure sha256 sets -- this is exactly where the
+    # collision-check case bug lived, so their canonical form is asserted here.
+    if not archive_manifest:
+        raise RuntimeError("archive_manifest is empty -- manifest path is wrong")
+    if not all(len(s) == 64 and s.isupper() for s in archive_manifest):
+        raise RuntimeError("archive_manifest contains a non-canonical sha256 -- case normalisation is incomplete")
+    assert cic_dir, "cic_dir is empty -- cicmaldroid_banking/ path is wrong"
+    assert all(len(s) == 64 and s.isupper() for s in cic_dir), \
+        "cic_dir contains a non-canonical sha256 -- case normalisation is incomplete"
 
     sample_716 = set()
     p716 = REPO_ROOT / "harness" / "sample_set_716.txt"
@@ -118,7 +140,12 @@ def existing_sha256_sets():
             if not line or line.startswith("#"):
                 continue
             path_str = line.rsplit(",", 1)[0]
-            sample_716.add(Path(path_str).stem)
+            # sample_716 is NOT a pure sha256 set: banking_holdout_16/ and
+            # cicmaldroid_banking/ entries are sha256-named, but fdroid_benign_apks/
+            # entries are package_versioncode.apk -- normalising case here is still
+            # correct (it's the same canonical-form rule) but the 64-char/isupper
+            # assertion below deliberately does not apply to this set.
+            sample_716.add(norm_sha(Path(path_str).stem))
 
     return archive_manifest, cic_dir, sample_716
 
@@ -144,7 +171,7 @@ def main():
     results = []
 
     for p in apks:
-        sha = p.stem
+        sha = norm_sha(p.stem)
         row = {"sha256": sha, "filename": p.name}
 
         for label, universe in (("BANKING_ARCHIVE_MANIFEST.tsv", archive_manifest),
@@ -162,7 +189,7 @@ def main():
         row["actual_size_bytes"] = p.stat().st_size
 
         try:
-            actual_file_sha = sha256_of_file(p)
+            actual_file_sha = norm_sha(sha256_of_file(p))
         except OSError as e:
             row["status"] = "reject"
             row["reason"] = f"unreadable: {e}"

@@ -376,3 +376,8 @@ edited to investigate or produce this finding.
   now has `enum: [the 16 CHUNKS ids]`, generated from `knowledge_base.CHUNKS`. Verified: 0/3
   post-edit runs produced an id outside the legal 16 (was 1/4, reproducible fabrication,
   pre-edit). Citation jitter among valid ids persists — not this finding's claim to fix.
+
+**Not a frozen-file finding, noted here only as a cross-reference:** the 2026-08-18 `STATE` →
+addressable-analysis-id migration (`setuguard_app/backend/app.py`, non-frozen) is logged in full
+in `SESSION_LOG.md` and `ANALYSIS_ID_MIGRATION.md`, not here — it touches no frozen file and was
+applied directly, not sign-off-gated, so it doesn't fit this document's scope.

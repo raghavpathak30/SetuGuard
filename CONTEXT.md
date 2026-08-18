@@ -1,6 +1,9 @@
 # SetuGuard — Repository Context
 
-**As of 12 August 2026.** Written for a reader with no prior exposure to this repo.
+**As of 15 August 2026.** Written for a reader with no prior exposure to this
+repo. Sections 0 and 4 were verified 12 August and are unchanged; the corpus
+rows in §2, the new §5 subsection on sha256 case normalisation, and the first
+limitation in §8 were updated 15 August.
 
 This is a description of what the repo *is*. The narrative history lives in `SESSION_LOG.md` and
 stays there. Quotable numbers live in `REPORT_FACTS.md`. Forward work lives in `PLAN.md`.
@@ -77,64 +80,74 @@ Deliverable: one Flask backend (`setuguard_app/backend/app.py`) plus a static da
 | Component | Status | Evidence | Provenance |
 |---|---|---|---|
 | PS1 static extraction | Live | `setuguard_ps1/static_analysis.py:202-242`; 668 cached outputs in `harness/feature_cache/` | frozen file |
-| PS1 rule scorer | Live, authoritative in the API | `app.py:145-215` | `d1-inversion`, scorer-v2 (`b3ff83b`) |
-| PS1 RAG narrative | Live, narrative-only in the API | `app.py:218-234`; pin at `rag_report.py:78` | frozen; `temperature=0, seed=42` |
-| PS1 YARA generation | Live | `yara_gen.py`; compile+match at `app.py:316-328` | frozen |
+| PS1 rule scorer | Live, authoritative in the API | `app.py:194-264` | `d1-inversion`, scorer-v2 (`b3ff83b`) |
+| PS1 RAG narrative | Live, narrative-only in the API | `app.py:267-283`; pin at `rag_report.py:78` | frozen; `temperature=0, seed=42` |
+| PS1 YARA generation | Live | `yara_gen.py`; compile+match at `app.py:363-377` | frozen |
 | PS1 CLI (`run_pipeline.py`) | Live, **not** inverted — LLM supplies the verdict | `run_pipeline.py:15,76,95` | frozen; §7 C1 |
 | PS2 offline trainer | Live | `harness/train_ps2_model.py` → `models/ps2_xgb_v1.json` | non-frozen |
 | PS2 20-seed study | Live | `harness/ps2_repeated_splits.py` → `models/ps2_repeated_splits_metrics.json` | non-frozen |
-| PS2 inference endpoint | Live, inference-only | `app.py:527-710`; artifact loaded once at import, `app.py:462-476` | — |
+| PS2 inference endpoint | Live, inference-only | `app.py:577-761`; artifact loaded once at import, `app.py:512-526` | — |
 | PS2 leakage guard + test | Live, 4/4 PASS | `train_ps2_model.py:67-84`; `harness/test_leakage_assert.py` | non-frozen |
-| Bridge matcher | Live, exact-match, cert-hash only in practice | `bridge/matcher.py:77-108`; called at `app.py:749,753` | teammate-authored |
+| Bridge matcher | Live, exact-match, cert-hash only in practice | `bridge/matcher.py:77-108`; called at `app.py:839,843` | teammate-authored |
 | Bridge unit test | Live | `bridge/fix1_confusion_matrix_results.json` | synthetic ground truth |
 | Dashboard | Live, zero console errors | `harness/browser_smoke.js`; 5 screenshots + report in `harness/browser_evidence/ollama_up/` | Playwright |
 | Ollama-down degradation | Verified | `harness/browser_evidence/ollama_down/` | — |
 | Chart.js | Vendored locally | `frontend/chart.umd.js`; `index.html:7-8,249` all-local | — |
 | Holdout provenance | **New, 12 Aug** | `harness/identify_holdout_16.py` → `harness/BANKING_HOLDOUT_16_PROVENANCE.md` | non-frozen |
 | `ps2/01`–`ps2/07` | Offline research, dead in the live path | zero import hits from `setuguard_app/` or `bridge/` | `ps2/README.md` |
-| Legitimate-banking-app corpus | **Does not exist** | §0 | — |
+| Legitimate-banking-app corpus | **On disk and verified 15 Aug.** 95 APK files, 5.6 GB, 0 collisions with the CICMalDroid archive (check verified operational for the first time, 15 Aug). **Unscored.** **File count is not sample count**: 68 distinct packages across 47 issuer clusters; current arm 68 files / 68 packages, era-matched arm 27 files which are older builds of packages already in the current arm; Tier A 73 files / 53 packages / 33 issuers. Confidence intervals resample by issuer, never by file. | `harness/download_run.log`; `harness/BANKING_CORPUS_VERIFICATION.json`; `harness/BANKING_CORPUS_MANIFEST.tsv` | `harness/banking_packages.csv`, `harness/BANKING_PACKAGE_TIERING_DECISIONS.md`; inclusion rule pre-registered and committed before any scoring; AUC claims pre-registered at commit be6a15c |
 | Dynamic analysis | Not started | no emulator/pcap/Frida code anywhere | — |
 
 **Corpora on disk (gitignored):** `Banking.tar.gz` 3.9 GB / 2,505 APKs, extracted as
 `cicmaldroid_banking/` (2,489) + `banking_holdout_16/` (16); `fdroid_benign_apks/` 802 APKs /
-12 GB; `DataSet.csv` 117 MB.
+12 GB; `DataSet.csv` 117 MB; `harness/banking_legit_corpus/` 95 APKs / 5.6 GB (AndroZoo,
+downloaded and verified 15 Aug).
 
 ---
 
 ## 3. Architecture — traced from code
 
-### `POST /api/analyze_apk` — `app.py:382-404`
+### `POST /api/analyze_apk` — `app.py:431-454`
 
 ```
 multipart "apk" → saved to backend/_uploads/
-  → static_analysis.analyze_apk(path)          # app.py:391, frozen
-  → _rule_based_verdict(features)              # app.py:392  ← verdict, confidence, score
-  → _try_llm_narrative(features, rule_report)  # app.py:393  ← rationale, cited_chunk_ids ONLY
-  → yara_gen.generate_yara(...)                # app.py:396, skipped when verdict == "benign"
-  → _adapt_apk_response(...) → STATE["last_apk"]
-  → finally: uploaded file deleted             # app.py:403-404
+  → static_analysis.analyze_apk(path)          # app.py:440, frozen
+  → _rule_based_verdict(features)              # app.py:441  ← verdict, confidence, score
+  → _try_llm_narrative(features, rule_report)  # app.py:442  ← rationale, cited_chunk_ids ONLY
+  → yara_gen.generate_yara(...)                # app.py:445, skipped when verdict == "benign"
+  → _adapt_apk_response(...) → store_analysis("apk", ...) → analysis_id, kind
+  → finally: uploaded file deleted             # app.py:453-454
 ```
 
 **The inversion is structural, not conventional.** `_try_llm_narrative()` opens with
-`report = dict(rule_report)` (`app.py:225`), so verdict and confidence hold rule-based values
+`report = dict(rule_report)` (`app.py:274`), so verdict and confidence hold rule-based values
 before Ollama is contacted. Inside the `try`, exactly two keys are assigned — `rationale` and
-`cited_chunk_ids` (`app.py:229-230`). The `except` branch assigns only `_narrative_source`.
-`verdict_source` is the string literal `"rule_based"` (`app.py:377`), not a variable. There is
+`cited_chunk_ids` (`app.py:279-280`). The `except` branch assigns only `_narrative_source`.
+`verdict_source` is the string literal `"rule_based"` (`app.py:426`), not a variable. There is
 no code path — success, failure or partial — on which an LLM value reaches verdict, confidence,
 `risk_score` or `severity`. Verified by reading every assignment.
 
-### `POST /api/analyze_dataset` — `app.py:527-710`
+### `POST /api/analyze_dataset` — `app.py:577-761`
 
 Header read → intersect with the 18 bank features → re-read with `usecols` → one-hot F3889/F3891
 → `predict_proba` → SHAP over the top-15 rows only → tiers and audit findings. The model,
-metrics and fitted `TreeExplainer` load **once at import** (`app.py:419-476`). No `fit`, no
+metrics and fitted `TreeExplainer` load **once at import** (`app.py:465-526`). No `fit`, no
 split, no CV, no explainer construction in any request handler.
 
-### `POST /api/bridge` — `app.py:740-796`
+### `POST /api/bridge` — `app.py:823-890`
 
-Reads `STATE["last_apk"]` / `["last_dataset"]`, calls `bridge_matcher.extract_ioc_from_ps1`
-(`app.py:749`) and `bridge_matcher.match_account_to_apk` (`app.py:753`) directly — nothing
-reimplemented inline. Returns HTTP 200 with `"links": []` when nothing matches.
+**No longer reads a shared global (2026-08-18 migration, `ANALYSIS_ID_MIGRATION.md`).** Resolves
+`apk_id`/`dataset_id` from the request body via `_resolve_bridge_input()` (`app.py:791-820`)
+against a lock-guarded, bounded, TTL'd analysis store (`store_analysis`/`get_analysis`/
+`latest_analysis`, `app.py:112-155`): explicit ids are validated by prefix (`apk_`/`ds_`) and
+resolved by id, wrong-prefix or unknown/expired ids return 400/404 without falling back, and an
+omitted id falls back to the most recently stored analysis of that kind (409 if none exists).
+The resolved entries then feed the same matching logic as before — calls
+`bridge_matcher.extract_ioc_from_ps1` (`app.py:839`) and `bridge_matcher.match_account_to_apk`
+(`app.py:843`) directly, nothing reimplemented inline — and the response gains an `inputs` block
+(`id`/`label`/`source` for each operand) so which two artifacts were joined is visible in the
+response, not just inferred from upload order. Returns HTTP 200 with `"links": []` when nothing
+matches.
 
 **The C2 path has never fired.** `matcher.py:94-98` does `linked_c2 in apk_c2_hosts`, and
 `apk_c2_hosts` is built at `matcher.py:31-34` from **raw** `suspicious_strings` values — the
@@ -216,7 +229,7 @@ signed-off fix.
 | 4 | `report_prompt.py:36-39` | `cited_chunk_ids` unconstrained | **Applied.** Item schema is now an `enum` of the 16 real IDs |
 | 5 | `static_analysis.py:82` + `yara_gen.py:35-39` | NUL byte from Adobe XMP metadata reaches a YARA string literal and crashes `yara.compile()` with `ValueError` | **Open. 22.1% prevalence** (32/145 benign F-Droid samples) |
 
-**Finding 5 is unfixed and `run_pipeline.py` has no guard for it.** `app.py:317-326` wraps
+**Finding 5 is unfixed and `run_pipeline.py` has no guard for it.** `app.py:365-375` wraps
 `yara_engine.compile` in `try/except Exception`, so the API degrades to `compiles: false` rather
 than crashing — but the CLI and the batch harnesses are unprotected. Scope on the API path is
 unconfirmed; establishing it is `PLAN.md` item 7.
@@ -249,6 +262,25 @@ while a headline number was computed on them (§0). The discipline worth keeping
 one the rule was reaching for — **a holdout must not be used for term selection or threshold
 choice** — and on that the repo has a recorded failure (§7 C2).
 
+### sha256 case normalisation — added 15 August 2026
+
+AndroZoo publishes sha256 UPPERCASE. `hashlib` and every local cache in this repo emit lowercase.
+Four harness scripts have produced a plausible wrong answer by comparing across that boundary,
+each caught only after the wrong answer was believed for some period:
+
+| Script | Failure | Symptom |
+|---|---|---|
+| `vt_label_lookup.py` | manifest lookup | 0/3,291 resolved |
+| `download_banking_corpus.py` | post-download hash check | deleted every good APK for three hours |
+| `verify_banking_corpus.py` | collision check vs `universe` | check silently never fired |
+| `verify_banking_corpus.py` | content-hash check (found 15 Aug) | reported all 95 good APKs as corrupt/truncated |
+
+**Rule:** every sha256 is normalised to UPPERCASE at the point it is read into memory, via a local
+`norm_sha()`. Uppercase is canonical because AndroZoo is the source we cannot change. Stored
+caches, manifests and TSVs keep whatever case they were written with and are never rewritten. Any
+script that compares two sha256 values from different sources without normalising both is
+defective by construction.
+
 ### Git workflow
 
 Single branch `main`, PR-into-main with Copilot auto-review. Three stale local branches
@@ -275,7 +307,7 @@ more than any defect below. Nothing here is fixed during report week. Full sched
 | D-1 | `setuguard_app/README.md` describes the rule-based verdict as the Ollama-unreachable *fallback* — the exact inverse of `d1-inversion` — plus "trains XGBoost with stratified CV (falls back to IsolationForest)" and "auto-detects the label column". None is true. | `setuguard_app/README.md` | **High.** First file a judge opens. Contradicts the architecture on its own front page. | 17 Aug, `PLAN.md` 1 |
 | D-2 | Frontend claims capabilities that do not exist: "real XGBoost + SHAP trained on your data" (`index.html:157`), button "Run Data Audit + Train" (`:164`), on-screen status "…then training XGBoost + SHAP…" (`app.js:164`), "CV AUCPR (0-fold)" rendered over a 20-seed holdout median (`app.js:223,489`), plus bias-checking, KS-test drift monitoring and a "greedy counterfactual" (`index.html:212-214`) that is `null`. | frontend | **High.** Visible on stage. Zero technical risk to fix. | 17 Aug, `PLAN.md` 1 |
 | D-3 | Matcher compares raw URL strings, never parsed hosts; ground-truth `c2_host` is `None`. C2 matching has never fired. | `matcher.py:31-34,94-98`, `:68` | **High.** Blocks runtime-capture experiment entirely. | 17–18 Aug, `PLAN.md` 2 |
-| D-4 | No fail-closed path. Parse failure → HTTP 500 with the raw exception string rendered in the UI. | `app.py:400-402` | **Medium-high.** An exception string in a bank console is a feasibility answer by itself. 40 of 716 APKs hit this. | 18 Aug, `PLAN.md` 3 |
+| D-4 | No fail-closed path. Parse failure → HTTP 500 with the raw exception string rendered in the UI. | `app.py:450-452` | **Medium-high.** An exception string in a bank console is a feasibility answer by itself. 40 of 716 APKs hit this. | 18 Aug, `PLAN.md` 3 |
 | D-5 | No upload size cap — no `MAX_CONTENT_LENGTH`, no client-side check. | `app.py`, `frontend/app.js` | **Medium-high.** 26 sample-set APKs exceed 50 MB; one 172 MB file defeated a 300 s timeout with a dedicated memory budget. Two live memory incidents traced to large files. | 18 Aug, `PLAN.md` 4 |
 | D-6 | Evidence chain gitignored — `results_716.csv` does not survive a clone. | `.gitignore:77` | **Medium.** "Show me" has no answer. Must be relabelled first: its `banking_holdout` rows carry the false corpus label. | 18 Aug, `PLAN.md` 5 |
 | D-7 | Withdrawn artifacts still shipping: `bridge/test_fixtures_ps2_sample.json` (202 records, loaded at runtime by `confusion_matrix_validation.py:240`) and `ps2/ps2_bridge_payload.json` carry `generated_rules`, `rule_validated: true`, `counterfactual: "No change needed (Safe)"`, `model_version: "v2.0.0-xgb-platt-graph"`, and a `graph_betweenness` SHAP driver — a withdrawn leaky feature. | those two files | **Medium.** Greppable, committed, contradicts three published retractions. | 18 Aug, `PLAN.md` 6 |
@@ -322,7 +354,7 @@ malware to malware.
 
 **C6 — there is no fail-closed or manual-review routing.** `grep -rni "manual review|fail.closed|
 fail_closed|manual_review"` across every `.py`, `.js`, `.md`, `.html` returns **zero hits**.
-Parse failure returns HTTP 500 with the exception string (`app.py:400-402`); batch harnesses
+Parse failure returns HTTP 500 with the exception string (`app.py:450-452`); batch harnesses
 append to `skips.csv`.
 
 **C7 — `setuguard_app/README.md` describes an architecture that does not exist.** D-1 above.
@@ -366,11 +398,12 @@ represents consumer Android, is unestablished either way.
 
 ## 8. Known limitations, stated plainly
 
-**No measurement against legitimate banking apps exists.** The corpus believed to serve that
-purpose was malware (§0). The class-convergence hypothesis — that a real banking app needs the
-same permission set as a banking trojan, making them statically inseparable — is plausible and
-**untested**. It may be presented as the motivating hypothesis for the corpus build; it may not
-be presented as a finding.
+**Legitimate banking apps have now been scored.** The measured result is Outcome 3 per
+pre-registration: PRIMARY AUC 0.1444 [0.0905, 0.2081], SECONDARY AUC 0.3190
+[0.2202, 0.4290], both CIs entirely below 0.5 — legitimate banking apps rank above
+confirmed malware. Recorded in `harness/BANKING_AUC_RESULTS.json`, pre-registered in
+`harness/PREREGISTERED_BANKING_AUC_CLAIMS.md` before scoring ran. The class-convergence
+explanation for this result remains an untested hypothesis, not a finding.
 
 **No dynamic analysis.** DEX string pool, manifest, certificate. Nothing executed. A packed
 dropper that resolves its C2 at runtime looks like an app with few permissions and no strings.
@@ -402,17 +435,17 @@ on near-miss confounders; it says nothing about how often a real link would be f
 
 ## Terminology — read once
 
-The field named `confidence` is defined at `app.py:211` as `round(0.5 + score / 2, 2)`: an
+The field named `confidence` is defined at `app.py:260` as `round(0.5 + score / 2, 2)`: an
 affine, strictly monotone transform of the evidence-weighted score, floored at 0.5 by
 construction. It carries **no information the score does not carry**. It is not a calibrated
 probability and not an uncertainty estimate. Downstream, `risk_score = round(confidence * 100)`
-for non-benign verdicts and `round(confidence * 20)` for benign (`app.py:311`) — a further
+for non-benign verdicts and `round(confidence * 20)` for benign (`app.py:360`) — a further
 monotone transform that jumps discontinuously from 13 to 65 at the benign/suspicious boundary.
 
 **Write "evidence-weighted score."** State the transform once, then use one name.
 
 Still presenting it as an independent quantity: `frontend/index.html:119` (a column headed
-"Confidence"), `app.py:261` (`_family_guess` appends `"(rule-based triage, confidence {c})"` into
+"Confidence"), `app.py:310` (`_family_guess` appends `"(rule-based triage, confidence {c})"` into
 a displayed string), the `confidence` column in `harness/results_*.csv`, and
 `PS1_Defects_and_Improvements.md:18-19`, which asserts "Confidence separates the classes
 correctly" as though it were a second signal.
