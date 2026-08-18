@@ -176,6 +176,9 @@ BOOTSTRAP_METHOD_STRING = (
 def main():
     manifest = load_manifest()
     mal_scores = load_malicious_scores()
+    if not mal_scores:
+        print(f"[score] STOP: no malicious scores found in {MAL_CACHE} (missing or empty cache)", file=sys.stderr)
+        sys.exit(1)
     print(f"[score] {len(mal_scores)} malicious scores loaded from {MAL_CACHE}", file=sys.stderr)
 
     banking_rows = load_banking_scored(manifest)
