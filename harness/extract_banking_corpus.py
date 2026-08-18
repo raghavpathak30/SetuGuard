@@ -173,7 +173,7 @@ def run_one(row: dict) -> dict:
 
     elapsed = time.perf_counter() - t0
     try:
-        result = q.get_nowait()
+        result = q.get(timeout=1)
     except Exception:
         result = None
 
