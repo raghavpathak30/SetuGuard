@@ -124,9 +124,10 @@ def existing_sha256_sets():
 
     # archive_manifest and cic_dir are pure sha256 sets -- this is exactly where the
     # collision-check case bug lived, so their canonical form is asserted here.
-    assert archive_manifest, "archive_manifest is empty -- manifest path is wrong"
-    assert all(len(s) == 64 and s.isupper() for s in archive_manifest), \
-        "archive_manifest contains a non-canonical sha256 -- case normalisation is incomplete"
+    if not archive_manifest:
+        raise RuntimeError("archive_manifest is empty -- manifest path is wrong")
+    if not all(len(s) == 64 and s.isupper() for s in archive_manifest):
+        raise RuntimeError("archive_manifest contains a non-canonical sha256 -- case normalisation is incomplete")
     assert cic_dir, "cic_dir is empty -- cicmaldroid_banking/ path is wrong"
     assert all(len(s) == 64 and s.isupper() for s in cic_dir), \
         "cic_dir contains a non-canonical sha256 -- case normalisation is incomplete"
