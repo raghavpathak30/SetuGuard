@@ -1,6 +1,6 @@
 # Migration spec: global `STATE` → addressable analysis IDs
 
-**Status:** in progress (Batch A implemented, Batch B pending)
+**Status:** complete (Batch A + Batch B implemented)
 **Owner:** Raghav Pathak
 **Target:** merged before 27 August (Grand Finale, IIT Hyderabad)
 **Files touched:** `setuguard_app/backend/app.py`, one frontend call site, `FROZEN_FILE_FINDINGS.md`
