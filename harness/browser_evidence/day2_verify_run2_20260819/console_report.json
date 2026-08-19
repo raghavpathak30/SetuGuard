@@ -1,0 +1,77 @@
+[
+  {
+    "step": "01_apk_matching",
+    "console": [
+      {
+        "type": "debug",
+        "text": "POST http://127.0.0.1:5000/api/analyze_apk"
+      }
+    ],
+    "pageErrors": [],
+    "failedRequests": [],
+    "badResponses": [],
+    "hasErrors": false,
+    "screenshot": "/home/raghavp/BOIhackathon/harness/browser_evidence/day2_verify_run2_20260819/01_apk_matching.png",
+    "stepThrew": null
+  },
+  {
+    "step": "02_dataset",
+    "console": [
+      {
+        "type": "debug",
+        "text": "POST http://127.0.0.1:5000/api/analyze_dataset"
+      }
+    ],
+    "pageErrors": [],
+    "failedRequests": [],
+    "badResponses": [],
+    "hasErrors": false,
+    "screenshot": "/home/raghavp/BOIhackathon/harness/browser_evidence/day2_verify_run2_20260819/02_dataset.png",
+    "stepThrew": null
+  },
+  {
+    "step": "03_bridge_match",
+    "console": [
+      {
+        "type": "debug",
+        "text": "POST http://127.0.0.1:5000/api/bridge"
+      }
+    ],
+    "pageErrors": [],
+    "failedRequests": [],
+    "badResponses": [],
+    "hasErrors": false,
+    "screenshot": "/home/raghavp/BOIhackathon/harness/browser_evidence/day2_verify_run2_20260819/03_bridge_match.png",
+    "stepThrew": null
+  },
+  {
+    "step": "04_apk_nonmatching",
+    "console": [
+      {
+        "type": "debug",
+        "text": "POST http://127.0.0.1:5000/api/analyze_apk"
+      }
+    ],
+    "pageErrors": [],
+    "failedRequests": [],
+    "badResponses": [],
+    "hasErrors": false,
+    "screenshot": "/home/raghavp/BOIhackathon/harness/browser_evidence/day2_verify_run2_20260819/04_apk_nonmatching.png",
+    "stepThrew": null
+  },
+  {
+    "step": "05_bridge_nomatch",
+    "console": [
+      {
+        "type": "debug",
+        "text": "POST http://127.0.0.1:5000/api/bridge"
+      }
+    ],
+    "pageErrors": [],
+    "failedRequests": [],
+    "badResponses": [],
+    "hasErrors": false,
+    "screenshot": "/home/raghavp/BOIhackathon/harness/browser_evidence/day2_verify_run2_20260819/05_bridge_nomatch.png",
+    "stepThrew": null
+  }
+]

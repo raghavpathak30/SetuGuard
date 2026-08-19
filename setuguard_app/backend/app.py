@@ -85,6 +85,16 @@ except ImportError:
 app = Flask(__name__)
 CORS(app)
 
+# D-5: no cap meant a 172MB upload defeated a 300s analysis timeout even in
+# isolation with a dedicated memory budget (SESSION_LOG.md, cash.p.terminal_243.apk).
+# 50MB matches PLAN.md item 4's spec, scoped to /api/analyze_apk only (checked
+# manually below, not via app.config["MAX_CONTENT_LENGTH"], which would be
+# Flask-wide and reject /api/analyze_dataset's ~111MB DataSet.csv uploads --
+# a real regression caught before shipping, not hypothetical). The client-side
+# check in frontend/app.js is the first line of defense; this is the
+# server-side backstop for anyone bypassing or not running the frontend.
+MAX_APK_UPLOAD_MB = 50
+
 # Basic request logging to help diagnose frontend fetch failures
 logging.basicConfig(level=logging.DEBUG)
 
@@ -435,11 +445,40 @@ def analyze_apk_endpoint():
     t0 = time.perf_counter()
     if "apk" not in request.files:
         return jsonify({"error": "no 'apk' file in request"}), 400
+    max_bytes = MAX_APK_UPLOAD_MB * 1024 * 1024
+    # Content-Length covers the whole multipart body (file + small form overhead),
+    # close enough to reject early without ever touching disk. Not present for
+    # chunked-encoding clients, so it's a fast path, not the only check.
+    if request.content_length and request.content_length > max_bytes:
+        return jsonify({
+            "status": "rejected",
+            "reason": f"upload is {request.content_length / (1024*1024):.1f}MB, over the {MAX_APK_UPLOAD_MB}MB limit",
+            "action": "split or pre-filter the file before resubmitting",
+        }), 413
     f = request.files["apk"]
     dest = UPLOAD_DIR / secure_filename(f.filename)
     f.save(dest)
+    if dest.stat().st_size > max_bytes:
+        size_mb = dest.stat().st_size / (1024 * 1024)
+        dest.unlink(missing_ok=True)
+        return jsonify({
+            "status": "rejected",
+            "reason": f"upload is {size_mb:.1f}MB, over the {MAX_APK_UPLOAD_MB}MB limit",
+            "action": "split or pre-filter the file before resubmitting",
+        }), 413
     try:
-        features = static_analysis.analyze_apk(str(dest))
+        try:
+            features = static_analysis.analyze_apk(str(dest))
+        except Exception as e:
+            traceback.print_exc()
+            return jsonify({
+                "status": "requires_manual_review",
+                "kind": "apk",
+                "filename": f.filename,
+                "reason": f"static analysis could not parse this file ({type(e).__name__})",
+                "action": "escalate to manual review",
+            }), 200
+
         rule_report = _rule_based_verdict(features)
         report = _try_llm_narrative(features, rule_report)
         yar_text = None

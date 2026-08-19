@@ -63,10 +63,25 @@ async function checkHealth() {
 }
 
 // ---------------- APK (PS1) ----------------
+// D-5: matches the backend's MAX_CONTENT_LENGTH (app.py) -- this is the first line
+// of defense (skips the upload entirely), the server-side check is the backstop.
+const MAX_UPLOAD_MB = 50;
+
 const apkInput = document.getElementById("apk-input");
 const apkBtn = document.getElementById("apk-analyze-btn");
 apkInput.addEventListener("change", () => {
-  document.getElementById("apk-filename").textContent = apkInput.files[0]?.name || "No file selected";
+  const file = apkInput.files[0];
+  const statusEl = document.getElementById("apk-status");
+  if (file && file.size > MAX_UPLOAD_MB * 1024 * 1024) {
+    document.getElementById("apk-filename").textContent = file.name;
+    statusEl.className = "status error";
+    statusEl.textContent = `File is ${(file.size / (1024 * 1024)).toFixed(1)}MB, over the ${MAX_UPLOAD_MB}MB limit — choose a smaller file.`;
+    apkBtn.disabled = true;
+    return;
+  }
+  statusEl.className = "status";
+  statusEl.textContent = "";
+  document.getElementById("apk-filename").textContent = file?.name || "No file selected";
   apkBtn.disabled = !apkInput.files.length;
 });
 
@@ -87,10 +102,19 @@ apkBtn.addEventListener("click", async () => {
     let data;
     try { data = await res.json(); } catch (derr) { data = null; }
     if (!res.ok) {
-      const text = data && data.error ? data.error : `HTTP ${res.status}`;
+      const text = data && (data.error || data.reason) ? (data.error || data.reason) : `HTTP ${res.status}`;
       throw new Error(text);
     }
     if (data && data.error) throw new Error(data.error || "Analysis failed");
+    if (data && data.status === "requires_manual_review") {
+      statusEl.className = "status";
+      statusEl.textContent = "Analysis incomplete — routed for manual review.";
+      renderManualReviewCard(data);
+      addAlert("dot-info", "badge-medium", "Review",
+        `Manual review required — ${apkInput.files[0].name} could not be parsed`);
+      addAudit("APK analysis incomplete", `${apkInput.files[0].name} → requires_manual_review (${data.reason})`);
+      return;
+    }
     statusEl.textContent = `Done in ${data.analysis_seconds}s.`;
     renderApkResults(data);
 
@@ -104,7 +128,13 @@ apkBtn.addEventListener("click", async () => {
       data.severity === "LOW" ? "Info" : data.severity[0] + data.severity.slice(1).toLowerCase(),
       `${data.family_verdict.split(" (")[0]} detected — ${apkInput.files[0].name}`);
     addAudit("APK analysed", `${apkInput.files[0].name} → ${data.severity} (${data.risk_score}/100)`);
-    addAlert("dot-info", "badge-info", "Info", `New YARA rule generated — ${data.yara.rule_name}`);
+    const yaraRuleAttempted = data.yara.yar_text && data.yara.yar_text.trim().startsWith("rule ");
+    if (yaraRuleAttempted && data.yara.compiles) {
+      addAlert("dot-info", "badge-info", "Info", `New YARA rule generated — ${data.yara.rule_name}`);
+    } else if (yaraRuleAttempted) {
+      addAlert("dot-info", "badge-medium", "Warning",
+        `YARA rule generation unavailable for this sample — ${data.yara.rule_name} failed to compile`);
+    }
   } catch (e) {
     console.error("APK analysis error", e);
     statusEl.className = "status error";
@@ -113,6 +143,21 @@ apkBtn.addEventListener("click", async () => {
     apkBtn.disabled = false;
   }
 });
+
+function renderManualReviewCard(d) {
+  const el = document.getElementById("apk-results");
+  el.innerHTML = `
+    <div class="result-panel">
+    <h3 class="subhead">⚠️ Requires Manual Review</h3>
+    <p style="font-size:13px;">This file could not be automatically analysed and was
+    <strong>not</strong> scored — it has not been marked safe, and it has not been
+    marked malicious. Static analysis failed before a verdict could be produced.</p>
+    <p style="font-size:12px;"><strong>File:</strong> <code>${esc(d.filename)}</code></p>
+    <p style="font-size:12px;"><strong>Reason:</strong> ${esc(d.reason)}</p>
+    <p style="font-size:12px;"><strong>Recommended action:</strong> ${esc(d.action)}</p>
+    </div>
+  `;
+}
 
 function renderApkResults(d) {
   const el = document.getElementById("apk-results");
