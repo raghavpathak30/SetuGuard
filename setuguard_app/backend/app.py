@@ -32,13 +32,15 @@ Design notes / honesty about what's real vs. adapted:
   cross-validation, and no SHAP-explainer fitting inside the HTTP request;
   the only per-request SHAP work is running the already-fitted TreeExplainer
   forward over the uploaded rows, which is inference, not fitting.
-- Bridge (matcher.py from teammate-b) does real cert_hash / c2_host overlap
-  matching against SYNTHETIC_LINKAGE_GROUND_TRUTH (matcher.py's own
-  docstring explains why that ground truth is synthetic — no real
-  device<->account join key exists in any of the source repos). app.py
-  calls matcher.py's functions directly rather than reimplementing the
-  match; the link is CONDITIONAL — accounts that don't match on cert_hash or
-  c2_host produce no link, not a fabricated one.
+- Bridge (matcher.py from teammate-b) does real cert_hash overlap matching
+  against SYNTHETIC_LINKAGE_GROUND_TRUTH (matcher.py's own docstring
+  explains why that ground truth is synthetic — no real device<->account
+  join key exists in any of the source repos). The c2_host comparison also
+  executes on every call but has never produced a link: the one
+  ground-truth entry has c2_host=None. app.py calls matcher.py's functions
+  directly rather than reimplementing the match; the link is CONDITIONAL —
+  accounts that don't match on cert_hash produce no link, not a
+  fabricated one.
 """
 import hashlib
 import io
@@ -307,7 +309,7 @@ def _family_guess(features: dict, report: dict) -> str:
         base = "No malware family indicated"
     else:
         base = "Generic Android Threat"
-    return f"{base} (rule-based triage, confidence {report['confidence']})"
+    return f"{base} (rule-based triage, evidence score {report['confidence']})"
 
 
 def _mitre_rows(features: dict):
@@ -859,11 +861,12 @@ def bridge_endpoint():
         })
 
     note = (
-        f"Matching is on certificate hash / C2 host overlap only (matched APK indicators, not a "
-        f"malice verdict) against {len(ds['top_alerts'])} scored account(s). "
+        f"Matching is on certificate hash overlap (C2-host matching is implemented but its one "
+        f"ground-truth entry has no host configured, so it has never fired) — matched APK "
+        f"indicators, not a malice verdict — against {len(ds['top_alerts'])} scored account(s). "
         + (f"{len(links)} match(es) found." if links else
-           "0 matches -- no account in this dataset run shares a certificate hash or C2 host with "
-           "this APK. This is the expected result for most APK/dataset pairs: the ground-truth "
+           "0 matches -- no account in this dataset run shares a certificate hash with this APK. "
+           "This is the expected result for most APK/dataset pairs: the ground-truth "
            "linkage table (matcher.SYNTHETIC_LINKAGE_GROUND_TRUTH) is a small, explicitly synthetic "
            "stand-in since no real device<->account join key exists in any of the source repos.")
     )

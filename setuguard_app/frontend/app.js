@@ -164,7 +164,7 @@ csvBtn.addEventListener("click", async () => {
   const statusEl = document.getElementById("csv-status");
   const resultsEl = document.getElementById("csv-results");
   statusEl.className = "status";
-  statusEl.textContent = "Running data-integrity audit, then training XGBoost + SHAP...";
+  statusEl.textContent = "Running data-integrity audit, then scoring with the pre-trained XGBoost model...";
   resultsEl.innerHTML = "";
   csvBtn.disabled = true;
 
@@ -218,13 +218,12 @@ function renderCsvResults(d) {
       <td><span class="tier-badge tier-${a.tier}">${a.tier}</span></td>
       <td>${a.score}</td>
       <td>${a.shap_drivers.map(s => `${esc(s.feature)} (${s.shap > 0 ? '+' : ''}${s.shap})`).join(", ")}</td>
-      <td>${a.counterfactual ? `drops to ${a.counterfactual.drops_to} if ${esc(a.counterfactual.condition)}` : '—'}</td>
     </tr>`).join("");
 
   el.innerHTML = `
     <div class="result-panel">
     <div class="stat-row">
-      <div class="stat-box"><div class="v">${d.cv_aucpr_mean !== null ? d.cv_aucpr_mean.toFixed(3) : 'n/a'}</div><div class="l">CV AUCPR (${d.n_cv_folds}-fold)</div></div>
+      <div class="stat-box"><div class="v">${d.cv_aucpr_mean !== null ? d.cv_aucpr_mean.toFixed(3) : 'n/a'}</div><div class="l">Holdout AUCPR (20-seed median)</div></div>
       <div class="stat-box"><div class="v">${d.audit.prevalence_pct}%</div><div class="l">FRAUD PREVALENCE</div></div>
       <div class="stat-box"><div class="v">${d.audit.flagged_columns.length}</div><div class="l">COLUMNS FLAGGED</div></div>
       <div class="stat-box"><div class="v">${d.feature_columns.length}</div><div class="l">FEATURES USED</div></div>
@@ -239,7 +238,7 @@ function renderCsvResults(d) {
       <div class="stat-box"><div class="v">${d.tier_counts.T4}</div><div class="l">T4 · debit freeze</div></div>
     </div>
     <h3 class="subhead">Top Alerts (${d.top_alerts.length} shown)</h3>
-    <table class="mini-table"><thead><tr><th>Account hash</th><th>Tier</th><th>Score</th><th>SHAP drivers</th><th>Counterfactual</th></tr></thead><tbody>${alertRows}</tbody></table>
+    <table class="mini-table"><thead><tr><th>Account hash</th><th>Tier</th><th>Score</th><th>SHAP drivers</th></tr></thead><tbody>${alertRows}</tbody></table>
     </div>
   `;
 }
@@ -502,7 +501,7 @@ function renderReports() {
     <table class="mini-table"><thead><tr><th>File</th><th>Severity</th><th>Risk score</th><th>Time</th></tr></thead>
     <tbody>${state.apkAnalyses.map(a => `<tr><td>${esc(a.filename)}</td><td><span class="severity-badge sev-${a.result.severity}">${a.result.severity}</span></td><td>${a.result.risk_score}</td><td>${new Date(a.ts).toLocaleString()}</td></tr>`).join("") || "<tr><td colspan='4'>none</td></tr>"}</tbody></table>
     <h3 class="subhead">Dataset Runs</h3>
-    <table class="mini-table"><thead><tr><th>File</th><th>Rows</th><th>CV AUCPR</th><th>T3/T4</th><th>Time</th></tr></thead>
+    <table class="mini-table"><thead><tr><th>File</th><th>Rows</th><th>Holdout AUCPR</th><th>T3/T4</th><th>Time</th></tr></thead>
     <tbody>${state.datasetAnalyses.map(a => `<tr><td>${esc(a.filename)}</td><td>${a.result.audit.n_rows}</td><td>${a.result.cv_aucpr_mean !== null ? a.result.cv_aucpr_mean.toFixed(3) : 'n/a'}</td><td>${a.result.tier_counts.T3 + a.result.tier_counts.T4}</td><td>${new Date(a.ts).toLocaleString()}</td></tr>`).join("") || "<tr><td colspan='5'>none</td></tr>"}</tbody></table>
   `;
 }

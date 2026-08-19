@@ -36,6 +36,17 @@ const NONMATCHING_APK = path.join(REPO_ROOT, "cicmaldroid_banking",
   "00049d038a2abc2d5fe3b190d6cf5c1cb1ba63441defdf136be251c7a00727d8.apk");
 const DATASET_CSV = path.join(REPO_ROOT, "DataSet.csv");
 
+// analyze_apk's wall-clock is dominated by Ollama/RAG narrative latency, not file
+// size or DEX-analysis cost, and that latency varies widely run to run -- four direct
+// timings taken 2026-08-19: 007556ca (492KB) at 162.2s (DEMO_RUNBOOK.md:53) and again
+// at 162.74s and 61.47s in two later runs; 00049d03... (94KB, the non-matching APK)
+// at 46.47s. The prior 60000ms value was never safely above that range; both
+// analyze_apk waits in this script timed out against it (unrelated to any other
+// change today -- confirmed by diff). Sized at 250000ms = observed max (163s) +
+// ~53% headroom, applied to both APK-analysis waits since both draw on the same
+// Ollama call and neither file size predicts which end of the range you get.
+const APK_ANALYSIS_WAIT_MS = 250000;
+
 const args = process.argv.slice(2);
 const labelIdx = args.indexOf("--label");
 const LABEL = labelIdx >= 0 ? args[labelIdx + 1] : "default";
@@ -164,7 +175,7 @@ async function main() {
     await page.setInputFiles("#apk-input", MATCHING_APK);
     await page.waitForSelector("#apk-analyze-btn:not([disabled])", { timeout: 10000 });
     await page.click("#apk-analyze-btn");
-    await page.waitForSelector("#apk-analyze-btn:not([disabled])", { timeout: 60000 });
+    await page.waitForSelector("#apk-analyze-btn:not([disabled])", { timeout: APK_ANALYSIS_WAIT_MS });
     await page.waitForFunction(
       () => document.getElementById("apk-results").innerHTML.trim().length > 0
         || document.getElementById("apk-status").classList.contains("error"),
@@ -205,7 +216,7 @@ async function main() {
       await page.setInputFiles("#apk-input", NONMATCHING_APK);
       await page.waitForSelector("#apk-analyze-btn:not([disabled])", { timeout: 10000 });
       await page.click("#apk-analyze-btn");
-      await page.waitForSelector("#apk-analyze-btn:not([disabled])", { timeout: 60000 });
+      await page.waitForSelector("#apk-analyze-btn:not([disabled])", { timeout: APK_ANALYSIS_WAIT_MS });
       await page.waitForFunction(
         () => document.getElementById("apk-results").innerHTML.trim().length > 0
           || document.getElementById("apk-status").classList.contains("error"),

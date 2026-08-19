@@ -28,6 +28,22 @@ runbook exists so the matching path is never left to chance on stage.
 
 ---
 
+## Timing risk — read before deciding how to run this live
+
+`analyze_apk` on the matching-cert APK (`007556ca...`) has measured 46.47s, 61.47s,
+162.2s, and 162.74s across four direct timings taken 2026-08-19 alone — wide run-to-run
+variance driven by Ollama/RAG narrative latency, not file size. All four are far above
+the ~9.86s single hand-written spot-check `SESSION_LOG.md:486` records for this exact
+file (already flagged unverified, `CONTEXT.md` §7 U1); today's evidence suggests that
+number understates real latency by roughly 5–16×. Treat the on-stage upload as capable
+of a 2–3 minute wait, not a "few seconds" wait, until Day 6 lands a real n≥30 harness.
+
+**Recommended:** pre-run the matching APK before judges are in the room, carry its
+`analysis_id` into the bridge step live, and say so plainly if asked — "that analysis
+was pre-run a few minutes ago because it takes 1–3 minutes on this hardware; the
+verdict and bridge match you're about to see came from a real, unmodified pipeline
+run." Do not attempt to fill 2–3 minutes of silence live on stage.
+
 ## Preconditions checklist
 
 - [ ] Ollama running: `systemctl status ollama` shows `active (running)` — narrative
@@ -106,8 +122,10 @@ Recorded output: `demo/nomatch_01_apk.json`, `demo/nomatch_02_dataset.json`,
 
 ## Honest framing for the demo
 
-The bridge matches on certificate hash and C2 host, exact-match only — nothing fuzzy, no
-semantic similarity. The linkage table it matches against
+The bridge matches on certificate hash, exact-match only — nothing fuzzy, no semantic
+similarity. C2-host matching is implemented in the same matcher but has never fired: the
+one ground-truth entry has no host configured, so in the shipped configuration only the
+cert-hash path can produce a link. The linkage table it matches against
 (`bridge/matcher.py:SYNTHETIC_LINKAGE_GROUND_TRUTH`) is a small, explicitly synthetic
 stand-in with exactly one entry, because no real device-to-account join key exists in any
 of the source repos; it does not represent a validated real-world linkage rate. The
