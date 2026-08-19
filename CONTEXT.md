@@ -1,9 +1,12 @@
 # SetuGuard — Repository Context
 
-**As of 15 August 2026.** Written for a reader with no prior exposure to this
+**As of 19 August 2026.** Written for a reader with no prior exposure to this
 repo. Sections 0 and 4 were verified 12 August and are unchanged; the corpus
 rows in §2, the new §5 subsection on sha256 case normalisation, and the first
-limitation in §8 were updated 15 August.
+limitation in §8 were updated 15 August. 19 August: §2's n for PRIMARY/SECONDARY
+AUC resolved against `BANKING_AUC_RESULTS.json`; §6/§7 D-1/D-2 marked resolved
+(README + frontend honesty pass) and D-7/C9 marked partially resolved (live
+fixture fixed, dead-path `ps2/` copy left).
 
 This is a description of what the repo *is*. The narrative history lives in `SESSION_LOG.md` and
 stays there. Quotable numbers live in `REPORT_FACTS.md`. Forward work lives in `PLAN.md`.
@@ -95,7 +98,7 @@ Deliverable: one Flask backend (`setuguard_app/backend/app.py`) plus a static da
 | Chart.js | Vendored locally | `frontend/chart.umd.js`; `index.html:7-8,249` all-local | — |
 | Holdout provenance | **New, 12 Aug** | `harness/identify_holdout_16.py` → `harness/BANKING_HOLDOUT_16_PROVENANCE.md` | non-frozen |
 | `ps2/01`–`ps2/07` | Offline research, dead in the live path | zero import hits from `setuguard_app/` or `bridge/` | `ps2/README.md` |
-| Legitimate-banking-app corpus | **On disk and verified 15 Aug.** 95 APK files, 5.6 GB, 0 collisions with the CICMalDroid archive (check verified operational for the first time, 15 Aug). **Unscored.** **File count is not sample count**: 68 distinct packages across 47 issuer clusters; current arm 68 files / 68 packages, era-matched arm 27 files which are older builds of packages already in the current arm; Tier A 73 files / 53 packages / 33 issuers. Confidence intervals resample by issuer, never by file. | `harness/download_run.log`; `harness/BANKING_CORPUS_VERIFICATION.json`; `harness/BANKING_CORPUS_MANIFEST.tsv` | `harness/banking_packages.csv`, `harness/BANKING_PACKAGE_TIERING_DECISIONS.md`; inclusion rule pre-registered and committed before any scoring; AUC claims pre-registered at commit be6a15c |
+| Legitimate-banking-app corpus | **On disk and verified 15 Aug.** 95 APK files, 5.6 GB, 0 collisions with the CICMalDroid archive (check verified operational for the first time, 15 Aug). **Unscored.** **File count is not sample count**: 68 distinct packages across 47 issuer clusters; current arm 68 files / 68 packages, era-matched arm 27 files which are older builds of packages already in the current arm; Tier A 73 files / 53 packages / 33 issuers. Confidence intervals resample by issuer, never by file. **None of these three counts is the n the AUC was computed over** — see §8, where PRIMARY AUC 0.1444 is resolved to 51 packages / 32 issuer clusters and SECONDARY AUC 0.3190 to 20 packages / 16 issuer clusters, per `harness/BANKING_AUC_RESULTS.json`, the sole authority. | `harness/download_run.log`; `harness/BANKING_CORPUS_VERIFICATION.json`; `harness/BANKING_CORPUS_MANIFEST.tsv` | `harness/banking_packages.csv`, `harness/BANKING_PACKAGE_TIERING_DECISIONS.md`; inclusion rule pre-registered and committed before any scoring; AUC claims pre-registered at commit be6a15c |
 | Dynamic analysis | Not started | no emulator/pcap/Frida code anywhere | — |
 
 **Corpora on disk (gitignored):** `Banking.tar.gz` 3.9 GB / 2,505 APKs, extracted as
@@ -304,13 +307,13 @@ more than any defect below. Nothing here is fixed during report week. Full sched
 
 | # | Defect | File:line | Risk | Scheduled |
 |---|---|---|---|---|
-| D-1 | `setuguard_app/README.md` describes the rule-based verdict as the Ollama-unreachable *fallback* — the exact inverse of `d1-inversion` — plus "trains XGBoost with stratified CV (falls back to IsolationForest)" and "auto-detects the label column". None is true. | `setuguard_app/README.md` | **High.** First file a judge opens. Contradicts the architecture on its own front page. | 17 Aug, `PLAN.md` 1 |
-| D-2 | Frontend claims capabilities that do not exist: "real XGBoost + SHAP trained on your data" (`index.html:157`), button "Run Data Audit + Train" (`:164`), on-screen status "…then training XGBoost + SHAP…" (`app.js:164`), "CV AUCPR (0-fold)" rendered over a 20-seed holdout median (`app.js:223,489`), plus bias-checking, KS-test drift monitoring and a "greedy counterfactual" (`index.html:212-214`) that is `null`. | frontend | **High.** Visible on stage. Zero technical risk to fix. | 17 Aug, `PLAN.md` 1 |
+| D-1 | ~~`setuguard_app/README.md` describes the rule-based verdict as the Ollama-unreachable *fallback* — the exact inverse of `d1-inversion` — plus "trains XGBoost with stratified CV (falls back to IsolationForest)" and "auto-detects the label column". None is true.~~ **RESOLVED 19 Aug.** README fully rewritten to describe the verified `_try_llm_narrative()`/`verdict_source` mechanics and the inference-only PS2 path. | `setuguard_app/README.md` | ~~High~~ **Closed.** | 19 Aug |
+| D-2 | ~~Frontend claims capabilities that do not exist: "real XGBoost + SHAP trained on your data" (`index.html:157`), button "Run Data Audit + Train" (`:164`), on-screen status "…then training XGBoost + SHAP…" (`app.js:164`), "CV AUCPR (0-fold)" rendered over a 20-seed holdout median (`app.js:223,489`), plus bias-checking, KS-test drift monitoring and a "greedy counterfactual" (`index.html:212-214`) that is `null`.~~ **RESOLVED 19 Aug.** All four claims removed/corrected; dead counterfactual column dropped; Compliance-page rows rewritten to match what actually runs. Verified via `harness/browser_smoke.js` (clean pass, `harness/browser_evidence/day1_verify_20260819/`) and a standalone Compliance-page check. | frontend | ~~High~~ **Closed.** | 19 Aug |
 | D-3 | Matcher compares raw URL strings, never parsed hosts; ground-truth `c2_host` is `None`. C2 matching has never fired. | `matcher.py:31-34,94-98`, `:68` | **High.** Blocks runtime-capture experiment entirely. | 17–18 Aug, `PLAN.md` 2 |
 | D-4 | No fail-closed path. Parse failure → HTTP 500 with the raw exception string rendered in the UI. | `app.py:450-452` | **Medium-high.** An exception string in a bank console is a feasibility answer by itself. 40 of 716 APKs hit this. | 18 Aug, `PLAN.md` 3 |
 | D-5 | No upload size cap — no `MAX_CONTENT_LENGTH`, no client-side check. | `app.py`, `frontend/app.js` | **Medium-high.** 26 sample-set APKs exceed 50 MB; one 172 MB file defeated a 300 s timeout with a dedicated memory budget. Two live memory incidents traced to large files. | 18 Aug, `PLAN.md` 4 |
 | D-6 | Evidence chain gitignored — `results_716.csv` does not survive a clone. | `.gitignore:77` | **Medium.** "Show me" has no answer. Must be relabelled first: its `banking_holdout` rows carry the false corpus label. | 18 Aug, `PLAN.md` 5 |
-| D-7 | Withdrawn artifacts still shipping: `bridge/test_fixtures_ps2_sample.json` (202 records, loaded at runtime by `confusion_matrix_validation.py:240`) and `ps2/ps2_bridge_payload.json` carry `generated_rules`, `rule_validated: true`, `counterfactual: "No change needed (Safe)"`, `model_version: "v2.0.0-xgb-platt-graph"`, and a `graph_betweenness` SHAP driver — a withdrawn leaky feature. | those two files | **Medium.** Greppable, committed, contradicts three published retractions. | 18 Aug, `PLAN.md` 6 |
+| D-7 | **Partially resolved 19 Aug.** `bridge/test_fixtures_ps2_sample.json` (202 records, loaded at runtime by `confusion_matrix_validation.py:240`) had the five withdrawn fields (`model_version`, `shap_drivers`/`graph_betweenness`, `counterfactual`, `generated_rules`, `rule_validated`) stripped from all 202 records — confirmed unused by either consumer (`matcher.py`, `confusion_matrix_validation.py`) before deletion; confusion matrix re-verified unchanged (TP=10/FP=0/FN=0/TN=90). **`ps2/ps2_bridge_payload.json` still carries all five** — left deliberately: zero import hits from `setuguard_app/` or `bridge/`, dead in the live path per this table's own `ps2/01`–`ps2/07` row. | `ps2/ps2_bridge_payload.json` (residue) | ~~Medium~~ **Low** — dead-path only. | 19 Aug (live artifact); `ps2/` residue unscheduled |
 | D-8 | Finding 5 NUL-byte YARA crash unfixed; `run_pipeline.py` unguarded, API scope unconfirmed. | `static_analysis.py:82`, `yara_gen.py:35-39` | **Medium.** 22.1% prevalence in benign samples. If the API path is affected, roughly one demo run in five can throw during YARA generation. | 18 Aug, `PLAN.md` 7 |
 | D-9 | Endpoint timings have no producing harness (§7 U1). | — | **Medium.** Blocks the scalability argument. | 18 Aug, `PLAN.md` 8 |
 | D-10 | `MAX_SUSPICIOUS_STRINGS = 25` with fixed url→ip→shell order right-censors every indicator count and zeroes IP extraction on 84/668 APKs. | `static_analysis.py:86` | **Medium.** IPs are the only match type the bridge can currently fire on, so this suppresses the one working linkage path. **Frozen file** — needs sign-off and invalidates the feature cache. | 18–19 Aug, `PLAN.md` 9 |
@@ -357,14 +360,20 @@ fail_closed|manual_review"` across every `.py`, `.js`, `.md`, `.html` returns **
 Parse failure returns HTTP 500 with the exception string (`app.py:450-452`); batch harnesses
 append to `skips.csv`.
 
-**C7 — `setuguard_app/README.md` describes an architecture that does not exist.** D-1 above.
+**C7 — RESOLVED 19 Aug.** ~~`setuguard_app/README.md` describes an architecture that does
+not exist.~~ D-1 above.
 
-**C8 — the frontend advertises four capabilities that do not exist.** D-2 above.
+**C8 — RESOLVED 19 Aug.** ~~the frontend advertises four capabilities that do not
+exist.~~ D-2 above.
 
-**C9 — withdrawn artifacts still ship.** D-7 above.
+**C9 — PARTIALLY RESOLVED 19 Aug.** ~~withdrawn artifacts still ship.~~ D-7 above —
+the live-loaded fixture is fixed; the dead-path `ps2/` copy is not.
 
-**C10 — the retracted "9072 corroborates the bridge" framing survives.** Commit `0d12997`
-retracted it; `SESSION_LOG.md:430-434` still reads *"independently confirmed real fraud
+**C10 — the retracted "9072 corroborates the bridge" framing survives verbatim (by the
+log's own no-rewrite convention), with an inline forward-pointer to the retraction added
+19 Aug at the point of risk.** Commit `0d12997`
+retracted it; `SESSION_LOG.md` (~line 462, shifted from the original 430-434 by later
+entries) still reads *"independently confirmed real fraud
 (`F3924=1`)… not a coincidence."* 9072 is `F3924==1`, and is also the **only** key in
 `SYNTHETIC_LINKAGE_GROUND_TRUTH` — it was chosen.
 
@@ -399,9 +408,11 @@ represents consumer Android, is unestablished either way.
 ## 8. Known limitations, stated plainly
 
 **Legitimate banking apps have now been scored.** The measured result is Outcome 3 per
-pre-registration: PRIMARY AUC 0.1444 [0.0905, 0.2081], SECONDARY AUC 0.3190
-[0.2202, 0.4290], both CIs entirely below 0.5 — legitimate banking apps rank above
-confirmed malware. Recorded in `harness/BANKING_AUC_RESULTS.json`, pre-registered in
+pre-registration: PRIMARY AUC 0.1444 [0.0905, 0.2081] over **51 packages / 32 issuer
+clusters**, SECONDARY AUC 0.3190 [0.2202, 0.4290] over **20 packages / 16 issuer clusters**,
+both CIs entirely below 0.5 — legitimate banking apps rank above confirmed malware. n is
+the scored count (post extraction-failure), not the corpus or attempted count — see §2.
+Recorded in `harness/BANKING_AUC_RESULTS.json`, pre-registered in
 `harness/PREREGISTERED_BANKING_AUC_CLAIMS.md` before scoring ran. The class-convergence
 explanation for this result remains an untested hypothesis, not a finding.
 

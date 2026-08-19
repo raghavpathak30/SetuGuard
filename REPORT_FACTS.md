@@ -1,7 +1,12 @@
 # REPORT_FACTS.md — the only source of quotable numbers
 
-**Authoritative as of 12 August 2026.** For the 17 August Progress Report (submitting 16 August)
-and the 27 August deck. Write from this file only. If a number is not here, it does not go in.
+**Authoritative as of 19 August 2026.** For the 27 August Grand Finale. Write from this file
+only. If a number is not here, it does not go in.
+
+> **19 Aug update:** the legitimate-banking-app corpus (95 AndroZoo APKs, verified 15 Aug) has
+> now been scored. The gap this file described below as "cannot currently be shown" is closed —
+> see the new QUOTABLE section immediately below. It is a negative result: both CIs lie entirely
+> below 0.5.
 
 Every entry carries: the number, the producing artifact, the corpus, and the caveat it must
 always be quoted with.
@@ -34,6 +39,72 @@ always be quoted with.
 | **AUC(malicious vs general F-Droid benign)** | **0.9366** | `harness/rescore_from_cache.py`, `_score_new` + Mann-Whitney `auc()` | 360 CICMalDroid Banking malware vs 292 F-Droid benign | The negative class is **general-purpose** apps, not banking apps. This does not establish behaviour on the banking vertical — that has never been measured. Re-run reproduces it exactly. |
 
 This is the project's one genuine PS1 separation number. Lead with it.
+
+### Legitimate-banking-app measurement — the surviving negative result
+
+| Number | Value | n | Producing artifact | Caveat |
+|---|---|---|---|---|
+| **PRIMARY AUC** (malicious vs current-arm legitimate banking apps) | **0.1444** [0.0905, 0.2081] | **51 packages, 32 issuer clusters** | `harness/BANKING_AUC_RESULTS.json` | CI entirely below 0.5. **The only n allowed next to 0.1444.** |
+| **SECONDARY AUC** (malicious vs era-matched legitimate banking apps) | **0.3190** [0.2202, 0.4290] | **20 packages, 16 issuer clusters** | same | CI entirely below 0.5. Era-matched arm, all 20 attempted successfully extracted. |
+
+**n, resolved once, from `harness/BANKING_AUC_RESULTS.json` — the sole authority:**
+`primary.n_packages = 51`, `primary.n_files = 51`, `primary.n_issuer_clusters = 32`. 53 current-arm
+packages / 33 issuer clusters were attempted; 2 timed out during extraction
+(`com.Version1`, Punjab National Bank; `com.janabank.mtc`, Jana Small Finance Bank),
+dropping PNB's issuer cluster entirely (33 → 32). **51/32 is the scored n and the only figure
+that may sit next to 0.1444.**
+
+Two other numbers exist in the repo and describe different populations — never pair either with
+0.1444:
+- **68 packages / 47 issuer clusters** (`CONTEXT.md` §2) — the full 95-APK downloaded corpus,
+  before Tier A subsetting. Not scored.
+- **73 files / 53 packages / 33 issuers** (`CONTEXT.md` §2, "Tier A") — the current-arm (53) plus
+  era-matched-arm (20) *attempted* sets combined, before the 2 extraction timeouts. This is the
+  pre-failure attempt count, not the scored count.
+
+Both CIs computed by 10,000-resample bootstrap, seed 42, resampling by issuer cluster (never by
+file) for the negative class, by individual sample for the 360 malicious. Both arms scored by the
+same pinned function as the 0.9366 F-Droid figure above — `rescore_from_cache._score_new`,
+imported not reimplemented, pinned at commit `89077ef`.
+
+**The 2 extraction-timeout exclusions bias PRIMARY AUC upward (toward 0.5), not
+downward — the true value is at or below 0.1444.** Confirmed from
+`harness/extract_tier_a_run.log` and `harness/banking_extract_skips.csv`: both current-arm
+packages that failed to extract — `com.Version1` (Punjab National Bank, "PNB ONE",
+138.7MB) and `com.janabank.mtc` (Jana Small Finance Bank, 37.3MB) — hit the extractor's
+600-second wall-clock timeout exactly (600.2s and 600.0s respectively), not a crash or a
+parse failure. `com.Version1`'s **era-matched** build (37.7MB, a similar-vintage APK for
+the same package) extracted successfully in 5.9s and is scored in SECONDARY, so PNB's
+issuer cluster survives in SECONDARY but is absent from PRIMARY (33 → 32 issuer clusters).
+Jana SFB has no era-matched counterpart in the corpus, so it is absent from both arms.
+
+The bias-direction argument: `harness/BANKING_AUC_RESULTS.json`'s own quartiles for the 51
+already-scored PRIMARY-arm legitimate apps show `q1=0.94, median=1.0, q3=1.0` — the
+majority of the *scored* population already sits at or saturates the 1.0 cap. Any excluded
+app is a priori more likely to also land in that near-saturated band than not, on the
+scored population's own distribution alone. Removing high-scoring members from the
+legitimate (negative) class reduces how far the legitimate class's scores sit above the
+malicious class's, which mechanically moves AUC toward 0.5 — i.e. **exclusion inflates
+AUC away from the true separation**, so 0.1444 is an upper bound, not a point estimate.
+
+**Two things this argument does *not* rest on, and must not be stated as if it did:**
+extraction timeout does not track APK size — checked directly against
+`extract_tier_a_run.log`'s full 60-file run: `com.janabank.mtc` (37.3MB) timed out while
+same-size neighbours (`com.Version1` era-matched 37.7MB: 5.9s; other 35–40MB files: 8–24s)
+extracted fine, and `com.Version1`'s 138.7MB current build timed out while 132MB and 142MB
+neighbours extracted in 13–22s — both timeouts are outliers against same-sized peers, not
+part of a size trend, most likely obfuscation or a pathological control-flow blow-up in
+Androguard's DEX analysis rather than raw file size. And no per-app results file exists to
+name a specific count of apps "at the cap" (`harness/results_banking_legit.csv` was never
+produced, the same evidence-chain gap already documented for the 716-file corpus) — the
+argument above uses only the committed quartile summary, not an unverifiable per-app count.
+
+**Say this plainly:** legitimate banking apps rank *above* confirmed malware under this scorer.
+The scorer's permission/API-surface signals do not separate a banking app from a banking trojan —
+expected, since both are built to request similar capabilities. Class convergence is the
+motivating **hypothesis**, not a measured finding — do not state it as the latter. This is why
+Day 3's allowlist (publisher-cert exclusion, scoped to untrusted/sideloaded APKs only) is the
+control that makes the PS1 deployment story coherent, not an optional add-on.
 
 ### Operating point — the strongest User Experience numbers the project has
 
@@ -213,14 +284,12 @@ a dedicated memory budget. Two live memory incidents are traced to large files.
 | **"accuracy"** applied to the bridge confusion matrix | It is a unit test of an exact-match function. |
 | **"mules sit at network bridges"**, any graph-feature uplift | Withdrawn as label leakage — `ps2/06_graph_features.py` assigns top-betweenness nodes to fraud rows using the target. |
 | Any **triage-percentile reframe** of the PS1 score | Dead. Proposed once (`SESSION_LOG.md:248-252`), never implemented, does not work for single-APK upload. |
-| **"independently confirmed"** applied to account 9072 | It is `F3924==1`, but it is also the **only** key in `SYNTHETIC_LINKAGE_GROUND_TRUTH` — it was chosen. `SESSION_LOG.md:430-434` still carries the retracted framing. |
+| **"independently confirmed"** applied to account 9072 | It is `F3924==1`, but it is also the **only** key in `SYNTHETIC_LINKAGE_GROUND_TRUTH` — it was chosen. The original claim survives verbatim in `SESSION_LOG.md` (~line 462, "produced exactly 1 link on account 9072... not a coincidence") per the log's no-rewrite convention, but now carries an inline retraction pointer added 19 Aug forwarding to the "2026-08-11 (correction, not a rewrite)" entry. |
+| **68 packages / 47 issuer clusters** or **73 files / 53 packages / 33 issuers** next to **0.1444** | Wrong n. The scored n is **51 packages / 32 issuer clusters** — see the QUOTABLE section above. |
 
 ---
 
 ## CANNOT CURRENTLY BE SHOWN — state the gap, do not quote
-
-**Any legitimate-banking-app performance number.** No such corpus exists in this repo. Blocked
-until `PLAN.md` item A lands.
 
 **Endpoint timings.** ~9.86 s / ~0.66 s / ~0.0025 s come from a hand-written **n=3** table at
 `SESSION_LOG.md:445-450` with no producing harness. `harness/measure_app_verdicts.py` records
@@ -250,6 +319,9 @@ while sending **17.1%** of clean apps to an analyst. Its mule model reaches **AU
 0.892% fraud rate — catching **53.1%** of fraud in the top 5% of accounts by score. Bridging is
 viable: **66.9%** of malware samples yield at least one network indicator and **99.4%** yield a
 usable certificate hash. Two limits are stated rather than hidden: the system performs no dynamic
-analysis, and its behaviour against *legitimate* banking apps is unmeasured — the corpus believed
-to serve that purpose was found, four days before submission, to contain malware rather than bank
-apps, and building a real one is the project's next measurement.
+analysis, and its own pre-registered measurement against 51 real legitimate banking apps across
+32 issuer clusters shows the static scorer's ranking **inverts** on that population (PRIMARY AUC
+**0.1444** [0.0905, 0.2081]) — permission and API-surface signals do not separate a banking app
+from a banking trojan built to request similar capabilities. That scopes PS1 to untrusted and
+sideloaded APKs, with known publishers excluded upstream by certificate hash — a control not yet
+enforced in the serving path as of this writing.
