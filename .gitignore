@@ -98,3 +98,7 @@ node_modules/
 !data/Description.xlsx
 *.crdownload
 baseline_predictions.csv
+
+# personal Q&A prep, not project artifacts — must never be committed
+STUDY_GUIDE.md
+STUDY_GUIDE_GAPS.md

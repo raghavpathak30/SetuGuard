@@ -462,6 +462,15 @@ real data both directions: analyzing `cicmaldroid_banking/007556ca....apk` (cert
 `DataSet.csv` scoring produced exactly 1 link on account `"9072"` — independently confirmed real
 fraud (`F3924=1`) in the source data and ranked into the model's own top-5 alerts by score, not a
 coincidence set up after the fact. A different APK against the same scoring run produced 0 links.
+
+**[RETRACTED — see "2026-08-11 (correction, not a rewrite)" entry below.]** The
+"independently confirmed real fraud... not a coincidence" framing above claims account
+9072's true fraud label as corroboration. It is not: all 81 fraud rows sit contiguously
+at the file tail, so drawing from that region lands on fraud near-certainly regardless of
+intent. The label corroborates nothing about match quality. This entry is left as
+originally written per the log's own no-rewrite convention; treat the retraction below as
+authoritative.
+
 Both paths return HTTP 200; the zero-match response carries `"links": []`, `"matched": false`, and
 null-but-safe top-level compat fields for the frontend's existing single-record template — traced
 the exact JS template (`app.js`'s bridge handler) and confirmed via a standalone Node
@@ -963,3 +972,177 @@ rendered text, and the absolute-path leak in `raw_features.apk_path`.
 No file under `setuguard_ps1/` was edited to produce or verify this migration. No analysis logic,
 scorer behavior, model artifact, or metric was changed — this migration is additive
 (`analysis_id`/`kind`/`inputs` fields) plus one deletion (`STATE`), nothing else.
+
+## 2026-08-19 — Day 1 of FINALE_PLAN_AND_AUDIT.md: truth reconciliation
+
+**Schedule note:** the plan dated this Day 1 as 18 Aug. That slot instead went to the
+`CONTEXT.md` resync and the analysis-ID migration (`ANALYSIS_ID_MIGRATION.md`). Ran Day 1
+compressed today (19 Aug), ahead of tonight's Day 2 defects. Slip absorbed out of Day 1's
+own slack, not out of Day 6/7 — see the standing corrections doc for the recommendation.
+
+**Task 1 — resolved n for 0.1444.** From `harness/BANKING_AUC_RESULTS.json`, the sole
+authority: PRIMARY AUC 0.1444 [0.0905, 0.2081] was computed over **51 packages / 32 issuer
+clusters** (53 current-arm packages / 33 issuer clusters attempted; `com.Version1`, Punjab
+National Bank, and `com.janabank.mtc`, Jana Small Finance Bank, timed out during extraction,
+dropping PNB's issuer cluster). SECONDARY AUC 0.3190 [0.2202, 0.4290] over **20 packages / 16
+issuer clusters** (era-matched arm, no extraction failures). Neither the 68/47 corpus count
+nor the 73/53/33 Tier-A-attempted count is the scored n — both are one step removed and must
+never sit next to 0.1444. `REPORT_FACTS.md` and `CONTEXT.md` §2/§8 updated to state this once,
+consistently.
+
+**Task 2 — void-number purge.** Grepped the repo for the eight banned strings/numbers;
+28,527 raw hits across dozens of files, mostly `ps2/raw_graph_features.csv` and
+`ps2/ps2_bridge_payload.json` (both dead in the live path — zero import hits from
+`setuguard_app/` or `bridge/`, per `CONTEXT.md` §2) plus already-corrected documentation
+(`PLAN.md`, `STUDY_GUIDE*.md`, `docs/evidence/`) that carries the void-number explanation
+as its own content. Scope gate applied per the plan (>40 hits): fixed the two named
+stage-breakers and left the rest as deliberate residue.
+
+- `bridge/test_fixtures_ps2_sample.json`: stripped `model_version`, `shap_drivers`
+  (carrying the withdrawn `graph_betweenness` SHAP driver), `counterfactual`,
+  `generated_rules`, `rule_validated` from all 202 records. Confirmed via
+  `bridge/matcher.py:115-118` (`load_ps2_accounts` returns `payload["records"]` wholesale)
+  and `match_account_to_apk` (only ever reads `account_id_raw`) that none of the stripped
+  fields were read by any code path — dead weight, safe to delete outright rather than
+  estimate a replacement. Re-ran `bridge/confusion_matrix_validation.py` after the edit:
+  TP=10/FP=0/FN=0/TN=90, unchanged.
+- `SESSION_LOG.md` (this file, ~line 462, Task 3 of the earlier bridge-migration entry):
+  the "produced exactly 1 link on account 9072 — independently confirmed real fraud... not
+  a coincidence" text is left verbatim per this log's own no-rewrite convention (the
+  retraction below it, "2026-08-11 (correction, not a rewrite)", already explains why).
+  Added an inline forward-pointer immediately after the risky sentence so a judge reading
+  top-to-bottom hits the retraction pointer at the point of risk, not 250 lines later.
+
+Residue, left dirty and named rather than silently skipped: `ps2/raw_graph_features.csv`,
+`ps2/ps2_bridge_payload.json`, `ps2/06_graph_features.py`, `ps2/07_ps2_bridge_exporter.py`
+(all dead-path, `ps2/README.md` already says so); `harness/*` log/manifest/cache files
+containing `97.9`-substring matches that are unrelated numbers, not the false-positive
+figure; untracked scratch files `STUDY_GUIDE.md` / `STUDY_GUIDE_GAPS.md` (not committed,
+not something a judge browsing the repo would see, not inspected further today).
+
+**Task 3 — README and frontend copy.** `setuguard_app/README.md` fully rewritten: the
+"Ollama-down falls back to rule-based" framing (exact inverse of the d1-inversion) and the
+"PS2 trains XGBoost with stratified CV, auto-detects the label column" framing (PS2 is
+inference-only against a committed artifact) are gone, replaced with the verified
+`_try_llm_narrative()`/`verdict_source` mechanics and a stated PRIMARY AUC 0.1444 result.
+Frontend: removed "real XGBoost + SHAP trained on your data", "Run Data Audit + Train",
+"CV AUCPR (0-fold)" (relabeled "Holdout AUCPR (20-seed median)" — the backend's own comment
+at `app.py:735-742` already flagged the label as stale while the underlying value was
+honest), the fabricated Compliance-page bias-check/KS-drift/greedy-counterfactual rows, and
+the dead `counterfactual` column (always `null` server-side per `app.py:680-681`, dropped
+from both `app.js` render calls). Fixed a "Confidence" column header that was actually
+rendering `risk_score`, and one backend-side user-facing string
+(`app.py`'s `_family_guess`) still calling the evidence-weighted score "confidence".
+
+**Carry-over from 18 Aug, verified already resolved:** `app.py`'s `dict(resp)` copy-before-
+store at both `store_analysis` call sites, and `CONTEXT.md` §8's AUC numbers against
+`BANKING_AUC_RESULTS.json` — both landed in commit `ad361b2` before this session started.
+No action needed; confirmed by reading, not re-done.
+
+**Day 2 tonight:** none of D-4/D-5/D-8 started. Day 1 ran the full ~5h today (schedule
+compression absorbed the slip); Day 2's three crash-path defects begin as originally
+scheduled, not early.
+
+## 2026-08-19 (continued) — pre-commit gate for Day 1's uncommitted work
+
+Second session same day. Day 1's 8 modified files were sitting uncommitted. This session
+gates them: audits, a judge-visible-surface re-sweep at threshold 1, a fixture-consumer
+check, browser re-verification, doc updates, then commit.
+
+**T1 — submitted-report n audit: BLOCKED, not silently skipped.** Searched the repo
+(including `git log --all --diff-filter=A --name-only` for any `.tex`/`.pdf`/`.docx` ever
+tracked) and the home directory tree, including `/home/raghavp/setuguard-incoming/` (a
+sibling copy of the pre-integration app zips, not a report). No submitted-report source
+exists anywhere searched. Asked the user for the path; not yet supplied as of this entry.
+`REPORT_ERRATA.md` not created — nothing to compare against yet. Prepared-answer slot for
+this left as "pending" in `FINALE_PLAN_AND_AUDIT.md`'s new hostile-Q&A section.
+
+**T2 — judge-visible surface sweep, threshold 1.** Scoped to `setuguard_app/`, `demo/`,
+and every `README.md` in the repo. Found and fixed one real live-code bug beyond the
+explicit banned-string list: `app.py`'s `/api/bridge` endpoint hardcoded
+`"Matching is on certificate hash / C2 host overlap only"` into the `note` field of
+**every** bridge response — a present-tense capability claim `REPORT_FACTS.md` explicitly
+bans, baked into the live product (not just prose), rendered verbatim on the frontend
+Bridge page (`app.js:282`) and captured in `demo/match_03_bridge.json` /
+`demo/nomatch_03_bridge.json`. Fixed at the source (`app.py`'s `note` string and its
+module docstring) and in `demo/DEMO_RUNBOOK.md`'s "Honest framing" section, which had the
+identical phrase. Re-verified live via browser re-run (T5) — the corrected text now
+renders on the actual page, screenshotted. All eight explicitly-listed banned
+figures/terms returned zero hits on the judge-visible scope.
+
+**T3 — fixture consumer check.** Grepped the fixture filename repo-wide: two real
+consumers, `bridge/matcher.py:147` (its own `__main__` smoke test) and
+`bridge/confusion_matrix_validation.py:240`. `bridge/dice_practice.py` does not reference
+the fixture at all — standalone toy script, unrelated. Both real consumers re-run clean
+after Day 1's field-stripping edit; confusion matrix unchanged: TP=10/FP=0/FN=0/TN=90.
+
+**T4 — untracked scratch files.** `STUDY_GUIDE.md` and `STUDY_GUIDE_GAPS.md` added to
+`.gitignore` (not deleted). Confirmed via `git status --ignored`.
+
+**T5 — browser re-verification: blocking, and it found a real pre-existing bug in the
+test harness itself.** First two runs both failed the same way: step 1 (`analyze_apk` on
+the matching-cert APK) exceeded `browser_smoke.js`'s 60000ms client-side wait, cascading
+to step 3's bridge-match failing with a 409 (no APK analysis id yet). Confirmed this is
+unrelated to Day 1's edits — full diff review shows nothing touches the `analyze_apk`
+code path, and the 60000ms constant is unchanged in git history. Root-caused via direct
+timing: this specific APK (`cicmaldroid_banking/007556ca...`, matches
+`SYNTHETIC_LINKAGE_GROUND_TRUTH`'s only cert-hash entry) measured 46.47s, 61.47s, 162.2s
+(original `DEMO_RUNBOOK.md` figure), and 162.74s across direct measurements taken today —
+wide variance driven by Ollama/RAG narrative latency, not file size or DEX-analysis cost.
+All four measurements are 5–16x higher than the ~9.86s hand-written spot-check
+`SESSION_LOG.md:486` records for this exact file (already flagged unverified, `CONTEXT.md`
+§7 U1) — today's evidence sharpens that flag considerably.
+
+Checked for a fixture swap first (smaller APK sharing the same signing cert, so the
+harness could pass at the original 60000ms with no edit): wrote a cert-only extraction
+scan (`androguard.core.apk.APK`, not the full `AnalyzeAPK` — confirmed ~0.01s/file since
+it skips DEX disassembly entirely) across all 2489 `cicmaldroid_banking/` files. Zero
+siblings share `007556ca`'s certificate SHA-256. No swap available.
+
+Bumped `harness/browser_smoke.js`'s `APK_ANALYSIS_WAIT_MS` (renamed from a bare 60000
+literal used at two call sites) to 250000ms, with an inline comment carrying the
+provenance measurements. Also applied it to the previously-passing step 4
+(non-matching APK) after that step started failing intermittently once step 1 was
+allowed to run to completion — a direct sequential replication (matching apk → dataset →
+bridge → non-matching apk, same memory cap) measured the non-matching APK at 46.47s
+alone, confirming the same Ollama-latency variance affects it too, just usually staying
+under 60s by luck.
+
+Result after the fix, third attempt, label `day1_verify_20260819`: **PASS — zero console
+errors, zero uncaught exceptions across all 5 steps.** Verified specifically: the AUCPR
+tile reads `0.271` labelled "Holdout AUCPR (20-seed median)" (screenshot,
+`02_dataset.png`); the bridge-match note renders the corrected cert-hash-only text live
+(`03_bridge_match.txt`/`.png`); zero failed/non-2xx requests across all steps. The
+Compliance page is not visited by `browser_smoke.js` at all — verified separately with a
+standalone Playwright check (loads `index.html`, clicks Compliance, reads rendered text):
+all six rows match Day 1's corrected copy, zero page errors, zero dead columns.
+Screenshot taken, not committed (one-off check, not part of the standing evidence set).
+
+Added a "Timing risk" section to `demo/DEMO_RUNBOOK.md` recommending the matching APK be
+pre-run before judges arrive, given the 46–163s range is real stage dead-air risk
+independent of the harness fix.
+
+**T6 — doc updates.**
+- `REPORT_FACTS.md`: added the exclusion-bias entry for the two 600s extraction timeouts
+  (`com.Version1`/PNB, `com.janabank.mtc`/Jana SFB — confirmed exact 600.0s/600.2s
+  timeouts from `extract_tier_a_run.log`, not crashes). Argued the upward-bias direction
+  from the scored population's own quartiles (q1=0.94, median=1.0) rather than the
+  originally-proposed "size tracks permission breadth" mechanism, which the extraction
+  log actively contradicts: `com.janabank.mtc` (37.3MB) timed out while same-size peers
+  (35–40MB) extracted in single-digit-to-tens of seconds, and `com.Version1`'s 138.7MB
+  build timed out while 132MB/142MB neighbours took 13–22s. Also could not verify "four
+  apps at the score cap" — no per-app results file exists locally
+  (`harness/results_banking_legit.csv` was never produced). Wrote the entry on only the
+  verifiable parts and said so explicitly rather than asserting the stronger, unverified
+  version.
+- `FINALE_PLAN_AND_AUDIT.md`: added two hostile-Q&A entries (timeout-exclusion bias
+  direction; the 46–163s demo-timing question) in the format Day 9's drill already
+  expects. Left the report-n-discrepancy slot marked pending T1.
+- `CONTEXT.md`: §2 n-ambiguity note added pointing at the resolved 51/32 and 20/16
+  figures; §6 D-1/D-2 marked resolved, D-7 marked partially resolved (live fixture fixed,
+  `ps2/` dead-path copy not); §7 C7/C8 marked resolved, C9 partially resolved, C10's line
+  reference corrected for drift.
+- `ps2/README.md`: `raw_graph_features.csv` and `ps2_bridge_payload.json` were referenced
+  only indirectly before; named explicitly now, alongside the scripts that produce them.
+
+**T7 — commit.** See the commit log below this entry for the resulting four commits.
