@@ -1,3 +1,4 @@
+
 # SetuGuard — Revised Development Roadmap (v2)
 ### Incorporating the four research-backed fixes, Claude Code assumed for implementation
 
