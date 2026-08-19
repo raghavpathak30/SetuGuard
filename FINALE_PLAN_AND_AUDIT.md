@@ -199,22 +199,23 @@ cert hash matches account 9072" is.
 | Write the honest scaling paragraph: what breaks at 10M accounts and 100k APKs/day | 2 | Scalability | PDF section | — |
 
 The honest paragraph: PS2 is inference-only over 18 features and scales trivially —
-a batch scoring job; 10M rows is minutes, not an architecture problem. PS1 does not.
-At ~10 s/APK single-threaded with ~12 GB peak, 100k APKs/day needs roughly 12
-concurrent extraction workers and the RAG stage detached behind a queue, because
-Mistral-7B is the bottleneck and is not the verdict source anyway. **The narrative
-generator can be dropped or batched without changing a single verdict, because the
-verdict is rule-based.** That property falls straight out of the d1-inversion and most
-teams will not have an equivalent.
+a batch scoring job; 10M rows is minutes, not an architecture problem. PS1 does not:
+peak memory runs around 12 GB on large files, so throughput is workers times cores,
+and the RAG stage detaches behind a queue because Mistral-7B is the bottleneck and is
+not the verdict source anyway. **The narrative generator can be dropped or batched
+without changing a single verdict, because the verdict is rule-based.** That property
+falls straight out of the d1-inversion and most teams will not have an equivalent.
 
-**Flagged 19 Aug, not resolved, sharpens rather than replaces this task's own reason
-for existing:** the "~10s/APK single-threaded" figure above doesn't match either real
-extraction-timing artifact found this session — `harness/extract_tier_a_run.log`
-averages 39.6s/APK single-threaded on the real banking corpus (large production
-files, two 600s timeouts), and `SESSION_LOG.md:353`'s 668-file general corpus run
-reports "1.20s/APK effective" under 4-worker parallelism, a different measurement
-entirely. Neither cleanly supports "~10s single-threaded" as a population-general
-figure. Build the Day 6 harness before quoting a per-APK number in the deck.
+**Void as of 19 Aug, not deferred to Day 6:** this paragraph no longer quotes a
+per-APK figure. It previously said "~10s/APK single-threaded" — that number matches
+neither real extraction-timing artifact found this session:
+`harness/extract_tier_a_run.log` averages 39.6s/APK single-threaded on the real
+banking corpus (large production files, two 600s timeouts), and
+`SESSION_LOG.md:353`'s 668-file general corpus run reports "1.20s/APK effective"
+under 4-worker parallelism, a different measurement entirely under different
+conditions. A 33x spread across the three numbers that have existed for this figure
+(9.86s, already voided; 1.20s; 39.6s) is not noise to average over — it's an unmeasured
+quantity. Build the Day 6 harness before quoting a per-APK number anywhere.
 
 ### Day 7 — Mon 24 Aug · 5h · Business Potential + evidence chain · SHIP + CLAIM
 
@@ -412,17 +413,21 @@ not a number inflated by missing data. What I can't yet claim is *why* these two
 out — it isn't file size, checked directly against same-sized neighbours that extracted
 in seconds — so I call it unexplained, not size-driven."
 
-**Hostile question:** *"Why does your demo APK take three minutes to analyse when you
-claim ten seconds per APK elsewhere?"*
+**Hostile question:** *"How long does analysis actually take, and why did it vary so
+much when you measured it?"*
 
-**Answer:** "Two different things are being timed. The ~10s/APK scaling figure is static
-feature extraction alone. The live `/api/analyze_apk` endpoint also calls the local LLM
-for the narrative stage, and that call's latency is what dominates and varies widely —
-I measured this exact APK between 46 seconds and 163 seconds across repeated runs today.
-That's why the demo APK is pre-run before you're in the room: the verdict and the bridge
-match you'll see came from a real, unmodified pipeline call, just not one triggered live
-in front of you. And it's worth saying plainly — that LLM call produces narrative text
-only, never the verdict, so nothing about that latency touches correctness."
+**Answer:** "I don't have a defensible per-APK figure yet, and I'd rather say that than
+quote one — three different numbers have existed for this at different points (9.86
+seconds, 1.20 seconds, 39.6 seconds) and they don't agree closely enough to average.
+What I do know precisely: most of that variance was the local language model's
+narrative stage reloading into memory after being idle, not the static analysis itself
+or genuine unpredictability. Pinning the model to stay resident fixed that — a same-APK
+test that previously ranged 71 to 193 seconds now holds at roughly a minute after one
+warm-up call at the start of the session. That's why the demo runs the analysis live,
+not pre-run — the fix made it fast enough to. The remaining minute is real embedding
+and generation compute, not model loading, and it never touches the verdict — that
+comes from a deterministic rule scorer, evidenced with the model stopped entirely. A
+real per-APK throughput number is Day 6's job, measured properly, not asserted here."
 
 **Report-n discrepancy (T1):** pending. `T1` of this session was blocked — no LaTeX/PDF/
 docx source for the submitted 17 Aug Progress Report could be found in this repo or the

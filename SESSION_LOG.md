@@ -1241,3 +1241,189 @@ artifact remain blocked on the Priority 1 portal check, per their own stated ord
 Time-discipline instruction (protect Day 2) observed — stopping here to report and ask
 about the portal check rather than guessing which report version to build the errata
 against.
+
+## 2026-08-19 (Day 2, session start) — D-8 characterisation and fix
+
+**Established before building anything, per this session's own discipline.** Exception:
+`ValueError: embedded null character`, raised inside `yara.compile(source=yar_text)` at
+`app.py:369`. Root cause unchanged from Finding 5 (`setuguard_ps1/FROZEN_FILE_FINDINGS.md`):
+`static_analysis.py`'s URL regex captures a trailing NUL byte from Adobe XMP metadata
+strings; `yara_gen.py`'s `_yara_escape()` doesn't strip NUL; the poisoned string reaches
+the generated `.yar` rule text unmodified.
+
+**Input-dependent, not nondeterministic — n=31 tested** (32 previously-known-affected
+filenames from `fix3_fp_baseline/skips.csv`, 1 missing on disk), via the real
+`static_analysis.analyze_apk()` -> `app._rule_based_verdict()` ->
+`yara_gen.generate_yara()` -> `yara.compile()` chain, Ollama call skipped (verdict/YARA
+never depend on it). Result: 19 now score `benign` under the current live scorer (verdict
+has drifted since Finding 5 was found; YARA never attempted), 4 hit a **different**,
+uncaught defect (corrupt zip in `static_analysis.analyze_apk()` — D-4's territory, not
+D-8's), and **8 reached YARA generation, 8/8 (100%) hit the NUL-byte `ValueError`.** Named:
+`app.flicky_940.apk`, `app.plugbrain.android_154.apk`,
+`com.carriez.flutter_hbb_104070003.apk`, `com.duckduckgo.mobile.android_52850000.apk`,
+`com.calmyjane.spacebeam_11.apk`, `app.pwhs.universalinstaller_31.apk`,
+`com.absinthe.libchecker_2671.apk`, `com.bald.uriah.baldphone_102.apk`.
+
+**What actually happens when it fires — this is the finding that matters:** it does not
+crash. `app.py:368-377` already wraps `yara.compile()` in `try/except Exception`.
+Confirmed three ways: (1) my simulation using the exact try/except code, 8/8 caught
+cleanly; (2) a real live HTTP call against `app.flicky_940.apk` — **HTTP 200**,
+`verdict: suspicious`, `error: None`, `yara.compiles: false`; (3) the frontend
+(`app.js:148`) already renders "❌ compile error" in the results heading when this
+happens — analyst-visible, not silent. **The "one demo run in five throws" premise does
+not hold for the live API.** It held for the offline `fix3_fp_harness.py`, which caught
+only `yara.Error` and missed this `ValueError` — a different program's bug, not app.py's.
+
+**What was actually broken, and fixed:** `app.js:107`'s alert-log line unconditionally
+said "New YARA rule generated" regardless of `compiles` status — including for the
+benign case where no rule was even attempted (`yar_text` is a placeholder comment, not
+a real rule). Fixed: the alert now checks whether a real rule was attempted
+(`yar_text` starts with `"rule "`) and whether it compiled, firing "New YARA rule
+generated" only on genuine success and "YARA rule generation unavailable for this
+sample... failed to compile" (badge-medium, matching the fix bar's exact suggested
+wording) otherwise. No alert fires for the benign/no-rule-attempted case, matching prior
+behavior there (that case already had no misleading claim to begin with, since no rule
+text resembling a real rule existed).
+
+**Falsification condition:** any NUL-byte-affected APK producing an HTTP 500, a blank
+panel, or a hang specifically from YARA generation would falsify the "already caught"
+finding. The alert-log fix is falsified if the Recent Alerts feed still shows "New YARA
+rule generated" unqualified for a sample where `compiles: false`.
+
+**Not yet visually verified in a real browser** (only via curl + JSON inspection) — part
+of this session's Task 3 verification pass, though `browser_smoke.js`'s own two demo
+APKs are not NUL-byte-affected, so a targeted check is needed separately if full
+visual confirmation is wanted.
+
+## 2026-08-19 (Day 2, continued) — D-4 and D-5
+
+**D-4 — fail-closed path. Error-path degradation, not a real correction.** Reproduced
+live before touching anything: `app.panoramax_63.apk` (a real F-Droid file, corrupt zip)
+through `/api/analyze_apk` returned **HTTP 500**,
+`{"error":"ValueError: End of central directory record (EOCD) signature not found"}` —
+confirmed as one of the 4 `ANALYZE_APK_RAISED` cases already surfaced during D-8's
+characterisation batch, same root code path (`static_analysis.analyze_apk()` raising,
+caught previously only by the outer catch-all). Fixed by splitting the endpoint's error
+handling: a new inner try/except scoped to just the `analyze_apk()` parse call converts
+any exception there into `{"status":"requires_manual_review","kind":"apk","filename":...,
+"reason":"static analysis could not parse this file (<ExceptionType>)",
+"action":"escalate to manual review"}` at **HTTP 200**, per `PLAN.md` item 3's exact spec.
+The outer try/except (verdict/narrative/YARA/store) is unchanged and still returns a
+real HTTP 500 for genuine bugs elsewhere — this fix does not mask those. Frontend:
+`renderApkResults()` would have thrown on the missing fields (`severity`, `risk_score`,
+etc.) a manual-review response doesn't carry, so added a dedicated
+`renderManualReviewCard()` and an early branch checking `data.status ===
+"requires_manual_review"` before the normal render path.
+
+Verified against all 4 known corrupt samples (`app.panoramax_63.apk`,
+`app.michaelwuensch.bitbanana_79.apk`, `app.siftrecipes_8.apk`, `app.pachli_52.apk`):
+4/4 now return HTTP 200 with the structured envelope. Regression check: a normal
+successful analysis (`com.dmouayad.my_quran_233.apk`) still returns `verdict: benign,
+status: None, error: None` — unaffected.
+
+**Falsification condition:** any parse-failing APK still returning HTTP 500 with a raw
+exception string, or the frontend throwing/rendering blank on a `requires_manual_review`
+response, would falsify this fix.
+
+**D-5 — upload size cap. Error-path degradation (a reject-early guard), not a real
+correction.** Characterisation reused from a prior session rather than re-run today:
+`cash.p.terminal_243.apk` (172.2MB) measured timing out at a 300s wall-clock even in
+isolation with a dedicated 10G/8G/2G memory budget (`SESSION_LOG.md:357-358`) —
+well-established, not re-measured, to avoid spending 5+ minutes reproducing an
+already-solid result. `MAX_CONTENT_LENGTH` confirmed absent from `app.py` before the fix
+(grep, zero hits).
+
+**Caught before shipping, not hypothetical:** the obvious fix — Flask's
+`app.config["MAX_CONTENT_LENGTH"]` — is application-wide, and would have rejected
+`/api/analyze_dataset`'s own `DataSet.csv` upload (~111MB, real, needed for the demo).
+Reverted that approach before testing it against the live dataset path and switched to a
+manual check scoped to `analyze_apk_endpoint()` only: `request.content_length` checked
+before touching disk (fast-path reject for well-behaved clients), plus a post-`f.save()`
+size check as a backstop for chunked-encoding uploads that skip Content-Length, both
+returning `{"status":"rejected","reason":"upload is <N>MB, over the 50MB
+limit","action":"split or pre-filter the file before resubmitting"}` at HTTP 413.
+Client-side: `frontend/app.js`'s file-input change handler now rejects >50MB files
+immediately with a readable message and disables the analyze button, before any upload
+starts.
+
+Verified: `cash.p.terminal_243.apk` (172.2MB) now rejected in **0.161s** (HTTP 413),
+not a 300s timeout. Regression check: `DataSet.csv` (~111MB) through
+`/api/analyze_dataset` still returns HTTP 200, `n_rows: 9082`, unaffected. The real demo
+APK (`007556ca...`, 492KB) verified end-to-end through the now-combined D-4+D-5+D-8 code
+path — result pending at the time of this entry, see the next entry for the outcome.
+
+**Falsification condition:** a >50MB APK upload still reaching the analysis pipeline
+(any wall-clock beyond a fast rejection), or a legitimate <111MB dataset upload being
+rejected, would falsify this fix.
+
+## 2026-08-19 (Day 2, continued) — verification pass, standing correction, carry-overs
+
+**Task 3 — verification pass.** Three consecutive full `browser_smoke.js` runs (labels
+`day2_verify_run1_20260819`, `_run2_`, `_run3_`), all 5 steps each: **PASS — zero console
+errors, zero uncaught exceptions across all steps**, all three runs. Neither of
+`browser_smoke.js`'s own two demo APKs exercises D-4 (corrupt zip) or D-5 (oversized
+file) — both are normal, parseable, under-cap files — so this 3x pass confirms **no
+regression** from today's changes on the real demo path, not the new fix paths
+themselves. Those were verified separately: a targeted one-off Playwright script
+(`harness/_d4_d5_frontend_check.js`, written for this check and deleted after — not part
+of the standing harness) drove the real frontend against `app.panoramax_63.apk` (D-4) and
+`cash.p.terminal_243.apk` (D-5) directly. Result: zero console errors, zero page errors,
+both screenshotted (`harness/browser_evidence/d4_d5_check_20260819/`) — the manual-review
+card renders exactly as designed, the oversized-file rejection shows a readable message
+and disables the analyze button. Not re-run 3x: D-4/D-5's failure modes are deterministic
+(a corrupt zip always raises the same exception; an oversized file always exceeds a fixed
+threshold), unlike D-8's Ollama-latency-driven nondeterminism, so a single clean run
+against each is the right amount of evidence, not three.
+
+**Standing correction — ~10s/APK voided today, not deferred to Day 6.** Threshold-1
+sweep (setuguard_app/, demo/, all READMEs) for "10s/APK" and variants: zero hits, judge-
+visible surfaces already clean. Two internal planning-doc occurrences fixed in
+`FINALE_PLAN_AND_AUDIT.md`: the Day 6 scaling paragraph no longer states a per-APK
+figure at all (previously asserted "~10 s/APK single-threaded" as fact, with a caveat
+appended after it — now the number is removed outright, per instruction, rather than
+hedged); and a prepared hostile-Q&A answer that both quoted the same void figure and
+assumed the demo APK is pre-run (stale given today's residency fix — the demo now runs
+live, ~1 minute, after one warm-up call) — rewritten to state plainly that no defensible
+per-APK figure exists yet, and to explain the residency finding instead.
+
+**Baseline-comparability note for Day 6, recorded so the harness doesn't inherit a bad
+comparison:** `harness/extract_tier_a_run.log`'s 39.6s/APK average was measured before
+`keep_alive=-1` landed (today, Finding 6). If that average's underlying per-file timings
+included the narrative call (unconfirmed either way from the log alone — it records
+wall-clock per extraction, and this session did not check whether `extract_tier_a_run.py`
+or whatever produced that log invokes the Ollama stage at all), part of it may be
+cold-load tax that no longer exists post-fix. Day 6's harness measures the system as it
+exists now, after this session's fixes; it must not be compared against the 39.6s/APK
+figure as if both describe the same system.
+
+**Carry-over — Priority 0 (issuer-cluster integrity), for the record, in the framing
+that survives a hostile question:** the Play App Signing risk was real at the raw
+certificate level (27/~73 Tier A files carry the Google Inc. issuer) and the bootstrap
+never used that field — `score_banking_corpus.py` clusters on a manually-researched
+bank-identity label built specifically to guard against this
+(`BANKING_PACKAGE_TIERING_DECISIONS.md`, 13-14 Aug, before any scoring ran). That is a
+design that anticipated the attack, not a near-miss that happened to land safely — say
+it that way, not as "we got lucky."
+
+**Carry-over — Priority 1, dangling "Section 4" reference: located precisely, not
+fixed.** No LaTeX source exists anywhere searched (repo, home directory tree, confirmed
+last session), so the compiled PDFs cannot be edited directly — attempting to patch
+binary PDF internals directly was not attempted, it is not a safe or reliable edit path.
+Precise finding instead: the sentence "...so the figure is contaminated by selection and
+appears nowhere in this report. It is the reason the procedural rules in Section 4
+exist." is common to both `(2)` and `(3)`'s underlying content, but is **only wrong in
+`(3)`** — `(2)` genuinely has its own numbered "4 Evaluation Methodology" section, so the
+reference is accurate there. In `(3)`'s retypeset, that content was merged into "III
+Deterministic Verdict Control" without its own heading, so "Section 4" is now dangling.
+**Ready-to-paste fix for whenever LaTeX source access exists:** change "Section 4" to
+"Section III" in that sentence, in `(3)`'s source only.
+
+**Portal check:** still unresolved as of this entry — the user is doing this separately,
+outside this session's scope.
+
+**Not started this session, deliberately:** Priority 2 (claim inventory) and the errata
+artifact. The three crash paths closed with room to spare in the session budget, which
+per this session's own framing means picking these up is now a live option rather than
+foreclosed — deferred to the user's judgment on whether to continue now or hold for a
+dedicated evening session, since the errata's target still depends on the unresolved
+portal check.
