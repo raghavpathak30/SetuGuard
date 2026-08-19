@@ -91,32 +91,28 @@ def extract_graph_features(graph_csv: str, sample_frac: float = 0.02, k_approx: 
 
 def map_graph_features_to_dataset(df_bank: pd.DataFrame, df_graph_features: pd.DataFrame, target_col: str = "F3924") -> pd.DataFrame:
     """
-    Maps graph features deterministically to bank dataset rows.
-    Aligns high-betweenness bridge nodes from AMLworld with mule-labeled accounts,
-    reflecting the criminological property that money mules sit at network bridges.
+    Maps graph features to bank dataset rows independently of the target label.
+    Prevents target leakage and circular reasoning by avoiding the use of target_col (fraud_mask)
+    during feature assignment.
     """
-    print("\n--- Step 2: Mapping Graph Features onto Bank Dataset ---")
+    print("\n--- Step 2: Mapping Graph Features onto Bank Dataset (Clean / Non-Leaky) ---")
     combined_df = df_bank.copy().reset_index(drop=True)
+    n_rows = len(combined_df)
     
-    # Sort graph features by betweenness centrality descending
-    sorted_graph_df = df_graph_features.sort_values(by="graph_betweenness", ascending=False).reset_index(drop=True)
+    # Sample graph nodes randomly without inspecting target label (target_col)
+    sampled_graph_nodes = df_graph_features.sample(
+        n=n_rows, 
+        replace=(len(df_graph_features) < n_rows), 
+        random_state=42
+    ).reset_index(drop=True)
     
-    fraud_mask = combined_df[target_col] == 1
-    n_fraud = fraud_mask.sum()
-    n_legit = len(combined_df) - n_fraud
-    
-    # Top betweenness nodes assigned to fraud accounts
-    top_graph_nodes = sorted_graph_df.iloc[:n_fraud].copy()
-    rest_graph_nodes = sorted_graph_df.iloc[n_fraud:].sample(n=n_legit, replace=(len(sorted_graph_df) - n_fraud < n_legit), random_state=42).reset_index(drop=True)
-    
-    # Assign values to combined DataFrame
+    # Assign values to combined DataFrame independently of target label
     for col in ["graph_louvain_community", "graph_betweenness", "graph_pagerank", "graph_fan_in_out_ratio"]:
-        combined_df[col] = 0.0
-        combined_df.loc[fraud_mask, col] = top_graph_nodes[col].values
-        combined_df.loc[~fraud_mask, col] = rest_graph_nodes[col].values
+        combined_df[col] = sampled_graph_nodes[col].values
         
-    print(f"Mapped 4 graph features onto {len(combined_df)} accounts ({n_fraud} fraud accounts assigned high-betweenness bridge nodes).")
+    print(f"Mapped 4 graph features cleanly onto {n_rows} accounts (label-independent random mapping).")
     return combined_df
+
 
 
 def train_graph_enhanced_xgboost(df: pd.DataFrame, target: str = "F3924", n_splits: int = 5):
@@ -186,12 +182,16 @@ def train_graph_enhanced_xgboost(df: pd.DataFrame, target: str = "F3924", n_spli
     fraud_betweenness = X.loc[y == 1, "graph_betweenness"]
     legit_betweenness = X.loc[y == 0, "graph_betweenness"]
     
-    print("\n--- Mule Node Centrality Analysis ---")
+    print("\n--- Mule Node Centrality Analysis (Label-Independent) ---")
     print(f"  Fraud accounts mean betweenness: {fraud_betweenness.mean():.6e}")
     print(f"  Legit accounts mean betweenness: {legit_betweenness.mean():.6e}")
-    print("  CONFIRMED: Mule nodes surface as high-centrality bridge nodes in the transaction network.")
+    if fraud_betweenness.mean() > legit_betweenness.mean():
+        print("  EVALUATION: Fraud accounts exhibit higher mean betweenness centrality.")
+    else:
+        print("  EVALUATION: Honest, label-independent distribution established without target leakage.")
 
     return fold_models, mean_aucpr, mean_auroc
+
 
 
 if __name__ == "__main__":
