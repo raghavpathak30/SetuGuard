@@ -66,3 +66,71 @@ a deliberate product boundary, not a response to the measurement.
 - Reviving the triage-percentile reframe.
 - Any claim that the class-convergence hypothesis was "confirmed" - it can survive
   a test or fail one; the corpus is too small to confirm it.
+
+## 2026-08-19 — issuer-cluster integrity check, appended post-hoc, original text above unchanged
+
+This section verifies a concern raised after the AUC was published, not a change to the
+design above. Appended per this file's own amend-don't-delete discipline.
+
+**The concern:** "resample by issuer clusters" (design section above) does not itself
+specify what identifies an issuer. If clustering had used the APK's raw X.509
+certificate-issuer field, Google Play App Signing re-signing would collapse many
+structurally independent banks into a single "Google Inc." cluster, since Play
+re-signs the APK with Google's own key at distribution time. That would understate
+how much independent structure the published interval rests on. Checked directly:
+**27 of the ~73 Tier A files carry raw cert issuer "Google Inc."**
+(`harness/BANKING_CORPUS_VERIFICATION.md`), so this was a real risk, not a hypothetical
+one.
+
+**What was actually clustered on:** `harness/score_banking_corpus.py` (the file that
+produced `harness/BANKING_AUC_RESULTS.json`) never reads the raw certificate-issuer
+field. Its `issuer` comes from `harness/BANKING_CORPUS_MANIFEST.tsv`, which joins from
+`harness/banking_packages.csv` — a manually-researched bank-identity label assigned per
+package (`source` column: 78/83 rows `manual`), built 13-14 Aug per
+`harness/BANKING_PACKAGE_TIERING_DECISIONS.md`, which independently flags "same-issuer
+clustering" as a named risk to effective n **before any scoring ran**, and is the reason
+issuer-cluster resampling exists in the design section above at all.
+
+**Verified by reconstruction** (the assignment itself is not stored in
+`BANKING_AUC_RESULTS.json` — only the cluster count is; the assignment was
+reconstructed here from `BANKING_CORPUS_MANIFEST.tsv` + `score_banking_corpus.py`'s own
+`load_manifest()`/`load_banking_scored()` functions, imported and run read-only, not
+reimplemented, so this is not an independent re-derivation that could silently diverge):
+PRIMARY (current arm) reconstructs to exactly 51 files / 32 issuer clusters, largest
+cluster 3 packages (State Bank of India, Kotak Mahindra Bank, IndusInd Bank), zero
+clusters labelled Google. SECONDARY (era-matched arm) reconstructs to exactly 20 files /
+16 issuer clusters, largest cluster 2 packages, zero clusters labelled Google. Both
+match the published counts in `BANKING_AUC_RESULTS.json` exactly. The one package
+genuinely labelled "Google" anywhere in the full 83-package list
+(`com.google.android.apps.nbu.paisa.user`, Google Pay — a real Google product, correctly
+attributed) is Tier B and outside both scored populations.
+
+**Decision rule fixed in advance of this check:** largest Google-signed cluster ≤3
+packages → record in limitations, no recomputation; ≥4 → recompute both CIs with
+Google-signed apps clustered by package instead of issuer and report both. **Largest
+Google-signed cluster found: 0 packages.** First branch applies, more strongly than its
+own threshold. **No recomputation performed. 0.1444 [0.0905, 0.2081] and 0.3190
+[0.2202, 0.4290] stand as published, unchanged.**
+
+**What remains a live limitation, not resolved by this check:** the manual issuer labels
+in `banking_packages.csv` are researched, not certificate-derived, so their accuracy
+depends on that research being correct — this check verified internal consistency (the
+labels used match what was published, and correctly separate Play-signed apps by true
+publisher) but did not re-verify each of the 83 manual attributions against an
+independent source. `BANKING_PACKAGE_TIERING_DECISIONS.md`'s own "Rows needing
+confirmation" table flags five packages as unconfirmed (`VERIFY` in its note column).
+**Checked by name against the cluster tables above — two of the five are in the scored
+sets, not zero as first assumed here and corrected before this file was committed:**
+`com.infra.aryavartupi` (PRIMARY only, singleton "Aryavart Bank" cluster — the open
+question is whether it is a scheduled commercial bank or a regional rural bank at all,
+i.e. whether it belongs in Tier A, not which bank owns it) and `com.lcode.clabmbanking`
+(both PRIMARY and SECONDARY, singleton "Capital Small Finance Bank" cluster in each arm —
+the open question here is bank identity itself: "issuer assumed Capital SFB from the
+`clab` fragment, unconfirmed"). Both are already singleton clusters (n=1 package), so
+neither can be silently merging two distinct banks under one label — an identity error
+here would misattribute one data point, not collapse independent structure the way the
+Google-signing concern above could have. The other three (`com.yespaylite`,
+`com.euronet.merchantapp`, `org.npci.erupeeI`) are confirmed absent from both scored
+sets. Resolving `com.lcode.clabmbanking`'s issuer is the more material of the two open
+items, since it affects both arms; unscheduled, flagged here rather than silently
+carried forward.

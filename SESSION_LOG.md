@@ -1146,3 +1146,98 @@ independent of the harness fix.
   only indirectly before; named explicitly now, alongside the scripts that produce them.
 
 **T7 — commit.** See the commit log below this entry for the resulting four commits.
+
+## 2026-08-19 (continued, third session same day) — issuer-cluster integrity + report provenance
+
+**Priority 0 — issuer-cluster integrity: checked, no effect, interval stands.** Full
+finding and decision-rule application recorded in `harness/PREREGISTERED_BANKING_AUC_CLAIMS.md`'s
+new 2026-08-19 dated section (appended, original text unchanged). Summary: the real risk
+was confirmed real at the raw-certificate level — 27 of ~73 Tier A files carry cert
+issuer "Google Inc." (Play App Signing) — but `harness/score_banking_corpus.py` (the
+actual producing script) never reads that field; it clusters on a manually-researched
+bank-identity label from `harness/banking_packages.csv`, built 13-14 Aug specifically
+because `harness/BANKING_PACKAGE_TIERING_DECISIONS.md` already flagged same-issuer
+clustering as a risk before any scoring ran. Reconstructed the assignment (not stored in
+`BANKING_AUC_RESULTS.json`, only the count is) by importing and running
+`score_banking_corpus.py`'s own `load_manifest()`/`load_banking_scored()` read-only:
+reproduces 51/32 and 20/16 exactly, largest cluster 3 packages, zero Google-labelled
+clusters in either scored population. Decision rule's "≤3 packages" branch applies, more
+strongly than its own threshold (0 packages, not merely ≤3). No recomputation performed.
+Caught and corrected my own error mid-check: an early draft of the pre-registration
+amendment claimed none of `BANKING_PACKAGE_TIERING_DECISIONS.md`'s five `VERIFY`-flagged
+packages were in the scored sets; checked by name against the cluster tables and found
+two are (`com.infra.aryavartupi`, PRIMARY only; `com.lcode.clabmbanking`, both arms) —
+both singleton clusters so neither can be merging distinct banks, but corrected before
+committing rather than leaving the wrong claim in a pre-registration file.
+
+**Priority 1 — report provenance: partially resolved, portal check still needed.**
+`~/Downloads/` holds four `setuguard_report*.pdf` files. `pdfinfo`'s `CreationDate`
+(actual TeX compile time) tells a different story than filesystem mtime (download
+time): three real compiles exist, not four — 16 Aug 13:33 (6pp, original; `(1)` is a
+byte-identical re-download of this same compile, not a new version), 16 Aug 19:19 (6pp,
+~500B larger — this is `(2)`'s actual content, downloaded 17 Aug 12:24), and 17 Aug
+13:34 (5pp — `(3)`, downloaded immediately). The true gap between the last 6-page
+compile and the 5-page one is **~18 hours, not 71 minutes** — the 71-minute figure
+compared download times, not compile times, and was misleading.
+
+Extracted text from `(2)` and `(3)` via `pdftotext -layout` and diffed. Initial read
+looked alarming (near-total diff, section IV and IX headings missing from `(3)`'s
+roman-numeral sequence). On inspection this is a full retypeset into a denser two-column
+format (page count dropped 6→5 despite `(3)` having MORE extracted text lines than
+`(2)`, 362 vs 334) — not a content cut. Every substantive section's content was found
+present in `(3)`, including the full Limitations/Threats-to-Validity section (missed on
+first grep due to two-column text-extraction ordering, found on a second, more careful
+search) and the full Evaluation Methodology content (merged into section III without
+its own heading, rather than deleted). One genuine defect found: `(3)` still reads "the
+procedural rules in Section 4 exist" — a dangling reference to a section number that no
+longer has its own heading after the merge. Real, fixable, cosmetic; not a missing
+claim.
+
+**Not resolved: which of these is what the portal/panel actually holds.** No access to
+email or the submission portal from this environment — asked the user to check directly.
+Priority 2 (claim inventory) and the errata artifact are blocked on this per their own
+stated ordering ("only after Priority 1 resolves"). Session paused here per the time-
+discipline instruction protecting Day 2's crash-path defects.
+
+## 2026-08-19 (continued, fourth session same day) — Ollama residency fix + banned-string sweep
+
+**Priority 3 — Ollama residency: confirmed and fixed.** Same-APK three-run test, raw
+numbers: cold 157.28s, immediately-after 71.81s, after-6-minute-idle 192.8s.
+Slow/fast/slow — the residency signature, not inference variance. Root cause: none of
+`rag_report.py`'s three Ollama calls (`ollama.embed()` ×2, `ollama.chat()` ×1) passed
+`keep_alive`, so Ollama's ~5-minute default idle-unload applied. Fixed by adding
+`keep_alive=-1` to all three calls (chosen over `OLLAMA_KEEP_ALIVE=-1` on the systemd
+service, which needs root not available here) — logged as Finding 6 in
+`setuguard_ps1/FROZEN_FILE_FINDINGS.md` per the frozen-file discipline. Re-measured
+after the fix: fresh backend restart, one warm-up call (77.73s), deliberate 6.5-minute
+idle (longer than the window that produced the pre-fix 192.8s), then one more call:
+**68.27s, not slow.** The idle-triggered reload penalty is gone. What remains: ~46-80s
+of genuine embedding+generation compute per call, unaffected by `keep_alive` — a demo
+should expect roughly a minute of wait after a proper warm-up, not "instant."
+`demo/DEMO_RUNBOOK.md`'s timing-risk section rewritten to describe this as solved with
+a documented mitigation, and a warm-up-call step added to the Preconditions checklist.
+
+**Priority 4 — 9.86 banned-string sweep: clean.** Threshold-1 sweep of
+`setuguard_app/`, `demo/`, all `README.md` files for "9.86": one hit, in
+`demo/DEMO_RUNBOOK.md`'s own timing-risk section, already correctly framed as a
+superseded spot-check with the measured range beside it (written this session). Fixed
+the related contradiction in `FINALE_PLAN_AND_AUDIT.md`'s Scalability hostile-answer:
+it previously said the language model "isn't on the critical path" without qualifying
+that this is true of correctness (verdict/confidence never depend on it) and false of
+latency as currently shipped (the endpoint waits for the narrative before returning).
+Rewritten to state both halves explicitly, per instruction, rather than the
+overclaiming single phrase. Also removed the bare "about ten seconds per APK" figure
+from that same answer (declined to quote a spot number pending Day 6's harness) and,
+separately, flagged — did not resolve — that Day 6's own planning section still cites
+"~10s/APK single-threaded," which matches neither real extraction-timing artifact found
+this session: `harness/extract_tier_a_run.log` averages 39.6s/APK single-threaded on
+the real banking corpus, and the 668-file general-corpus run
+(`SESSION_LOG.md:353`) reports 1.20s/APK effective under 4-worker parallelism — a
+different measurement, not single-threaded. Left as a sharpened Day 6 item, not
+resolved today.
+
+**Session paused after Priority 4.** Priority 2 (claim inventory) and the errata
+artifact remain blocked on the Priority 1 portal check, per their own stated ordering.
+Time-discipline instruction (protect Day 2) observed — stopping here to report and ask
+about the portal check rather than guessing which report version to build the errata
+against.

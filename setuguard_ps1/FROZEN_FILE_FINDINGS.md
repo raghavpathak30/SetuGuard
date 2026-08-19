@@ -364,6 +364,47 @@ both, since they guard different layers); a narrowly-scoped follow-up applies ex
 fix to the named file(s) and nothing else. `static_analysis.py` and `yara_gen.py` were not
 edited to investigate or produce this finding.
 
+## Finding 6 — Ollama model residency causes 2-3x latency swings on `analyze_apk`, `rag_report.py:41,44,71-79`
+
+Not a correctness defect — verdict/confidence/severity/risk_score never depend on Ollama
+(the d1-inversion), so this finding is about wall-clock latency only, specifically the
+stage-timing risk in `demo/DEMO_RUNBOOK.md`.
+
+**Measured, 2026-08-19, same APK (`cicmaldroid_banking/007556ca...`) throughout, same
+backend process, no other changes between runs:**
+
+| Run | Condition | `analysis_seconds` |
+|---|---|---|
+| 1 | cold (first call after backend start) | 157.28 |
+| 2 | immediately after run 1 | 71.81 |
+| 3 | after 6 minutes idle | 192.8 |
+
+Slow / fast / slow. Ollama's default `keep_alive` unloads a model from VRAM after ~5
+minutes idle; run 3's idle gap crossed that window and paid a full reload, run 2 did not.
+Neither `ollama.embed()` (called twice, `rag_report.py:41,44`) nor `ollama.chat()`
+(`rag_report.py:71-79`) passed a `keep_alive` value, so every call used Ollama's server
+default.
+
+**Fix applied:** `keep_alive=-1` (never unload) added to all three calls — the two
+`ollama.embed()` calls and the one `ollama.chat()` call. Chosen over setting
+`OLLAMA_KEEP_ALIVE=-1` on the `ollama.service` systemd unit because that would need
+root (`sudo -n systemctl` confirmed unavailable in an earlier session); the per-call
+`keep_alive` parameter achieves the same effect from the client side, no service
+config touched. No `options={temperature, seed}` behavior changed — Finding 3's fix is
+untouched.
+
+**Re-measured after the fix, same session:** fresh backend restart (to load the edited
+`rag_report.py`), one warm-up call (77.73s — this call's speed is not itself evidence of
+the fix, since it may have inherited residual warmth from the pre-fix measurements
+minutes earlier), then a deliberate 6.5-minute idle — longer than the window that
+produced the pre-fix 192.8s slow result — then one more call: **68.27s**, not slow. The
+idle-triggered reload penalty is gone. The remaining ~46-80s baseline (also seen on the
+non-matching APK, measured separately at 46.47s) is genuine embedding+generation compute,
+not model loading, and is unaffected by `keep_alive` — a demo should still expect roughly
+a minute of wait after a proper warm-up, not the 100+ additional seconds a cold load adds.
+See `demo/DEMO_RUNBOOK.md`'s updated timing-risk section for the warm-up-call mitigation
+this enables.
+
 ## Status
 
 - **Finding 1** (unguarded `manifest.iter()`) — sign-off-gated, **not applied** this session.

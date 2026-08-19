@@ -28,21 +28,39 @@ runbook exists so the matching path is never left to chance on stage.
 
 ---
 
-## Timing risk — read before deciding how to run this live
+## Timing risk — solved, with a documented mitigation. Read before running this live.
 
-`analyze_apk` on the matching-cert APK (`007556ca...`) has measured 46.47s, 61.47s,
-162.2s, and 162.74s across four direct timings taken 2026-08-19 alone — wide run-to-run
-variance driven by Ollama/RAG narrative latency, not file size. All four are far above
-the ~9.86s single hand-written spot-check `SESSION_LOG.md:486` records for this exact
-file (already flagged unverified, `CONTEXT.md` §7 U1); today's evidence suggests that
-number understates real latency by roughly 5–16×. Treat the on-stage upload as capable
-of a 2–3 minute wait, not a "few seconds" wait, until Day 6 lands a real n≥30 harness.
+`analyze_apk` on the matching-cert APK (`007556ca...`) originally measured 46.47s,
+61.47s, 162.2s, and 162.74s across direct timings taken 2026-08-19 — wide run-to-run
+variance, all far above the ~9.86s single hand-written spot-check `SESSION_LOG.md:486`
+records for this exact file (already flagged unverified, `CONTEXT.md` §7 U1). Rather
+than genuine inference variance, this was **Ollama model residency**: `rag_report.py`'s
+three Ollama calls (two `ollama.embed()`, one `ollama.chat()`) passed no `keep_alive`,
+so Ollama's default ~5-minute idle unload applied, and any call arriving after 5+
+minutes of quiet paid a full model reload. Confirmed with a same-APK three-run test —
+cold 157.28s, immediately-after 71.81s, after-6-minute-idle 192.8s: slow/fast/slow,
+the residency signature, not random variance.
 
-**Recommended:** pre-run the matching APK before judges are in the room, carry its
-`analysis_id` into the bridge step live, and say so plainly if asked — "that analysis
-was pre-run a few minutes ago because it takes 1–3 minutes on this hardware; the
-verdict and bridge match you're about to see came from a real, unmodified pipeline
-run." Do not attempt to fill 2–3 minutes of silence live on stage.
+**Mitigation applied and verified (`setuguard_ps1/FROZEN_FILE_FINDINGS.md` Finding 6):**
+`keep_alive=-1` added to all three Ollama calls. Re-tested with a deliberate 6.5-minute
+idle — longer than the window that produced the pre-fix 192.8s result — and the
+post-idle call came back at **68.27s**, not slow. The idle-triggered reload penalty is
+gone.
+
+**What is not solved, and must still be said on stage:** ~46-80s of genuine
+embedding+generation compute remains per call regardless of residency (also seen on the
+smaller non-matching APK, 46.47s standalone) — `keep_alive` prevents a reload, it does
+not make inference free. Expect roughly a minute of wait after a proper warm-up, not
+2-3 minutes, but not "instant" either.
+
+**Recommended demo sequence:** run one warm-up call (any APK) as the first item in the
+Preconditions checklist below, well before judges are in the room — this both confirms
+Ollama is reachable and puts the model into the now-persistent `keep_alive=-1` state so
+it never unloads again for the rest of the session. Then the matching-cert APK can be
+run live during the demo itself; expect ~1 minute, not 2-3. If asked why the wait is
+short, say plainly: "the model is kept warm for the session — that's a one-line fix, not
+a trick — the verdict and bridge match you're about to see come from a real, unmodified
+pipeline run happening right now, not a pre-run."
 
 ## Preconditions checklist
 
@@ -53,6 +71,10 @@ run." Do not attempt to fill 2–3 minutes of silence live on stage.
   `curl http://127.0.0.1:5000/` returns `{"service":"SetuGuard backend","status":"ok"}`.
 - [ ] Both APK files present at the paths above.
 - [ ] `DataSet.csv` present at repo root.
+- [ ] **Warm-up call**, run once, as early as practical before judges arrive:
+  `curl -s -X POST -F "apk=@cicmaldroid_banking/007556ca146f4b2e9ac6bd51dc66be5130538d514f5aa04d60c1a0b079585ef3.apk" http://127.0.0.1:5000/api/analyze_apk -o /dev/null`.
+  Pays the one-time cold-load cost (~1-3 minutes) so `keep_alive=-1` can hold the model
+  warm for the rest of the session — see "Timing risk" above.
 
 ---
 

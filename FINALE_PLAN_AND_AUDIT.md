@@ -46,7 +46,7 @@ verified 15 Aug, pre-registered at commit `be6a15c` before any scoring ran. Both
 lie entirely below 0.5. **That is the finding, and it stands without the holdout
 number.**
 
-Second-order consequence: "classes are convergent by construction" was demoted in §0
+Second-order consequence: "classes are convergent by construction" was demoted in §0home/raghavp/downloads/setuguard_report(3).pdf
 from a measured ceiling to an **untested hypothesis**. It may be stated as the
 hypothesis explaining the result. It may not be stated as the result.
 
@@ -207,6 +207,15 @@ generator can be dropped or batched without changing a single verdict, because t
 verdict is rule-based.** That property falls straight out of the d1-inversion and most
 teams will not have an equivalent.
 
+**Flagged 19 Aug, not resolved, sharpens rather than replaces this task's own reason
+for existing:** the "~10s/APK single-threaded" figure above doesn't match either real
+extraction-timing artifact found this session — `harness/extract_tier_a_run.log`
+averages 39.6s/APK single-threaded on the real banking corpus (large production
+files, two 600s timeouts), and `SESSION_LOG.md:353`'s 668-file general corpus run
+reports "1.20s/APK effective" under 4-worker parallelism, a different measurement
+entirely. Neither cleanly supports "~10s single-threaded" as a population-general
+figure. Build the Day 6 harness before quoting a per-APK number in the deck.
+
 ### Day 7 — Mon 24 Aug · 5h · Business Potential + evidence chain · SHIP + CLAIM
 
 | Task | h | Criterion | Artifact | Falsification |
@@ -354,10 +363,16 @@ million accounts?"*
 
 **Answer:** "PS2 is the easy half — inference-only against a committed model artifact
 over 18 features, so 10 million accounts is a batch job, not an architecture change.
-PS1 is the constraint: about ten seconds per APK single-threaded, peak memory around
-12 GB on large files, so throughput is workers times cores. The useful property is
-that the language model isn't on the critical path — it writes narrative, not verdicts
-— so at volume you queue it or drop it and every verdict is unchanged."
+PS1 is the constraint: peak memory around 12 GB on large files, so throughput is
+workers times cores — the exact per-APK figure is pending Day 6's real timing
+harness, and I won't quote a spot number here. The useful property is the language
+model's role, and I want to be precise about two different things it means: it is
+not on the **correctness** path — verdict, confidence and risk score never depend on
+it, evidenced with Ollama stopped entirely — but it is currently on the **latency**
+path, since the endpoint waits for the narrative before returning. Detaching that
+behind a queue is the scaling change, not something already shipped. At volume you
+queue it or drop it and every verdict stays unchanged; today, every request pays its
+cost."
 
 ### User Experience
 
