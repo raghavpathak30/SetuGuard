@@ -38,10 +38,10 @@ def _retrieve(query: str, k: int) -> list:
     """Embed CHUNKS + query with nomic-embed-text, cosine-search via FAISS IndexFlatIP.
     Corpus is ~16 chunks, so we build the index in memory on every call — no persistence."""
     texts = [c["text"] for c in CHUNKS]
-    corpus_resp = ollama.embed(model=EMBED_MODEL, input=texts)
+    corpus_resp = ollama.embed(model=EMBED_MODEL, input=texts, keep_alive=-1)
     corpus_vecs = np.array(corpus_resp.embeddings, dtype="float32")
 
-    query_resp = ollama.embed(model=EMBED_MODEL, input=[query])
+    query_resp = ollama.embed(model=EMBED_MODEL, input=[query], keep_alive=-1)
     query_vec = np.array(query_resp.embeddings, dtype="float32")
 
     faiss.normalize_L2(corpus_vecs)
@@ -76,6 +76,7 @@ def generate_report(features: dict) -> dict:
             ],
             format=REPORT_SCHEMA,
             options={"temperature": 0, "seed": 42},
+            keep_alive=-1,
         )
         model_json = json.loads(resp.message.content)
     except Exception as e:
