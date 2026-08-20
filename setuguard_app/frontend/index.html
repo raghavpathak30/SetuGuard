@@ -209,7 +209,7 @@
           <table class="mini-table">
             <thead><tr><th>Principle</th><th>Mechanism</th></tr></thead>
             <tbody>
-              <tr><td>Fairness</td><td>Bank-finalized feature set with a structural leakage guard; no bias-distribution check runs today</td></tr>
+              <tr><td>Fairness</td><td>PS2: bank-finalized feature set with a structural leakage guard; no bias-distribution check runs today. PS1: static ranking is measured to invert on legitimate banking apps (PRIMARY AUC 0.1444) — a Play-signed allowlist surfaces this as an analyst triage prior, display-layer only, never changing the verdict itself; does not cover self-signed or self-distributed banks</td></tr>
               <tr><td>Reliability</td><td>Fixed offline-trained model artifact, versioned; no drift monitoring runs today</td></tr>
               <tr><td>Explainability</td><td>SHAP driver attribution per alert</td></tr>
               <tr><td>Ethics</td><td>PS1's LLM stage is narrative/citation-only and never sets a verdict; PS2 scoring is fully deterministic given the model artifact</td></tr>

@@ -178,6 +178,12 @@ function renderApkResults(d) {
     </div>
     <h3 class="subhead">Verdict</h3>
     <p style="font-size:13px;"><strong>${esc(d.family_verdict)}</strong> — package <code>${esc(d.package)}</code></p>
+    ${d.play_signing ? `
+    <h3 class="subhead">Play Signing (Triage Prior — Not Part Of The Verdict Above)</h3>
+    <p style="font-size:12px;">
+      <span class="chip">${d.play_signing.detected ? 'Google Play App Signing detected' : 'Not Play-signed'}</span><br>
+      ${esc(d.play_signing.note)}
+    </p>` : ''}
     <h3 class="subhead">Investigation Report</h3>
     <ul class="report-list">${d.report.narrative.map(l => `<li>${esc(l)}</li>`).join("")}</ul>
     <strong style="font-size:13px;">Recommendations:</strong>

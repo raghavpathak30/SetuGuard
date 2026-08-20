@@ -203,6 +203,47 @@ def _url_has_nonstandard_port(url: str) -> bool:
     return port is not None and port not in (80, 443)
 
 
+# Day 3 — Play-signed allowlist. DISPLAY-LAYER ONLY, deliberately, not a scorer
+# input: re-opening the pre-registered PRIMARY/SECONDARY AUC interval eight days
+# out for a triage convenience is not a trade worth making (see
+# harness/PREREGISTERED_BANKING_AUC_CLAIMS.md's 2026-08-20 entry). This function
+# is never called by _rule_based_verdict() and its result never reaches score,
+# verdict, confidence, or risk_score -- it is computed independently and
+# attached to the response as a separate field.
+#
+# Falsification condition: if verdict/confidence/risk_score for any APK ever
+# differs between a build with this present and one without it, this stopped
+# being display-layer and became an undocumented scorer input.
+#
+# Detection is the certificate ISSUER string, not a specific certificate hash --
+# checked directly against harness/banking_legit_corpus/ before writing this:
+# Google Play App Signing issues a DISTINCT signing key per app (29 distinct
+# cert SHA-256 values found across 95 corpus files), but every one carries the
+# identical issuer template below, so the string is the stable signal, not any
+# one hash.
+_PLAY_SIGNING_ISSUER_MARKER = "Organization: Google Inc."
+
+
+def _play_signing_check(features: dict) -> dict:
+    issuer = (features.get("certificate") or {}).get("issuer") or ""
+    detected = _PLAY_SIGNING_ISSUER_MARKER in issuer
+    if detected:
+        note = (
+            "Certificate re-signed by Google Play App Signing — a triage prior "
+            "indicating Play-distributed provenance, not a safety verdict. Does "
+            "not change verdict, confidence, or risk score. A malicious app "
+            "distributed through Play would carry this same signature; treat "
+            "as lower analyst priority, not as cleared."
+        )
+    else:
+        note = (
+            "Not Google Play App Signing — self-signed or distributed outside "
+            "Play. This carries no inference either way: most legitimate "
+            "self-distributed banking apps also look like this."
+        )
+    return {"detected": detected, "note": note}
+
+
 def _rule_based_verdict(features: dict) -> dict:
     """Deterministic, weighted evidence scorer. This is SetuGuard's
     authoritative source of verdict + confidence for /api/analyze_apk — not
@@ -485,6 +526,7 @@ def analyze_apk_endpoint():
         if report["verdict"] != "benign":
             yar_text = yara_gen.generate_yara(features, report)
         resp = _adapt_apk_response(features, report, yar_text, time.perf_counter() - t0)
+        resp["play_signing"] = _play_signing_check(features)
         resp["analysis_id"] = store_analysis("apk", resp["package"], dict(resp))
         resp["kind"] = "apk"
         return jsonify(resp)
