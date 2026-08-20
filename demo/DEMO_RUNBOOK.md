@@ -71,6 +71,7 @@ pipeline run happening right now, not a pre-run."
   `curl http://127.0.0.1:5000/` returns `{"service":"SetuGuard backend","status":"ok"}`.
 - [ ] Both APK files present at the paths above.
 - [ ] `DataSet.csv` present at repo root.
+- [ ] For the Play-signed allowlist demo: `harness/banking_legit_corpus/7B1A1348794100FFBABCB6ADCE168E236D720BBD9C5AAED8914C838093EC83AC.apk` present.
 - [ ] **Warm-up call**, run once, as early as practical before judges arrive:
   `curl -s -X POST -F "apk=@cicmaldroid_banking/007556ca146f4b2e9ac6bd51dc66be5130538d514f5aa04d60c1a0b079585ef3.apk" http://127.0.0.1:5000/api/analyze_apk -o /dev/null`.
   Pays the one-time cold-load cost (~1-3 minutes) so `keep_alive=-1` can hold the model
@@ -139,6 +140,40 @@ pairs.
 
 Recorded output: `demo/nomatch_01_apk.json`, `demo/nomatch_02_dataset.json`,
 `demo/nomatch_03_bridge.json` — ids used were `apk_3b95643c` / `ds_dc021094`.
+
+---
+
+## Play-signed allowlist demo (Day 3, optional third moment — cheap, worth doing)
+
+Built 19 Aug. Shows the conceded weakness (legitimate banking apps outrank malware under
+the current scorer, PRIMARY AUC 0.1444) converted into a demonstrated control, not left as
+a bare limitation. Small file, fast — measured 8.61s standalone, no residency-warmup
+dependency.
+
+```
+curl -s -X POST -F "apk=@harness/banking_legit_corpus/7B1A1348794100FFBABCB6ADCE168E236D720BBD9C5AAED8914C838093EC83AC.apk" \
+  http://127.0.0.1:5000/api/analyze_apk
+```
+Expected: `verdict: "suspicious"`, `severity: "CRITICAL"`, package `com.ubi.parivar` (a real
+Union Bank UPI app), `play_signing: {"detected": true, ...}`. This is deliberately the
+strongest version of the point: a genuine, legitimate bank app the scorer ranks CRITICAL,
+now carrying an honest "Play Signing — Triage Prior, Not Part Of The Verdict" tag rather
+than being presented as an unexplained false positive.
+
+**Say on stage, in this order:** "This is a real Union Bank app, and our scorer ranks it
+critical — that's the conceded weakness, permission breadth doesn't separate a banking app
+from a banking trojan, we've measured that at AUC 0.1444 against a pre-registered corpus.
+What we've built is a triage control, not a fix to the score: this certificate was re-signed
+by Google Play App Signing, and that's now surfaced to the analyst as a lower-priority
+signal — the verdict doesn't change, but the analyst's queue can." **If asked what it
+misses:** "Two things, by design, and I'd rather name them than have a judge find them.
+Self-signed or self-distributed banks aren't covered — that's 55% of our own corpus, more
+than half. And a malicious app that shipped through Play would carry the identical
+signature and get the identical tag — this sits alongside Play Protect, not instead of it."
+
+Verified in a real browser (zero console/page errors); the render is a clearly-separated
+section between "Verdict" and "Investigation Report," never inside the severity/risk-score
+stat row.
 
 ---
 

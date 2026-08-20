@@ -109,6 +109,27 @@ Resolve by opening `harness/BANKING_AUC_RESULTS.json` and reading the n the AUC 
 actually computed over. That is the only figure allowed to appear next to 0.1444.
 One hour, Day 1. Not blocking — a labelling error, not a contradiction.
 
+### 0.6 — Issuer-cluster integrity: checked 19 Aug, a design that anticipated the
+attack, not a near-miss
+
+**Hostile question:** *"Google Play App Signing re-signs every app it distributes with
+its own key. Doesn't that collapse independent banks into one issuer cluster and
+understate your bootstrap CI's uncertainty?"*
+
+**Answer:** "That risk is real, and I checked it directly rather than assuming it away.
+27 of the roughly 73 Tier A files do carry Google Inc. as their raw certificate issuer —
+Play App Signing re-signing is real in this corpus. But the bootstrap in
+`score_banking_corpus.py` never reads that field. It clusters on a manually-researched
+bank-identity label from `harness/banking_packages.csv`, built specifically to guard
+against exactly this — `BANKING_PACKAGE_TIERING_DECISIONS.md` names 'same-issuer
+clustering' as a risk to effective n on 13-14 August, before any scoring ran, which is
+the reason issuer-cluster resampling exists in the pre-registration at all. I
+reconstructed the actual clustering used: largest cluster is 3 packages, zero clusters
+are labelled Google, in both the PRIMARY and SECONDARY populations. That's a design
+that anticipated this exact attack on the interval, not a near-miss that happened to
+land safely — the decision rule was fixed before I looked, and the finding came in well
+inside the no-action threshold."
+
 ---
 
 ## 1. Nine-day plan, 18–26 August
@@ -120,7 +141,16 @@ run in parallel.
 Each task is marked **SHIP** (goes in the PDF), **DEMO** (runs live on stage), or
 **CLAIM** (something said out loud).
 
-### Day 1 — Tue 18 Aug (partial) · 5h · Truth reconciliation · SHIP
+### Day 1 — Tue 18 Aug (partial) · 5h · Truth reconciliation · SHIP · **DONE, ran 19 Aug**
+
+Scheduled for 18 Aug; actually ran 19 Aug — the 18 Aug session went to the `CONTEXT.md`
+resync and the analysis-ID migration instead (logged at the time as a one-day slip,
+absorbed by compressing Day 1 and starting Day 2 the same day rather than the next).
+Precise actual-vs-budgeted hours were not tracked minute-by-minute across the two
+19 Aug sessions; both ran to task completion, not to a clock. Every task below shipped:
+n corrected to 51 packages/32 issuer clusters (sourced from `BANKING_AUC_RESULTS.json`),
+void-number purge clean, D-1/D-2 (README + frontend honesty pass) resolved. See
+`SESSION_LOG.md`'s 19 Aug entries for the full record.
 
 | Task | h | Criterion | Artifact | Falsification |
 |---|---|---|---|---|
@@ -135,7 +165,7 @@ reads "independently confirmed real fraud (F3924=1)… not a coincidence." Both 
 greppable and both contradict published retractions. A judge who finds a live artifact
 contradicting a retraction concludes the retraction was cosmetic.
 
-### Day 2 — Wed 19 Aug · 6h · Demo survivability, round one · DEMO · NEVER CUT
+### Day 2 — Wed 19 Aug · 6h · Demo survivability, round one · DEMO · NEVER CUT · **DONE, ran 19 Aug (same day as Day 1)**
 
 | Task | h | Criterion | Artifact | Falsification |
 |---|---|---|---|---|
@@ -146,7 +176,22 @@ contradicting a retraction concludes the retraction was cosmetic.
 D-8 alone is roughly one demo run in five throwing during YARA generation. You cannot
 rehearse past a one-in-five crash.
 
-### Day 3 — Thu 20 Aug · 6h · The allowlist · SHIP + DEMO · NEVER CUT
+**Shipped, with one correction to this table's own premise.** D-4: done as `status:
+requires_manual_review` (spec used `"unparseable"`; `PLAN.md` item 3's exact field value,
+`requires_manual_review`, is what shipped — the two docs disagreed on the literal string
+and the more specific one won). D-5: done, 50MB scoped to the APK endpoint only — a
+Flask-wide cap would have broken `/api/analyze_dataset`'s own ~111MB upload, caught before
+shipping. **D-8's confirm-scope-first falsification condition fired, and the premise in
+this table's own description was wrong**: the API path was never affected —
+`app.py:368-377`'s existing try/except already caught the NUL-byte `ValueError` in 8/8
+tested cases, both by direct simulation and a real live HTTP call. "One demo run in five"
+came from an offline harness (`fix3_fp_harness.py`) that caught a narrower exception class
+than `app.py` does; a harness-observed defect was attributed to the product without
+checking the live code path first. The actual bug found instead, a UX/traceability defect:
+the alert log claimed "New YARA rule generated" even when compilation failed or no rule was
+attempted — fixed. Three consecutive `browser_smoke.js` runs, all 5 steps, zero errors.
+
+### Day 3 — Thu 20 Aug · 6h · The allowlist · SHIP + DEMO · NEVER CUT · **DONE, ran on schedule 20 Aug**
 
 **Argued for, and the highest-value build in the nine days.** The reasoning in the
 handoff was right; the justification was wrong. It is not there to fix a 98%
@@ -167,6 +212,28 @@ exclusion path and the linkage path.
 
 Honest framing, to be said plainly: **the allowlist does not improve the AUC. It
 removes the population where the ranking is wrong from the scored path.**
+
+**Superseded at build time, not deleted — the plan above describes exclusion (a scorer
+input); what shipped is display-layer, a different design chosen deliberately.** The
+20 Aug session opened with exactly the question this plan skipped — scorer input or
+display-layer suppression — and chose display-layer against this table's own "skip
+scoring" / "Re-run PRIMARY AUC scoring" spec, on cost/risk grounds: re-opening the
+pre-registered 0.1444/0.3190 interval eight days out for a triage convenience was judged
+not worth it while the errata is still open. What shipped: certificate-issuer detection
+(`Organization: Google Inc.`, the Play App Signing template — not a cert-hash allowlist
+CSV; checked directly that 29 distinct cert SHA-256 values share the identical issuer
+string across the corpus, so the string, not a fixed hash list, is the correct signal),
+attached to the API response as `play_signing: {detected, note}` computed strictly after
+and independently of `_rule_based_verdict()` — structurally cannot reach score, verdict,
+confidence, or risk_score. No AUC re-run performed; none was needed, since nothing scored
+changed. Population, of the 51 PRIMARY packages: 23 (45%) would be flagged, 28 (55%) fall
+outside coverage — self-signed/self-distributed banks are the majority of the corpus, not
+the minority, which is a materially different headline than "removes the population
+where the ranking is wrong" implied. Verified: two live samples (Play-signed and not),
+verdict/confidence/risk_score identical with and without the field present by
+construction; rendered in a real browser, zero console/page errors. Full reasoning and
+the two honest gaps (self-signed banks outside; Play-distributed malware inside) recorded
+in `CONTEXT.md` §8 and `REPORT_FACTS.md`'s new Play-signed allowlist section.
 
 ### Day 4 — Fri 21 Aug · 6h · The bridge · DEMO
 
@@ -248,7 +315,9 @@ live download).
 Days 8 and 9 entirely, plus Day 2 — **17 of 44 hours, 39%.** That is the right number
 for a project whose Technical Feasibility criterion is scored by watching it run. The
 brief's single line for rehearsal was badly wrong. A live crash costs more than every
-metric in the PDF is worth, and there are three known crash paths: D-4 at 40/716, D-5
+metric in the PDF is worth, and there were three known crash paths (**all three closed
+19 Aug, Day 2** — kept here as the reasoning for the allocation, not as a current risk
+list): D-4 at 40/716, D-5
 with two recorded memory incidents, D-8 at 22.1% prevalence.
 
 ### Cut order, first to go
@@ -307,13 +376,20 @@ and confidence are identical with Ollama up or down, and the down path is captur
 `harness/browser_evidence/ollama_down/`. Chart.js is vendored. Dashboard shows zero
 console errors under Playwright smoke.
 
-Against it: three unfixed crash paths (D-4, D-5, D-8), the CLI/API verdict-source
-contradiction (C1), and the evidence chain not surviving a clone (D-6).
+**As of 19 Aug, D-4/D-5/D-8 are closed** — a corrupt-zip parse failure now returns a
+structured `requires_manual_review` refusal instead of HTTP 500 with a raw exception
+string; a 50MB upload cap (scoped to the APK endpoint, not Flask-wide) rejects an
+oversized file in 0.16s instead of a 300s timeout; D-8's premise was wrong and the
+existing try/except already caught the NUL-byte crash, with the real bug (a misleading
+alert-log line) fixed instead. Three consecutive `browser_smoke.js` runs, zero errors.
+Still against it: the CLI/API verdict-source contradiction (C1), and the evidence chain
+not surviving a clone (D-6).
 
-**Best case:** every crash path closed, an error envelope a bank console could show a
-user, a fully offline run demonstrated live including the model-down path.
+**Best case:** an error envelope a bank console could show a user (done) plus a fully
+offline run demonstrated live including the model-down path (already captured,
+`harness/browser_evidence/ollama_down/`).
 
-**Closes the gap:** Days 2, 8.
+**Closes the gap:** Day 8 (Day 2 done).
 
 **Hostile question:** *"What happens when your model server is down at 2 a.m.?"*
 
@@ -323,6 +399,22 @@ narrative and the MITRE mapping only — there is no code path where it reaches 
 verdict field. With Ollama stopped, the same APK returns the same verdict with the
 rationale field marked unavailable. That's captured in the evidence directory and I
 can show it live."
+
+**Hostile question:** *"You planned for a one-in-five demo crash from YARA generation.
+What happened to that?"*
+
+**Answer:** "I was wrong about where the bug lived, and I want to say that plainly
+rather than let the fixed version stand in for it. The underlying defect was real — a
+NUL byte from Adobe XMP metadata reaches YARA's compiler and raises a `ValueError`,
+reproducible on 8 of 8 known-affected samples. The 'one in five' estimate came from an
+offline test harness that only caught a narrower exception class and crashed on this
+one. The live API's own error handling already caught it — I checked before building
+anything, and confirmed it live over HTTP, not just by reading the code. So the crash
+risk I'd budgeted real time against didn't exist on the path judges would actually see.
+What I did find instead was smaller: an alert log that claimed a YARA rule was
+generated even when it wasn't, which I fixed. The lesson I'm keeping: a defect observed
+in a harness is a claim about that harness until the live code path is checked, not a
+claim about the product."
 
 ### Business Potential
 
@@ -377,17 +469,21 @@ cost."
 
 ### User Experience
 
-**Today: thin, bordering on absent.** No analyst-facing artifact exists in the report.
-The frontend advertises four capabilities that do not exist (D-2) and renders a raw
-Python exception string on parse failure (D-4), which 40 of 716 APKs trigger.
-False-positive load is 17.1% on general benign under the v2 scorer — survivable — but
-on the legitimate banking population the ranking is inverted, which is what the
-allowlist is for.
+**As of 20 Aug: stronger than the handoff assumed, one gap open.** D-2's four false
+frontend claims are resolved. D-4's raw-exception-string parse failure is resolved —
+`requires_manual_review`, structured, HTTP 200, a dedicated card. D-8's alert-log
+UX/traceability bug (claiming a YARA rule was generated when it wasn't) is resolved.
+The Play-signed allowlist ships as a clearly-separated triage-prior badge, not as queue
+exclusion — no analyst-facing artifact exists in the *report* yet, but the live app now
+has more honest UX than this section originally credited it for. False-positive load is
+17.1% on general benign under the v2 scorer — survivable — but on the legitimate
+banking population the ranking is inverted, and the allowlist demotes analyst priority
+for the Play-signed 45% of that population without hiding or changing the verdict.
 
-**Best case:** an alert card with an action verb, traceable evidence ids, a fail-closed
-refusal path, and an allowlist that keeps known publishers out of the queue entirely.
+**Best case:** an alert card with an action verb and traceable evidence ids — Day 5's
+remaining scope.
 
-**Closes the gap:** Days 2, 3, 5.
+**Closes the gap:** Day 5 (Days 2 and 3 done).
 
 **Hostile question:** *"An analyst gets your verdict. What do they do next?"*
 
@@ -447,7 +543,8 @@ lie entirely below 0.5 so there is no measurement-noise escape, and it attacks w
 PS1 works at all rather than whether some claim is overstated. A judge who reads
 `PREREGISTERED_BANKING_AUC_CLAIMS.md` will ask it.
 
-**The honest answer half-exists today; the other half is Day 3.**
+**Both halves now exist as of 20 Aug — updated from this section's original framing,
+which described a design (enforced exclusion) that was not what shipped.**
 
 Exists: AUC **0.9366** against F-Droid general benign
 (`harness/rescore_from_cache.py`), the one genuine PS1 separation figure — the scorer
@@ -455,9 +552,16 @@ discriminates strongly against non-banking benign apps. Also exists: the
 pre-registration itself, committed at `be6a15c` before any scoring, a stronger
 evidence-integrity position than almost anything else in the room.
 
-Does not exist: the enforced allowlist. Without it, "PS1 only applies to untrusted
-APKs" is a sentence written after seeing a bad number. With it, it is a control in the
-serving path with a CSV behind it. **This is why Day 3 cannot be cut.**
+Built on Day 3, deliberately narrower than this section's original plan: a
+**display-layer** Play-signed allowlist, not an enforced exclusion. The original framing
+here ("known publishers are excluded upstream by certificate hash before scoring") was
+the scorer-input design considered and rejected at Day 3's start — re-opening the
+pre-registered 0.1444/0.3190 interval eight days out for a triage convenience was judged
+not worth it. What shipped: every APK is still fully scored; a Play-signed one
+additionally carries an honest triage tag the analyst sees alongside the verdict, never
+in place of it. Population: 23 of 51 PRIMARY packages (45%) would be tagged; 28 (55%)
+fall outside its coverage — self-signed and self-distributed banks are the majority of
+the corpus, not a residual case.
 
 What to say:
 
@@ -465,12 +569,18 @@ What to say:
 > because it's the result. It says the scorer's permission and API signals don't
 > separate legitimate banking apps from banking trojans — which is what you'd expect,
 > since a banking app and a banking trojan are built to do the same things. Against
-> general benign apps the same scorer gets 0.9366. So the scoping is: PS1 scores
-> untrusted and sideloaded APKs, and known publishers are excluded upstream by
-> certificate hash before scoring. That exclusion is enforced in the serving path —
-> it's not a caveat in a footnote. What PS1 ships as is evidence extraction,
+> general benign apps the same scorer gets 0.9366. So here's the control I built on top
+> of that finding: every upload is still fully scored, no exceptions — but if its
+> certificate shows Google Play App Signing, the analyst sees that as a triage prior
+> alongside the verdict, not instead of it. It doesn't touch the score, and I can show
+> you the code path that makes that structurally true. It also doesn't cover
+> everything — a self-signed or self-distributed bank isn't flagged by it, and that's
+> most of my own corpus, not a small slice. And a malicious app that shipped through
+> Play would get the identical tag. It's a triage prior, not a verdict, and it sits
+> next to Play Protect, not instead of it. What PS1 ships as is evidence extraction,
 > technique-mapped indicators, and rule generation, with a measured statement about
-> where its ranking does and doesn't hold."
+> where its ranking does and doesn't hold, plus one honest control on top of the part
+> that doesn't."
 
 **Runner-up, rehearse second:** *"Show me a bridge link you didn't construct."* That
 answer cannot be built this week. It can only be given straight — see Innovation

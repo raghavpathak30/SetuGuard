@@ -103,8 +103,26 @@ argument above uses only the committed quartile summary, not an unverifiable per
 The scorer's permission/API-surface signals do not separate a banking app from a banking trojan —
 expected, since both are built to request similar capabilities. Class convergence is the
 motivating **hypothesis**, not a measured finding — do not state it as the latter. This is why
-Day 3's allowlist (publisher-cert exclusion, scoped to untrusted/sideloaded APKs only) is the
-control that makes the PS1 deployment story coherent, not an optional add-on.
+the Play-signed allowlist (built 19 Aug, Day 3) is the control that makes the PS1 deployment
+story coherent, not an optional add-on.
+
+**Correction, 19 Aug: what shipped is narrower than what the submitted report's prose
+describes, deliberately.** The report (and the original pre-registration's "Operational
+recommendation" section) describes the allowlist as scoped "upstream" — i.e. excluding
+Play-signed uploads from scoring entirely, an intake filter. What was actually built is
+**display-layer tagging, not exclusion**: every uploaded APK is still fully scored exactly as
+before; a Play-signed one additionally carries a `play_signing: {detected, note}` field and a
+clearly-separated "Triage Prior — Not Part Of The Verdict Above" UI section, computed strictly
+after and independently of the scorer. Chosen deliberately over the intake-filter design
+because that design is closer to a scorer input (it changes which APKs a bank's console ever
+returns a verdict for, which changes what the pre-registered AUC corpus would represent if
+applied there) — re-opening the pre-registered interval eight days from the finale for a
+triage convenience was judged not worth it. If a judge has read the report and expects an
+upload to be silently skipped when Play-signed, say so directly: that specific behavior is not
+what shipped, and explain why in these terms. Population data: of the 51 PRIMARY packages, 23
+(45%) carry the Play App Signing issuer and would be tagged; 28 (55%) do not and fall outside
+the allowlist's coverage entirely — self-signed and self-distributed banks are the majority of
+the corpus, not the minority.
 
 ### Operating point — the strongest User Experience numbers the project has
 
@@ -147,6 +165,34 @@ optimistic.**
 (`setuguard_ps1/static_analysis.py:86`). An APK with ≥25 URL matches records **zero** IPs and
 zero shell strings by construction — the IP extractor never runs. **84 of 668** sit at the cap.
 **IP and shell indicator rates are lower bounds, not measurements.**
+
+---
+
+## QUOTABLE — Play-signed allowlist (built 19 Aug, Day 3)
+
+**Display-layer only, never a scorer input.** Detects Google Play App Signing via the
+certificate issuer string (`Organization: Google Inc.` — 29 distinct cert SHA-256 values
+share this identical issuer template across `harness/banking_legit_corpus/`, so the string,
+not any one hash, is the correct signal). Attached to the `/api/analyze_apk` response as
+`play_signing: {detected, note}` after the verdict is already computed — structurally cannot
+feed back into score, verdict, confidence, or risk_score. No `PREREGISTERED_BANKING_AUC_CLAIMS.md`
+deviation entry needed; the pre-registered AUC is untouched.
+
+**Coverage, of the 51 PRIMARY packages:** 23 (45%) carry the Play App Signing issuer and would
+be flagged; 28 (55%) do not. **Self-signed and self-distributed banks are the majority of the
+corpus, not the minority.**
+
+**Two gaps, name both before a judge does.** (1) A legitimate bank that self-signs or
+self-distributes falls entirely outside the allowlist's coverage — most of the corpus, per the
+number above. (2) A malicious app distributed through Google Play would carry the identical
+signature and be flagged the same way as a legitimate one. Play-signing means Google signed
+it, not that it is safe; the allowlist is a triage prior that sits alongside Google Play
+Protect, not a replacement verdict.
+
+**Diverges from the submitted report's prose, deliberately — say so if asked.** The report and
+the original pre-registration describe the allowlist as scoped "upstream" (excluding
+Play-signed uploads from scoring). What shipped tags instead of excludes. See the correction
+entry in the QUOTABLE — scope gaps section below for the full reasoning.
 
 ---
 
@@ -235,12 +281,17 @@ opens the same spreadsheet.
 
 ## QUOTABLE — scope gaps, stated as gaps
 
-**No legitimate-banking-app measurement exists.** The corpus believed to be one was malware.
-Behaviour on the banking vertical is **unmeasured**, and the plan to measure it is
-`PLAN.md` item A. State this as a known gap with a dated remedy, not as a result. The
-class-convergence hypothesis — that a real banking app needs the same permission set as a
-banking trojan and is therefore hard to separate statically — remains **plausible and
-untested**. Present it as the motivating hypothesis for the corpus build, never as a finding.
+**Superseded, kept for provenance — a legitimate-banking-app measurement now exists.** This
+paragraph originally read "no legitimate-banking-app measurement exists... unmeasured," true
+before 15-16 Aug. It contradicted this file's own PRIMARY/SECONDARY AUC entries above the
+moment those were measured, and stood uncorrected until 19 Aug — an internal inconsistency in
+this exact file, found and fixed only during this reconciliation pass, not caught earlier.
+Current state: PRIMARY AUC 0.1444 [0.0905, 0.2081] over 51 packages/32 issuer clusters,
+SECONDARY 0.3190 [0.2202, 0.4290] over 20/16, both pre-registered at `be6a15c`, both CIs
+entirely below 0.5 — see the QUOTABLE section above. The class-convergence hypothesis — that a
+real banking app needs the same permission set as a banking trojan and is therefore hard to
+separate statically — remains **plausible and untested**; the measurement is consistent with
+it but does not confirm it. Present it as the motivating hypothesis, never as a finding.
 
 **No dynamic analysis.** Static only: DEX string pool, manifest, certificate. Nothing is
 executed. Quantified: 33.1% of malicious samples yield zero network indicators statically and a
@@ -249,11 +300,14 @@ further ~10% cannot be parsed at all.
 **One static CSV, not real-time feeds.** PS2 scores an uploaded CSV against a fixed 18-column
 schema. No streaming ingest, no transaction feed, no NPCI/UPI connection.
 
-**No fail-closed path exists.** Parse failure returns **HTTP 500 with the exception string**
-(`app.py:400-402`); batch harnesses write a row to `skips.csv`. Neither is a review queue. A
-repo-wide grep for "manual review" / "fail-closed" / "fail_closed" returns **zero hits** — delete
-every such claim wherever one is found. Fix specified: catch the exception, return HTTP 200 with
-`status: requires_manual_review` (`PLAN.md` item 3).
+**RESOLVED 19 Aug (Day 2) — a fail-closed path now exists on the live API.** Was: parse failure
+returned HTTP 500 with the exception string; confirmed live on 4 real corrupt-zip F-Droid
+samples before the fix. Now: caught in a try/except scoped to `static_analysis.analyze_apk()`,
+returns HTTP 200 `status: requires_manual_review` with `reason`/`action` fields
+(`app.py:443-475`), rendered as a dedicated frontend card, per `PLAN.md` item 3. Batch
+harnesses' `skips.csv` convention is separate and unchanged — this closed the live-API gap
+only. Error-path degradation: the underlying parser still rejects the same files; the failure
+is now handled, not eliminated.
 
 **`d1-inversion` is scoped to the serving path only.** `_rule_based_verdict()` is structurally
 authoritative in `setuguard_app/backend/app.py` — verified line by line: `_try_llm_narrative()`
@@ -263,9 +317,15 @@ take `verdict` and `confidence` straight from Mistral, and the committed
 `setuguard_ps1/out/*.report.md` shows an LLM verdict of `suspicious / 0.85`. Describe the CLI as
 a **retained pre-inversion reference** and label those artifacts as such.
 
-**No upload size cap of any kind** — no `MAX_CONTENT_LENGTH`, no client-side check. 26 APKs in
-the sample set exceed 50 MB, one is 172 MB and could not be analysed inside a 300 s timeout with
-a dedicated memory budget. Two live memory incidents are traced to large files.
+**RESOLVED 19 Aug (Day 2) — a 50MB upload cap now exists on the APK path.** Was: no
+`MAX_CONTENT_LENGTH`, no client-side check; 26 sample-set APKs exceed 50MB, one (172.2MB,
+`cash.p.terminal_243.apk`) could not be analysed inside a 300s timeout even with a dedicated
+memory budget, and two live memory incidents were traced to large files. Now: rejected in
+0.16s via a manual `request.content_length` pre-check plus a post-save size backstop, HTTP
+413, plus a client-side check with a readable message. Deliberately **not** Flask-wide
+`app.config["MAX_CONTENT_LENGTH"]` — that would have also capped `/api/analyze_dataset`'s own
+~111MB `DataSet.csv` upload, a real regression caught by testing against the live dataset path
+before shipping, not a hypothetical risk.
 
 ---
 

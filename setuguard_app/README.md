@@ -64,8 +64,34 @@ certificates to real Indian bank accounts, so the matching *mechanism* is real a
 **PS1's static-only ranking inverts on legitimate banking apps.** Measured, not
 assumed: PRIMARY AUC 0.1444 [0.0905, 0.2081] over 51 real legitimate banking apps
 across 32 issuer clusters vs 360 confirmed malware — see `REPORT_FACTS.md`. The same
-scorer separates malware from general-purpose benign apps at AUC 0.9366. PS1 is
-scoped to untrusted/sideloaded APKs for this reason.
+scorer separates malware from general-purpose benign apps at AUC 0.9366. The intended
+scoping — untrusted/sideloaded APKs only — is not enforced anywhere in the request
+path; any uploaded APK is scored regardless of provenance. The Play-signed allowlist
+below is a triage aid for that inversion, not an enforced scope boundary.
+
+**Play-signed allowlist (`play_signing` field, added 19 Aug) is display-layer, not a
+scorer input.** Detects Google Play App Signing via the certificate issuer string
+(`Organization: Google Inc.`) and attaches `{"detected": bool, "note": "..."}` to the
+`/api/analyze_apk` response, computed strictly after and independently of
+`_rule_based_verdict()` — it cannot reach verdict, confidence, or risk_score, by
+construction. Of the 51 PRIMARY packages, 23 (45%) carry this signature and 28 (55%) do
+not — self-signed and self-distributed banks are the majority of the corpus, not a
+residual case. Two honest gaps: a legitimate bank that self-signs falls outside the
+allowlist's coverage entirely, and a malicious app distributed through Play would carry
+the identical signature. It is a triage prior alongside Google Play Protect, never a
+substitute verdict.
+
+**A file that fails to parse gets a structured refusal, not a crash.** If
+`static_analysis.analyze_apk()` can't parse an upload (corrupt zip, unsupported
+format), `/api/analyze_apk` returns HTTP 200 with `status: requires_manual_review`,
+`reason`, and `action` fields, and the frontend renders a dedicated review card. It is
+not scored either way — this is not a verdict, it's an honest "we couldn't analyse
+this" state.
+
+**Uploads over 50MB are rejected on the APK endpoint only, not application-wide.**
+`/api/analyze_dataset`'s own `DataSet.csv` upload is routinely ~111MB and is
+unaffected — the cap is a manual check scoped to `analyze_apk_endpoint()`, not Flask's
+`MAX_CONTENT_LENGTH`, which would apply to every route.
 
 ## Files
 - `backend/app.py` — the Flask backend, ties everything together

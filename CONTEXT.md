@@ -91,6 +91,7 @@ Deliverable: one Flask backend (`setuguard_app/backend/app.py`) plus a static da
 | PS2 20-seed study | Live | `harness/ps2_repeated_splits.py` → `models/ps2_repeated_splits_metrics.json` | non-frozen |
 | PS2 inference endpoint | Live, inference-only | `app.py:577-761`; artifact loaded once at import, `app.py:512-526` | — |
 | PS2 leakage guard + test | Live, 4/4 PASS | `train_ps2_model.py:67-84`; `harness/test_leakage_assert.py` | non-frozen |
+| Play-signed allowlist | **New, 19 Aug (Day 3).** Live, display-layer only — never a scorer input. Detects Google Play App Signing via the certificate issuer string (`Organization: Google Inc.`, checked directly against `harness/banking_legit_corpus/`: 29 distinct cert SHA-256 values share this identical issuer template, so the string, not any one hash, is the stable signal), attached to the API response as `play_signing: {detected, note}` after `_rule_based_verdict()` has already run — structurally cannot feed back into verdict/confidence/risk_score. Of the 51 PRIMARY packages, 23 (45%) would be flagged, 28 (55%) would not — self-signed and self-distributed banks are the majority, not the minority, of the corpus. Rendered as a clearly-separated "Triage Prior — Not Part Of The Verdict Above" section, verified in a real browser (zero console/page errors). | `app.py` `_play_signing_check()`, called from `analyze_apk_endpoint()`; `frontend/app.js` render block | non-frozen; no `PREREGISTERED_BANKING_AUC_CLAIMS.md` deviation needed since the score is untouched |
 | Bridge matcher | Live, exact-match, cert-hash only in practice | `bridge/matcher.py:77-108`; called at `app.py:839,843` | teammate-authored |
 | Bridge unit test | Live | `bridge/fix1_confusion_matrix_results.json` | synthetic ground truth |
 | Dashboard | Live, zero console errors | `harness/browser_smoke.js`; 5 screenshots + report in `harness/browser_evidence/ollama_up/` | Playwright |
@@ -310,11 +311,11 @@ more than any defect below. Nothing here is fixed during report week. Full sched
 | D-1 | ~~`setuguard_app/README.md` describes the rule-based verdict as the Ollama-unreachable *fallback* — the exact inverse of `d1-inversion` — plus "trains XGBoost with stratified CV (falls back to IsolationForest)" and "auto-detects the label column". None is true.~~ **RESOLVED 19 Aug.** README fully rewritten to describe the verified `_try_llm_narrative()`/`verdict_source` mechanics and the inference-only PS2 path. | `setuguard_app/README.md` | ~~High~~ **Closed.** | 19 Aug |
 | D-2 | ~~Frontend claims capabilities that do not exist: "real XGBoost + SHAP trained on your data" (`index.html:157`), button "Run Data Audit + Train" (`:164`), on-screen status "…then training XGBoost + SHAP…" (`app.js:164`), "CV AUCPR (0-fold)" rendered over a 20-seed holdout median (`app.js:223,489`), plus bias-checking, KS-test drift monitoring and a "greedy counterfactual" (`index.html:212-214`) that is `null`.~~ **RESOLVED 19 Aug.** All four claims removed/corrected; dead counterfactual column dropped; Compliance-page rows rewritten to match what actually runs. Verified via `harness/browser_smoke.js` (clean pass, `harness/browser_evidence/day1_verify_20260819/`) and a standalone Compliance-page check. | frontend | ~~High~~ **Closed.** | 19 Aug |
 | D-3 | Matcher compares raw URL strings, never parsed hosts; ground-truth `c2_host` is `None`. C2 matching has never fired. | `matcher.py:31-34,94-98`, `:68` | **High.** Blocks runtime-capture experiment entirely. | 17–18 Aug, `PLAN.md` 2 |
-| D-4 | No fail-closed path. Parse failure → HTTP 500 with the raw exception string rendered in the UI. | `app.py:450-452` | **Medium-high.** An exception string in a bank console is a feasibility answer by itself. 40 of 716 APKs hit this. | 18 Aug, `PLAN.md` 3 |
-| D-5 | No upload size cap — no `MAX_CONTENT_LENGTH`, no client-side check. | `app.py`, `frontend/app.js` | **Medium-high.** 26 sample-set APKs exceed 50 MB; one 172 MB file defeated a 300 s timeout with a dedicated memory budget. Two live memory incidents traced to large files. | 18 Aug, `PLAN.md` 4 |
+| D-4 | ~~No fail-closed path. Parse failure → HTTP 500 with the raw exception string rendered in the UI.~~ **RESOLVED 19 Aug (Day 2).** Parse failure now caught in a try/except scoped to just `static_analysis.analyze_apk()`, degrading to HTTP 200 `{"status":"requires_manual_review","reason":...,"action":"escalate to manual review"}` per `PLAN.md` item 3. Frontend renders a dedicated review card, not a raw error string. Error-path degradation, not a correction to the underlying parser. Verified against all 4 known corrupt samples + a real-browser check, zero console errors. | `app.py:443-475`, `frontend/app.js` | ~~Medium-high~~ **Closed.** | 19 Aug |
+| D-5 | ~~No upload size cap — no `MAX_CONTENT_LENGTH`, no client-side check.~~ **RESOLVED 19 Aug (Day 2).** 50MB cap added, scoped to `/api/analyze_apk` only via a manual `request.content_length` + post-save size check (deliberately NOT Flask-wide `MAX_CONTENT_LENGTH`, which would have broken `/api/analyze_dataset`'s own ~111MB `DataSet.csv` upload — caught before shipping by testing against the live dataset path). Client-side check added too. Verified: `cash.p.terminal_243.apk` (172.2MB) now rejected in 0.16s, not a 300s timeout; dataset upload unaffected. | `app.py`, `frontend/app.js` | ~~Medium-high~~ **Closed.** | 19 Aug |
 | D-6 | Evidence chain gitignored — `results_716.csv` does not survive a clone. | `.gitignore:77` | **Medium.** "Show me" has no answer. Must be relabelled first: its `banking_holdout` rows carry the false corpus label. | 18 Aug, `PLAN.md` 5 |
 | D-7 | **Partially resolved 19 Aug.** `bridge/test_fixtures_ps2_sample.json` (202 records, loaded at runtime by `confusion_matrix_validation.py:240`) had the five withdrawn fields (`model_version`, `shap_drivers`/`graph_betweenness`, `counterfactual`, `generated_rules`, `rule_validated`) stripped from all 202 records — confirmed unused by either consumer (`matcher.py`, `confusion_matrix_validation.py`) before deletion; confusion matrix re-verified unchanged (TP=10/FP=0/FN=0/TN=90). **`ps2/ps2_bridge_payload.json` still carries all five** — left deliberately: zero import hits from `setuguard_app/` or `bridge/`, dead in the live path per this table's own `ps2/01`–`ps2/07` row. | `ps2/ps2_bridge_payload.json` (residue) | ~~Medium~~ **Low** — dead-path only. | 19 Aug (live artifact); `ps2/` residue unscheduled |
-| D-8 | Finding 5 NUL-byte YARA crash unfixed; `run_pipeline.py` unguarded, API scope unconfirmed. | `static_analysis.py:82`, `yara_gen.py:35-39` | **Medium.** 22.1% prevalence in benign samples. If the API path is affected, roughly one demo run in five can throw during YARA generation. | 18 Aug, `PLAN.md` 7 |
+| D-8 | ~~Finding 5 NUL-byte YARA crash unfixed; `run_pipeline.py` unguarded, API scope unconfirmed.~~ **CHARACTERIZED AND RESOLVED 19 Aug (Day 2) — the premise was wrong.** Tested all 32 previously-known-affected samples through the real code chain: 8/8 that reached YARA generation hit the NUL-byte `ValueError`, and `app.py:368-377`'s existing try/except already caught every one — confirmed via a real live HTTP call (`app.flicky_940.apk` → HTTP 200, `compiles: false`). **"One demo run in five throws" never applied to the live API** — that number came from `fix3_fp_harness.py`, an offline harness that caught only `yara.Error` and missed this `ValueError`; a harness-observed defect was attributed to the product without checking the live code path. Same class as the two inherited-artifact gaps already in this table. The real bug, User-Experience-criterion, traceability failure: `app.js`'s alert log unconditionally said "New YARA rule generated" regardless of compile status, including when no rule was ever attempted — fixed to check `yar_text`/`compiles` state first. | `app.py:368-377` (already correct), `frontend/app.js` (fixed) | ~~Medium~~ **Closed.** | 19 Aug |
 | D-9 | Endpoint timings have no producing harness (§7 U1). | — | **Medium.** Blocks the scalability argument. | 18 Aug, `PLAN.md` 8 |
 | D-10 | `MAX_SUSPICIOUS_STRINGS = 25` with fixed url→ip→shell order right-censors every indicator count and zeroes IP extraction on 84/668 APKs. | `static_analysis.py:86` | **Medium.** IPs are the only match type the bridge can currently fire on, so this suppresses the one working linkage path. **Frozen file** — needs sign-off and invalidates the feature cache. | 18–19 Aug, `PLAN.md` 9 |
 | D-11 | `banking_holdout_16/` misnamed; `sample_set_banking_holdout_16.txt:2-3` asserts the false reading in a committed comment. | those paths | **High, but documentation-mitigated.** §0 and `REPORT_FACTS.md` now carry the correction; the rename is a data/code change. | after 17 Aug |
@@ -349,16 +350,18 @@ roughly 5% label noise in its negatives.
 §5.
 
 **C4 — "16/16 false positives" was never a false-positive rate**, and under the shipping scorer
-it is 15/16 anyway (9 malicious, 6 suspicious, 1 at 0.28 below the 0.30 threshold). Both the
+it is 15/16 anyway (9 malicious, 6 suspicious, 1 at 0.28 below the 0.30 threshold). Both the  
 count and the interpretation were wrong.
 
-**C5 — "0.816 vs 0.720" is the old scorer's** (live: 0.688 vs 0.614), and both pairs compare
+**C5 — "0.816 vs 0.720" is the old scorer's** (live: 0.688 vs 0.614), and`
+both pairs compare
 malware to malware.
 
-**C6 — there is no fail-closed or manual-review routing.** `grep -rni "manual review|fail.closed|
-fail_closed|manual_review"` across every `.py`, `.js`, `.md`, `.html` returns **zero hits**.
-Parse failure returns HTTP 500 with the exception string (`app.py:450-452`); batch harnesses
-append to `skips.csv`.
+**C6 — RESOLVED 19 Aug (Day 2).** ~~there is no fail-closed or manual-review routing.~~
+D-4 above. A parse failure now returns HTTP 200 `status: requires_manual_review` with a
+dedicated frontend card, not HTTP 500 with a raw exception string. Batch harnesses'
+`skips.csv` convention is unchanged — this closed the live-API gap, not the offline
+harnesses' own bookkeeping.
 
 **C7 — RESOLVED 19 Aug.** ~~`setuguard_app/README.md` describes an architecture that does
 not exist.~~ D-1 above.
@@ -387,7 +390,21 @@ entries) still reads *"independently confirmed real fraud
 a hand-written n=3 table at `SESSION_LOG.md:445-450`. Searched for any script POSTing all three
 endpoints, any percentile computation under `harness/`, any timing JSON in `docs/evidence/`.
 `measure_app_verdicts.py` records `elapsed_s` for `/api/analyze_apk` only and computes no
-percentile; `browser_smoke.js` does not time. **Never write "p50."**
+percentile; `browser_smoke.js` does not time. **Never write "p50."** **Void as of 19 Aug, not
+deferred:** `~10s/APK` and all variants are removed from every prepared answer, not just
+flagged — three disagreeing measurements exist (9.86s here; 1.20s/APK on a 668-file general
+corpus under 4-worker parallelism, `SESSION_LOG.md:353`; 39.6s/APK on the real banking corpus,
+single-threaded, `harness/extract_tier_a_run.log`), a 33x spread that is not noise to average
+over. Do not compare the 39.6s figure against a future Day 6 measurement as if both describe
+the same system: 39.6s/APK predates `keep_alive=-1` (Finding 6, `FROZEN_FILE_FINDINGS.md`),
+so any narrative-call time it may include was partly cold-load tax that no longer exists. A
+same-APK residency test (three raw numbers: cold 157.28s, immediately-after 71.81s,
+after-6-minute-idle 192.8s — slow/fast/slow) confirmed most of the *variance* in prior
+single-endpoint measurements was Ollama reloading after idle, not genuine unpredictability;
+fixed by pinning `keep_alive=-1` on all three Ollama calls, re-verified holding at 68.27s
+after a real 6.5-minute idle. That does not supply a throughput number — it explains why past
+attempts at one disagreed so widely, and removes the confound Day 6's harness would otherwise
+have inherited.
 
 **U2 — the Ollama-down "1.24 s"** is in no committed artifact — checked `console_report.json`,
 `backend_stdout_stderr.log`, `03_bridge_match.txt`. The behaviour is verified; the number is not.
@@ -441,6 +458,17 @@ source dataset. TP=10/FP=0/FN=0/TN=90 validates that the matching *function* beh
 on near-miss confounders; it says nothing about how often a real link would be found.
 
 **The bridge's C2 path has never fired.** §3.
+
+**The Play-signed allowlist is a triage prior, not a verdict, and it does not cover most
+of the legitimate corpus.** Two gaps, named before a judge names them: (1) legitimate
+banks that self-sign or self-distribute — 28 of the 51 PRIMARY packages (55%) — fall
+outside it entirely; only 23 (45%) carry the Google Inc. issuer it detects. (2) A
+malicious app distributed through Google Play would carry the identical signature and be
+flagged the same way as a legitimate one — Play-signing means Google signed it, not that
+it is safe. The allowlist sits alongside Play Protect as an additional triage signal, not
+as a replacement verdict, and it never changes score, verdict, confidence, or risk_score
+— checked structurally (computed after and independently of `_rule_based_verdict()`) and
+confirmed on two live samples.
 
 ---
 

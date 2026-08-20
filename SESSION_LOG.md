@@ -1427,3 +1427,106 @@ per this session's own framing means picking these up is now a live option rathe
 foreclosed — deferred to the user's judgment on whether to continue now or hold for a
 dedicated evening session, since the errata's target still depends on the unresolved
 portal check.
+
+## 2026-08-20 (Day 3) — Play-signed allowlist + full documentation reconciliation
+
+**On schedule** — `FINALE_PLAN_AND_AUDIT.md` names Day 3 as Thu 20 Aug; today is 20 Aug.
+Day 1's one-day slip (absorbed into 19 Aug by compressing Days 1 and 2 into the same day)
+did not propagate.
+
+**Decision, made before writing code: display-layer, not a scorer input.** The
+pre-existing plan in `FINALE_PLAN_AND_AUDIT.md`'s Day 3 section described exclusion
+("allowlisted cert → skip scoring," "Re-run PRIMARY AUC scoring with the allowlist
+active") — a scorer-input design. Rejected in favor of display-layer tagging: re-opening
+the pre-registered 0.1444/0.3190 interval eight days out for a triage convenience was
+judged not worth it while the errata (Priority 2) is still open. Falsification condition
+stated before building: verdict/confidence/risk_score must never differ between a build
+with `play_signing` present and one without — guaranteed structurally (computed strictly
+after and independently of `_rule_based_verdict()`), not just tested for.
+
+**Built:** `_play_signing_check()` in `app.py` (non-frozen — no frozen-file edit needed;
+the certificate issuer string was already available in `static_analysis.py`'s existing
+output, unused by the scorer). Detection: certificate issuer contains `Organization:
+Google Inc.` — checked directly before writing this that Play App Signing issues a
+distinct signing key per app (29 distinct cert SHA-256 values across
+`harness/banking_legit_corpus/`'s 95 files), so the issuer *string* is the stable signal,
+not any one hash. Attached to the `/api/analyze_apk` response as `play_signing:
+{detected, note}`, after `resp` is already built from `_adapt_apk_response()`.
+
+**Population, of the 51 PRIMARY packages** (reused `score_banking_corpus.py`'s own
+`load_manifest()`/`load_banking_scored()`, not reimplemented): 23 (45%) carry the
+Play-signing issuer, 28 (55%) do not. Self-signed/self-distributed banks are the majority
+of the scored corpus, not the minority — a materially different headline than the
+original plan's "removes the population where the ranking is wrong" implied. Two gaps
+named in every surface that discusses this: self-signed banks fall outside coverage; a
+Play-distributed malicious app would carry the identical signature.
+
+**Verified:** two live samples — `com.ubi.parivar` (Play-signed, 2.1MB, real Union Bank
+app, scores `suspicious`/`CRITICAL`/0.80) and `com.esaf.mobileBanking` (not Play-signed,
+13.8MB, scores `malicious`/0.87) — both confirm `play_signing.detected` matches ground
+truth and verdict/confidence/risk_score are exactly what the pre-Day-3 code would have
+produced (no code path exists for `play_signing` to influence them, checked by
+construction, not just by these two spot checks). Real-browser render check (Playwright,
+one-off script, deleted after use): zero console errors, zero page errors; the section
+renders clearly separated between "Verdict" and "Investigation Report," never inside the
+severity/risk-score stat row. Screenshot: `harness/browser_evidence/d3_play_signing.png`.
+
+**Documentation reconciliation, full pass:**
+- `CONTEXT.md`: D-4/D-5/D-8 marked resolved in the defects table (matching the D-1/D-2
+  "RESOLVED" style already established); C6 marked resolved; new Component-state row for
+  the allowlist; new §8 limitations paragraph (the two gaps); U1 rewritten to void
+  `~10s/APK` outright and record the residency-fix baseline-comparability note for Day 6.
+- `REPORT_FACTS.md`: found and fixed an internal self-contradiction predating this session
+  — the "QUOTABLE — scope gaps" section still said "no legitimate-banking-app measurement
+  exists... unmeasured," contradicting this same file's own PRIMARY/SECONDARY AUC entries
+  200 lines earlier, uncorrected since the banking AUC was first measured. New QUOTABLE
+  section for the allowlist; D-4/D-5 resolved entries; a correction noting the allowlist
+  that shipped is narrower than the submitted report's "applied upstream" prose describes,
+  and why.
+- `demo/DEMO_RUNBOOK.md`: added a third demo moment for the allowlist (`com.ubi.parivar`,
+  8.61s standalone, no residency-warmup dependency) with staged talking points, since Day 3
+  is explicitly the last remaining work that adds to a judging criterion rather than
+  defending one — worth a scripted moment, not just a hostile-answer entry.
+- `FINALE_PLAN_AND_AUDIT.md`: Days 1-3 marked done (exact hours-actual not tracked
+  minute-by-minute; noted honestly rather than fabricated). Day 3's own original plan
+  section marked superseded-not-deleted with the design-divergence reasoning. Found and
+  fixed three more stale post-Day-2 mentions of D-4/D-5/D-8 as open (Technical Feasibility,
+  User Experience sections) and one full hostile-answer rewrite where the "Most dangerous"
+  hostile question's prepared answer literally said "known publishers are excluded upstream
+  by certificate hash before scoring" — the exact design that was not built. New hostile
+  Q&A pairs: Priority 0's issuer-clustering result in its strongest form (0.6, "a design
+  that anticipated the attack, not a near-miss"), and the D-8 methodology correction ("a
+  defect observed in a harness is a claim about that harness until the live code path is
+  checked").
+- `setuguard_app/README.md`: new paragraphs for the allowlist, D-4's manual-review path,
+  D-5's scoped upload cap; corrected the "PS1 is scoped to untrusted/sideloaded APKs for
+  this reason" line, which overclaimed enforcement that doesn't exist even after today.
+- `setuguard_app/frontend/index.html`: Compliance page's Fairness row extended with the
+  PS1 allowlist note, kept clearly separate from PS2's leakage-guard clause.
+- `FROZEN_FILE_FINDINGS.md`: no change needed — no frozen file touched today.
+- `ps2/README.md`: checked, already correctly names all four dead-path artifacts.
+
+**Not found stale, checked and left alone:** the bridge cert-hash-only framing, the
+correctness/latency LLM split, class-convergence-as-hypothesis framing, PS2
+leakage-as-audit framing, the "confidence" naming rule, and all void-figure bans —
+already consistent everywhere from prior sessions' work.
+
+**Noticed, not touched:** two small edits appeared in `CONTEXT.md` between reads that
+this session did not make (a trailing-whitespace line-break marker, and a stray backtick
+mid-sentence in the C5 line) — flagged to the user as likely concurrent IDE editing rather
+than silently overwritten or "fixed."
+
+## 2026-08-20 (Day 3, continued) — verification pass
+
+Three consecutive full `browser_smoke.js` runs (labels `day3_verify_run1_20260820`,
+`_run2_`, `_run3_`), all 5 steps each: **PASS — zero console errors, zero uncaught
+exceptions**, all three runs, all five steps. As with Day 2: neither demo APK exercises
+the new path. `007556ca...` (matching) is self-signed with garbled test certificate data,
+and the non-matching APK has no certificate at all — neither is Play-signed, so this 3x
+pass confirms no regression on the existing demo path, not that the allowlist works. The
+allowlist itself was verified separately, earlier this session: `com.ubi.parivar`
+(Play-signed, real Union Bank app) and `com.esaf.mobileBanking` (not Play-signed, real
+ESAF SFB app) — `play_signing.detected` correct in both directions, verdict/confidence/
+risk_score unaffected, real-browser render check zero console/page errors, screenshot
+`harness/browser_evidence/d3_play_signing.png`. No leftover backend process after the
+verification pass.
