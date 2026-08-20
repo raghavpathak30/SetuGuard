@@ -1,12 +1,16 @@
 # SetuGuard — Repository Context
 
-**As of 19 August 2026.** Written for a reader with no prior exposure to this
+**As of 21 August 2026.** Written for a reader with no prior exposure to this
 repo. Sections 0 and 4 were verified 12 August and are unchanged; the corpus
 rows in §2, the new §5 subsection on sha256 case normalisation, and the first
 limitation in §8 were updated 15 August. 19 August: §2's n for PRIMARY/SECONDARY
 AUC resolved against `BANKING_AUC_RESULTS.json`; §6/§7 D-1/D-2 marked resolved
 (README + frontend honesty pass) and D-7/C9 marked partially resolved (live
-fixture fixed, dead-path `ps2/` copy left).
+fixture fixed, dead-path `ps2/` copy left). 21 August (Day 4): D-3 closed — the
+bridge's C2-host path fires now, both wiring claims (offline validation script
+and the live `/api/bridge` handler) proven by sabotage-and-restore execution
+rather than by reading; §2's bridge matcher row and §3's C2-path paragraph
+rewritten accordingly.
 
 This is a description of what the repo *is*. The narrative history lives in `SESSION_LOG.md` and
 stays there. Quotable numbers live in `REPORT_FACTS.md`. Forward work lives in `PLAN.md`.
@@ -92,7 +96,7 @@ Deliverable: one Flask backend (`setuguard_app/backend/app.py`) plus a static da
 | PS2 inference endpoint | Live, inference-only | `app.py:577-761`; artifact loaded once at import, `app.py:512-526` | — |
 | PS2 leakage guard + test | Live, 4/4 PASS | `train_ps2_model.py:67-84`; `harness/test_leakage_assert.py` | non-frozen |
 | Play-signed allowlist | **New, 19 Aug (Day 3).** Live, display-layer only — never a scorer input. Detects Google Play App Signing via the certificate issuer string (`Organization: Google Inc.`, checked directly against `harness/banking_legit_corpus/`: 29 distinct cert SHA-256 values share this identical issuer template, so the string, not any one hash, is the stable signal), attached to the API response as `play_signing: {detected, note}` after `_rule_based_verdict()` has already run — structurally cannot feed back into verdict/confidence/risk_score. Of the 51 PRIMARY packages, 23 (45%) would be flagged, 28 (55%) would not — self-signed and self-distributed banks are the majority, not the minority, of the corpus. Rendered as a clearly-separated "Triage Prior — Not Part Of The Verdict Above" section, verified in a real browser (zero console/page errors). | `app.py` `_play_signing_check()`, called from `analyze_apk_endpoint()`; `frontend/app.js` render block | non-frozen; no `PREREGISTERED_BANKING_AUC_CLAIMS.md` deviation needed since the score is untouched |
-| Bridge matcher | Live, exact-match, cert-hash only in practice | `bridge/matcher.py:77-108`; called at `app.py:839,843` | teammate-authored |
+| Bridge matcher | Live, exact-match on certificate hash **or** normalized C2 host. Both call sites — the offline `confusion_matrix_validation.py` and the live `/api/bridge` handler — proven to call the real matcher by sabotage-and-restore (break one comparison branch, confirm the expected metric degrades, restore, confirm zero diff), not by reading alone. `SYNTHETIC_LINKAGE_GROUND_TRUTH` carries two entries as of 21 Aug, one per join key; the C2-host entry uses an RFC 2606 reserved `.test` hostname so it can never collide with a real APK string. | `bridge/matcher.py`, `_normalize_host()`; called from `app.py`'s bridge endpoint | teammate-authored; Day 4 normalization by this session |
 | Bridge unit test | Live | `bridge/fix1_confusion_matrix_results.json` | synthetic ground truth |
 | Dashboard | Live, zero console errors | `harness/browser_smoke.js`; 5 screenshots + report in `harness/browser_evidence/ollama_up/` | Playwright |
 | Ollama-down degradation | Verified | `harness/browser_evidence/ollama_down/` | — |
@@ -153,16 +157,34 @@ The resolved entries then feed the same matching logic as before — calls
 response, not just inferred from upload order. Returns HTTP 200 with `"links": []` when nothing
 matches.
 
-**The C2 path has never fired.** `matcher.py:94-98` does `linked_c2 in apk_c2_hosts`, and
-`apk_c2_hosts` is built at `matcher.py:31-34` from **raw** `suspicious_strings` values — the
-matcher never calls `urlparse`. For `kind == "url"` the value is the whole URL including scheme
-and path, so a hostname-valued ground-truth entry can never match. Only a bare dotted quad
-(`kind == "ip"`, present in 10.6% of malicious APKs) can join. Moreover the single entry in
-`SYNTHETIC_LINKAGE_GROUND_TRUTH` has `c2_host: None` (`matcher.py:68`), so in the shipped
-configuration **only cert-hash matching can fire at all**.
+**The C2 path fires now (closed 21 Aug, Day 4).** Previously, `apk_c2_hosts` was built from
+**raw** `suspicious_strings` values with no `urlparse` call: for `kind == "url"` the value was
+the whole URL including scheme and path, so a hostname-valued ground-truth entry could never
+match, and only a bare dotted quad (`kind == "ip"`) could join. Fixed by a single
+`_normalize_host()` helper applied to **both** sides of the comparison — the extracted candidate
+host and the ground-truth `c2_host` value — so neither side can drift out of normalization sync
+with the other (the same bug class `norm_sha()` guards against elsewhere in this repo).
+`SYNTHETIC_LINKAGE_GROUND_TRUTH` now carries two entries, one per join key: the original
+cert-hash entry, and a new C2-host entry using an RFC 2606 reserved `.test` hostname (so it
+cannot collide with a real registered domain or appear in a real APK by accident).
+
+**Verified by execution, not reading:** breaking the cert-hash comparison and re-running both
+the offline validation script and a live `/api/bridge` call (real backend process, real APK and
+dataset uploads) each produced the expected degradation, then restoring the file confirmed a
+byte-identical, zero-diff return to the pristine version. The C2-host path was confirmed to fire
+through the real `bridge_endpoint()` route (via Flask's `test_client()`, since no real APK on
+disk can naturally contain the reserved-TLD test value) — `matched_on: c2_host`, correct
+`shared_ioc`. The existing confusion-matrix regression test (TP=10/FP=0/FN=0/TN=90) does not
+itself exercise the new capability — none of its 100 cases use a `kind == "url"` value — so it
+proves no regression, not that the fix works; the fix is proven separately, above.
+
+**Gap, stated plainly:** the standing two-APK `browser_smoke.js` demo does not exercise the new
+path — the real matching demo APK has zero `suspicious_strings`. Demonstrating this live on stage
+needs a different demo fixture; not built this session.
 
 Consequence for the planned runtime capture: dynamic analysis yields hostnames (DNS, TLS SNI).
-Those cannot join through today's matcher. `PLAN.md` item 2 is the prerequisite.
+Those can now join through the matcher via the same normalization. `PLAN.md` item 2's prerequisite
+is satisfied on the matching side; the runtime-capture instrumentation itself is still not built.
 
 ---
 

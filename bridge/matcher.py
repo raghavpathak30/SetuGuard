@@ -9,9 +9,57 @@ see PDF Page 8 for why this is the honest, correctly-scoped approach).
 Revised per code review (Raghav, 2026-08): explicit None-guards on
 BOTH sides of every comparison, so an unsigned APK or an account
 with no linkage data can never accidentally "match" on emptiness.
+
+Day 4 (2026-08-21): C2-host matching previously compared raw values —
+a "url"-kind indicator carries scheme+host+path, so a hostname-valued
+ground-truth entry could never equal it (only a bare "ip"-kind value,
+already host-only, ever matched). Both sides now go through
+_normalize_host() before comparison, the same one-function-both-sides
+discipline as norm_sha() elsewhere in this repo, so this can't drift
+into a one-sided-normalization bug.
 """
 
 import json
+from urllib.parse import urlparse
+
+
+# ---------------------------------------------------------------------------
+# Host normalization — applied identically to the candidate C2 host
+# extracted from PS1's suspicious_strings AND to the ground-truth c2_host
+# value, so the two sides can never silently drift apart (the norm_sha bug
+# class: normalizing only one side of a comparison).
+# ---------------------------------------------------------------------------
+
+def _normalize_host(value: str, kind: str | None = None) -> str | None:
+    """Reduce a candidate or ground-truth C2 value to a bare, comparable host.
+
+    kind == "ip": value is already a bare dotted quad (static_analysis.py's
+    IP regex has no port group) — skip URL parsing entirely, since
+    urlparse("185.44.22.10").hostname returns None for a schemeless bare IP
+    with no "//" prefix, and this path must never regress into a non-match.
+
+    Otherwise (kind == "url", or unspecified for a ground-truth value that
+    may itself be a bare hostname): urlparse a "//"-prefixed form so a
+    schemeless string still parses into netloc/hostname instead of falling
+    through as a path. Falls back to the raw value if urlparse still can't
+    produce a hostname (malformed input), rather than dropping the value.
+    """
+    if not value:
+        return None
+    raw = value.strip()
+    host = None
+    if kind != "ip":
+        candidate = raw if "//" in raw else f"//{raw}"
+        try:
+            host = urlparse(candidate).hostname
+        except ValueError:
+            host = None
+    if host is None:
+        host = raw
+    host = host.strip().rstrip(".").lower()
+    if ":" in host and not host.startswith("["):
+        host = host.split(":", 1)[0]
+    return host
 
 
 # ---------------------------------------------------------------------------
@@ -26,11 +74,17 @@ def extract_ioc_from_ps1(apk_analysis: dict) -> dict:
     cert = apk_analysis.get("certificate", {}) or {}
 
     # C2 hosts aren't a flat field — they're buried inside suspicious_strings
-    # as {"kind": "ip"/"url"/"shell", "value": "..."}. Pull out IP/URL candidates.
+    # as {"kind": "ip"/"url"/"shell", "value": "..."}. Pull out IP/URL
+    # candidates and normalize each to a bare host (see _normalize_host) so
+    # a "url"-kind entry's scheme+path doesn't block a hostname-valued match.
     suspicious_strings = apk_analysis.get("suspicious_strings", [])
     candidate_c2_hosts = [
-        s["value"] for s in suspicious_strings
-        if s.get("kind") in ("ip", "url")
+        h for h in (
+            _normalize_host(s["value"], s.get("kind"))
+            for s in suspicious_strings
+            if s.get("kind") in ("ip", "url")
+        )
+        if h
     ]
 
     # MITRE-mapped behaviors — static/rule-based tagging from suspicious_apis,
@@ -67,6 +121,15 @@ SYNTHETIC_LINKAGE_GROUND_TRUTH = {
         "cert_hash": "d6e80c1de6423814bb8b8e4de46d9eb84d7eaa5cadfd5c8116918e4922e070d6",
         "c2_host": None,
     },
+    # Day 4 (2026-08-21): second entry, one per join key, to demonstrate the
+    # C2-host path now that _normalize_host() lets a "url"-kind indicator's
+    # extracted hostname match a bare ground-truth hostname. ".test" is the
+    # RFC 2606 reserved TLD for exactly this — a hand-constructed value that
+    # cannot collide with a real registered domain.
+    "9062": {
+        "cert_hash": None,
+        "c2_host": "c2-relay.synthetic-ioc.test",
+    },
 }
 
 
@@ -91,10 +154,14 @@ def match_account_to_apk(account_id: str, apk_ioc: dict, ground_truth=SYNTHETIC_
         and apk_cert is not None
         and linked_cert == apk_cert
     )
+    # apk_c2_hosts is already normalized (extract_ioc_from_ps1); normalize
+    # linked_c2 here so both sides go through _normalize_host() and can't
+    # drift apart (one-sided normalization is exactly the norm_sha bug class).
+    linked_c2_normalized = _normalize_host(linked_c2) if linked_c2 is not None else None
     c2_match = (
-        linked_c2 is not None
+        linked_c2_normalized is not None
         and len(apk_c2_hosts) > 0
-        and linked_c2 in apk_c2_hosts
+        and linked_c2_normalized in apk_c2_hosts
     )
 
     if cert_match or c2_match:

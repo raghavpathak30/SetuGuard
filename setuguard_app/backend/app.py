@@ -942,14 +942,15 @@ def bridge_endpoint():
         })
 
     note = (
-        f"Matching is on certificate hash overlap (C2-host matching is implemented but its one "
-        f"ground-truth entry has no host configured, so it has never fired) — matched APK "
-        f"indicators, not a malice verdict — against {len(ds['top_alerts'])} scored account(s). "
+        f"Matching is on certificate-hash or C2-host overlap, exact-match against a small, "
+        f"hand-constructed ground-truth table (matcher.SYNTHETIC_LINKAGE_GROUND_TRUTH, two "
+        f"entries, one per join key) — not linkage observed in the wild, since no real "
+        f"device<->account join key exists in any of the source repos. Matched APK indicators, "
+        f"not a malice verdict, against {len(ds['top_alerts'])} scored account(s). "
         + (f"{len(links)} match(es) found." if links else
-           "0 matches -- no account in this dataset run shares a certificate hash with this APK. "
-           "This is the expected result for most APK/dataset pairs: the ground-truth "
-           "linkage table (matcher.SYNTHETIC_LINKAGE_GROUND_TRUTH) is a small, explicitly synthetic "
-           "stand-in since no real device<->account join key exists in any of the source repos.")
+           "0 matches -- no account in this dataset run shares a certificate hash or C2 host "
+           "with this APK. This is the expected result for most APK/dataset pairs: the "
+           "ground-truth table is small and synthetic by construction.")
     )
 
     resp = {

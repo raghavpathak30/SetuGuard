@@ -1530,3 +1530,173 @@ ESAF SFB app) — `play_signing.detected` correct in both directions, verdict/co
 risk_score unaffected, real-browser render check zero console/page errors, screenshot
 `harness/browser_evidence/d3_play_signing.png`. No leftover backend process after the
 verification pass.
+
+## 2026-08-21 (Day 4) — bridge C2 host normalization
+
+**On schedule** — `FINALE_PLAN_AND_AUDIT.md` names Day 4 as Fri 21 Aug; today is 21 Aug.
+
+**Priority 0 — sabotage verification, both paths, before touching anything.** The claim
+that `bridge/confusion_matrix_validation.py` and `/api/bridge` both call the real
+`match_account_to_apk()` (not a reimplementation) was previously supported only by
+reading the code, per the prior orientation session's own caveat. Proved by execution
+instead, twice:
+
+- **Offline script.** Baseline run of `confusion_matrix_validation.py`: TP=10 (6 cert, 4
+  C2), FP=0, FN=0, TN=90 — matches the committed `bridge/fix1_confusion_matrix_results.json`
+  exactly. Broke only the cert-hash branch of `match_account_to_apk()` in `matcher.py`
+  (appended `and False` to `cert_match`'s condition) and re-ran: **TP dropped to 4** — all
+  6 `TP_CERT` cases flipped to false negatives, the 4 `TP_C2` cases (bare-IP match)
+  untouched, FP/TN unchanged at 0/90. **PASS** — the script genuinely exercises the real
+  matcher; a hardcoded or trivially-true test would not have responded to breaking one
+  specific branch of the real function. Restored `matcher.py` from a pristine backup
+  (`/tmp/matcher.py.bak`), confirmed byte-identical via `diff`, confirmed zero `git`
+  diff on `bridge/` afterward (the regenerated results JSON came back byte-identical to
+  the committed one — deterministic, seed 42).
+- **Live endpoint.** Same sabotage repeated, this time with the real Flask backend
+  running (fresh process, started after the sabotage edit so no stale import could mask
+  it). Populated the analysis store live: `POST /api/analyze_apk` with the real matching
+  demo APK (`cicmaldroid_banking/007556ca...`, cert hash equal to the one ground-truth
+  entry), `POST /api/analyze_dataset` with the real `DataSet.csv` (account `9072`, the
+  linked account, confirmed present in the returned `top_alerts`), then
+  `POST /api/bridge` with both ids. Result: `matched: false, match_count: 0, links: []`
+  — the account carrying the exact linked cert hash produced no match while the matcher
+  was sabotaged. **PASS.** Restored `matcher.py`, confirmed byte-identical to backup,
+  confirmed zero `git` diff. Both halves of "wired" — the offline validation script and
+  the live serving path — are now proven by execution, not by reading.
+
+**Priority 1 — `urlparse` host normalization (D-3).** Root cause confirmed as documented:
+`matcher.py`'s `extract_ioc_from_ps1()` built `candidate_c2_hosts` from raw
+`suspicious_strings` values with no parsing. A `kind == "ip"` value is already a bare
+dotted quad (`static_analysis.py`'s IP regex has no port group), so IP-based C2 matching
+already worked — confirmed by the existing `TP_C2` cases, which all match on a bare IP.
+A `kind == "url"` value carries the whole `scheme://host:port/path` string, so a
+hostname-valued ground-truth entry could never equal it.
+
+Fix: one `_normalize_host(value, kind)` helper in `matcher.py`, applied to **both** sides
+of the C2 comparison — the extracted candidate host (at `extract_ioc_from_ps1()`) and the
+ground-truth `c2_host` value (at `match_account_to_apk()`, immediately before the
+comparison). One-sided normalization is exactly the `norm_sha` bug class this repo has
+already been bitten by four times; both sides go through the same function so they can't
+drift apart. `kind == "ip"` skips URL parsing entirely (confirmed by probing that
+`urlparse("185.44.22.10").hostname` returns `None` for a schemeless bare IP — that path
+must never regress into a false non-match). Otherwise, the value is urlparsed via a
+`"//"`-prefixed form so a schemeless bare hostname (the shape a ground-truth entry would
+naturally take) still parses into `netloc`/`hostname` instead of falling through as a
+path; falls back to the raw value if `urlparse` still can't produce a hostname, rather
+than silently dropping it. Also lowercases, strips a trailing dot (`urlparse` does not do
+this itself — confirmed by direct probe), and strips a port if one survives into the
+fallback path.
+
+**Falsification condition, stated before running, and checked:** the 4 existing C2 true
+positives (all matching via the bare IP `185.44.22.10`) must still fire after the change;
+TP must stay at 10, TP_C2 at 4, FP at 0. Re-ran `confusion_matrix_validation.py`:
+**TP=10 (6 cert / 4 C2), FP=0, FN=0, TN=90 — unchanged, condition held.** Also confirmed
+the new capability directly, since none of the existing 100 test cases exercise a
+`kind == "url"` value: a standalone check with `https://Evil-C2.Example.COM:8443/gate.php`
+against a ground-truth entry of `evil-c2.example.com.` (different case, trailing dot,
+scheme+port on one side, bare on the other) matched correctly on `c2_host` — proving both
+the new capability and that both sides genuinely normalize to the same value rather than
+one side happening to already be clean.
+
+**Priority 2 — hostname ground-truth entry, your decision (a).** Populated the DEFAULT
+`SYNTHETIC_LINKAGE_GROUND_TRUTH` (the one the live `/api/bridge` path actually uses) with
+a second entry, one per join key: account `9072` keeps its existing cert-hash entry;
+account `9062` — deterministically the top-ranked account in every `DataSet.csv` scoring
+run, confirmed present in `top_alerts` — gets `c2_host: "c2-relay.synthetic-ioc.test"`,
+using the RFC 2606 reserved `.test` TLD so the value cannot collide with a real registered
+domain. Reason for (a) over (b): the live endpoint is what gets demoed on stage; a fix
+that only fires in an offline script would leave the stage demo showing a single join key
+even after this session's work.
+
+Rewrote `/api/bridge`'s `note` field in the same change, since leaving it stating "C2-host
+matching ... has never fired" would make it false the moment this ships — the exact
+truth-maintenance failure class Day 1 found and fixed elsewhere.
+
+Before: *"Matching is on certificate hash overlap (C2-host matching is implemented but its
+one ground-truth entry has no host configured, so it has never fired) — matched APK
+indicators, not a malice verdict — against N scored account(s). [M match(es) found. / 0
+matches -- no account in this dataset run shares a certificate hash with this APK. This is
+the expected result for most APK/dataset pairs: the ground-truth linkage table
+(matcher.SYNTHETIC_LINKAGE_GROUND_TRUTH) is a small, explicitly synthetic stand-in since
+no real device<->account join key exists in any of the source repos.]"*
+
+After: *"Matching is on certificate-hash or C2-host overlap, exact-match against a small,
+hand-constructed ground-truth table (matcher.SYNTHETIC_LINKAGE_GROUND_TRUTH, two entries,
+one per join key) — not linkage observed in the wild, since no real device<->account join
+key exists in any of the source repos. Matched APK indicators, not a malice verdict,
+against N scored account(s). [M match(es) found. / 0 matches -- no account in this dataset
+run shares a certificate hash or C2 host with this APK. This is the expected result for
+most APK/dataset pairs: the ground-truth table is small and synthetic by construction.]"*
+
+Verified live, real HTTP calls, real backend process: (1) cert-hash path unaffected —
+fresh `analyze_apk`/`analyze_dataset`/`bridge` calls with the real matching demo APK still
+produced `matched: true, match_count: 1, matched_on: cert_hash`, note text renders
+correctly with the new wording. (2) C2-host path fires through the **real** `/api/bridge`
+route, not just the offline matcher: since account `9062`'s ground-truth hostname uses a
+reserved-TLD value by design, no real APK on disk can naturally contain it, so this was
+verified via Flask's `test_client()` executing the actual route function
+(`bridge_endpoint()`, real `_resolve_bridge_input()`, real `bridge_matcher` calls) against
+a hand-constructed but schema-accurate `analyze_apk` result stored through the real
+`store_analysis()` — not a stub of the endpoint. Result: `matched: true, match_count: 1,
+matched_on: c2_host, shared_ioc: "c2_host:c2-relay.synthetic-ioc.test"`. This exercises
+the real endpoint code path; it does not exercise real static analysis, since no real APK
+can contain a reserved-TLD string.
+
+**Gap, stated plainly:** the standing two-APK `browser_smoke.js` demo does **not**
+exercise the new C2-host path. The real matching demo APK
+(`cicmaldroid_banking/007556ca...`) has zero `suspicious_strings` (confirmed from its live
+`raw_features` — matches the comment already in `matcher.py`'s own `__main__` block noting
+this). Demonstrating the C2-host path live on stage would need a different demo APK
+carrying a URL/IP indicator, or a new fixture built for the purpose — not attempted this
+session, out of scope for a `urlparse` fix.
+
+**Priority 3 — confusion matrix decomposition (Step 4).**
+
+| | TP | FP | FN | TN |
+|---|---|---|---|---|
+| Post-fix | 10 | 0 | 0 | 90 |
+
+Unchanged from pre-fix, expected: none of the existing 100 test cases use a `kind ==
+"url"` value, so the fix's new code path isn't exercised by this matrix at all — it only
+proves no regression, not that the new capability works (that's the standalone and
+live-endpoint checks above).
+
+TP split by join key: **6 cert-hash, 4 C2-host.**
+
+**Distinct indicator values underlying the 10 TPs: 2, not 10.** All 6 `TP_CERT`
+ground-truth entries reuse the single literal `KNOWN_GOOD_CERT_HASH`
+(`confusion_matrix_validation.py`); all 4 `TP_C2` entries reuse the single literal
+`KNOWN_GOOD_C2_HOST` (the bare IP `185.44.22.10`), confirmed by reading the ground-truth
+construction directly. The matrix's "10 true positives" means 10 correctly-linked
+*accounts*, powered by exactly 2 distinct indicator values — one cert hash repeated
+across 6 synthetic accounts, one IP repeated across 4. State it that way if asked; "10
+true positives" alone overstates how many independent indicators were exercised.
+
+**Carry-over, flagged not fixed — out of this session's stated scope for `REPORT_FACTS.md`:**
+`REPORT_FACTS.md`'s "QUOTABLE — Bridge" section still reads *"C2-host matching is
+implemented and has never fired... Do not write 'matches on certificate hash and C2 host'
+as a present-tense capability."* That sentence is now false — this session made it fire,
+both offline and through the live endpoint. Not corrected here because Step 5 of this
+session's instructions scoped the `REPORT_FACTS.md` edit narrowly to the closing
+abstract paragraph and said not to touch the QUOTABLE section; flagged here per this
+repo's own convention (see the Day 3 "Noticed, not touched" precedent) rather than
+silently left stale or silently fixed outside the given scope.
+
+**Priority 4 — `REPORT_FACTS.md` closing paragraph (Step 5).** The "one-paragraph version
+for the report's abstract" still read *"...with known publishers excluded upstream by
+certificate hash — a control not yet enforced in the serving path as of this writing"* —
+the exclusion design rejected at Day 3's start, not what shipped. Same class of stale
+sentence Day 3 fixed in `FINALE_PLAN_AND_AUDIT.md`'s hostile-answer prose, missed here
+during that pass. Rewritten to describe the display-layer tag that actually shipped: every
+APK still fully scored, 45% coverage (23 of 51 PRIMARY packages), consistent with the
+file's own QUOTABLE section two hundred-odd lines above it. QUOTABLE section itself not
+touched, per instruction.
+
+**No frozen-file edits.** `matcher.py` (`bridge/`) and `app.py`
+(`setuguard_app/backend/`) are both non-frozen; neither is under `setuguard_ps1/`. No
+`FROZEN_FILE_FINDINGS.md` entry needed.
+
+**Files changed:** `bridge/matcher.py` (`_normalize_host()`, both call sites, second
+ground-truth entry), `setuguard_app/backend/app.py` (`note` field rewrite),
+`REPORT_FACTS.md` (closing paragraph). `bridge/fix1_confusion_matrix_results.json`
+regenerated identically to the committed version (deterministic) — no diff, not staged.

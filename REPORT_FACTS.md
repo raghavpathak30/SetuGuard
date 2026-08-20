@@ -383,5 +383,7 @@ analysis, and its own pre-registered measurement against 51 real legitimate bank
 32 issuer clusters shows the static scorer's ranking **inverts** on that population (PRIMARY AUC
 **0.1444** [0.0905, 0.2081]) — permission and API-surface signals do not separate a banking app
 from a banking trojan built to request similar capabilities. That scopes PS1 to untrusted and
-sideloaded APKs, with known publishers excluded upstream by certificate hash — a control not yet
-enforced in the serving path as of this writing.
+sideloaded APKs. A Play App Signing issuer tag flags known-publisher uploads as a lower-priority
+triage prior — every APK is still fully scored, nothing is excluded — covering 45% of the
+legitimate corpus (23 of 51 PRIMARY packages); the rest self-sign or self-distribute and fall
+outside it.
