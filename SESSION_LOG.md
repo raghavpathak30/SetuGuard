@@ -1936,3 +1936,72 @@ New evidence: `demo/c2match_01_apk.json`, `demo/c2match_02_dataset.json`,
 `demo/c2match_03_bridge.json` (regenerated after the WHOIS amendment to carry final text),
 `harness/browser_evidence/day4_item3_c2_wired/` (full 7-step run, regenerated after the
 amendment for the same reason).
+
+## 2026-08-20 — two-model serving path, memory/swap finding, retraction, Day 6 requirements
+
+**ENTRY: Two-model serving path (previously undocumented)**
+
+The PS1 serving path holds TWO llama-server processes resident, not one:
+- An embedding server (`--embedding`, `-c 2048`) for FAISS retrieval
+- Mistral-7B (`-c 4096`, chatml template) for narrative generation
+
+Both must be counted in any memory figure, startup-cost figure, or architecture
+description. Existing docs describe the LLM component as "Mistral-7B via Ollama", which
+undercounts the serving footprint. Flag for a later pass over `CONTEXT.md` and the
+report's system description — do not edit those files in this task.
+
+**ENTRY: Memory finding, 20 Aug — `keep_alive=-1` does not prevent swapping**
+
+With `vm.swappiness=60` and a development session open (VS Code, Claude Code, multiple
+browser windows) on a 15 GB machine, the Mistral-7B llama-server process accumulated
+VmSwap of 4,003,552 kB — roughly 4 GB of its working set paged to disk.
+
+`keep_alive=-1` prevents Ollama from unloading the model. It does not prevent the kernel
+from paging the model's resident pages out under memory pressure. These are different
+mechanisms with the same observable effect on latency.
+
+Consequence for the Day 1 residency validation (68s after a 6.5-minute idle, commit
+`98c7220`): that result holds under memory headroom. It is not unconditional. Under swap
+pressure the pre-fix latency variance can return by a different mechanism. This is a
+host-condition dependency, not a defect in the fix.
+
+Mitigation applied 20 Aug: `vm.swappiness=10` (session-scoped via sysctl, NOT persisted
+to `/etc/sysctl.conf` — deliberately not baked in this close to the finale), development
+tooling closed, `swapoff -a && swapon -a` to force pages back to RAM. Post-mitigation
+swap use: 0B.
+
+**ENTRY: Correction to an earlier note in this session**
+
+An earlier working note in this session stated that `swapoff -a` killed the llama-server
+process. That is FALSE and is retracted.
+
+Both llama-server processes survived. The apparent death was a misread: `pgrep` matched
+two PIDs, producing a malformed `/proc` path (`/proc/16910 19884/status`), and the
+resulting "No such file or directory" error was misattributed to process termination. No
+outage occurred.
+
+Operational note that follows: anywhere a script reads `/proc/<pid>/status` for a
+llama-server process, it must resolve to a specific PID by model, not by `pgrep | head
+-1`. `head -1` selects the embedding server, not Mistral-7B.
+
+**ENTRY: Day 6 harness requirements arising from the above**
+
+- Record VmSwap alongside RSS for BOTH llama-server processes and for Flask, read from
+  `/proc/<pid>/status`, resolving each PID by model rather than by first match.
+- VOID CONDITION: any timing run during which VmSwap is non-zero for the Mistral-7B
+  process is void and must be excluded, with the exclusion logged. A latency median
+  computed over partially-swapped runs does not measure the post-residency-fix system.
+- Report peak memory as median and IQR, never a single figure.
+- Separately measure the demo sequence alone (Flask + both models + one browser tab,
+  nothing else running) against the 15 GB ceiling. That is the figure that matters for
+  the stage machine.
+
+**ENTRY: Pre-flight checklist to be added to `DEMO_RUNBOOK.md` (not in this task)**
+
+Flagged for a later pass, do not edit `DEMO_RUNBOOK.md` now:
+1. Close VS Code, Claude Code, all browser windows except one demo window
+2. `sudo sysctl vm.swappiness=10`
+3. Verify `free -h` shows swap use at or near zero
+4. Start Ollama, warm both models with one throwaway analysis
+5. Verify VmSwap reads 0 kB for the Mistral-7B process specifically
+6. Only then start Flask and drive the demo
