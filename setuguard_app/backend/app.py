@@ -942,15 +942,19 @@ def bridge_endpoint():
         })
 
     note = (
-        f"Matching is on certificate-hash or C2-host overlap, exact-match against a small, "
-        f"hand-constructed ground-truth table (matcher.SYNTHETIC_LINKAGE_GROUND_TRUTH, two "
-        f"entries, one per join key) — not linkage observed in the wild, since no real "
-        f"device<->account join key exists in any of the source repos. Matched APK indicators, "
-        f"not a malice verdict, against {len(ds['top_alerts'])} scored account(s). "
+        f"Matching is on certificate-hash or C2-host overlap, exact-match against a small "
+        f"ground-truth table (matcher.SYNTHETIC_LINKAGE_GROUND_TRUTH, two entries, one per "
+        f"join key). The C2-host entry's indicator is real — yessign.net, extracted by our "
+        f"own static analysis from an actual CICMalDroid banking-malware sample — but which "
+        f"account it links to is hand-constructed, not observed in the wild; the cert-hash "
+        f"entry is synthetic on both sides. No real device<->account join key exists in any "
+        f"of the source repos. Matched APK indicators, not a malice verdict, against "
+        f"{len(ds['top_alerts'])} scored account(s). "
         + (f"{len(links)} match(es) found." if links else
            "0 matches -- no account in this dataset run shares a certificate hash or C2 host "
            "with this APK. This is the expected result for most APK/dataset pairs: the "
-           "ground-truth table is small and synthetic by construction.")
+           "ground-truth table is small, and the account associations in it are synthetic by "
+           "construction.")
     )
 
     resp = {

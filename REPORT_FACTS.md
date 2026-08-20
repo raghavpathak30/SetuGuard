@@ -211,20 +211,33 @@ Conservative floor treating all 39 obfuscated failures as zero-yield: **60.3%** 
 
 ### Mandatory adjacent statement — say this whenever linkage is mentioned
 
-**Linkage today fires on certificate hash only.** `bridge/matcher.py:94-98` compares raw
-`suspicious_strings` values and `extract_ioc_from_ps1` never calls `urlparse`, so a
-`kind == "url"` indicator carries the entire URL and can never match a hostname. The single
-entry in `SYNTHETIC_LINKAGE_GROUND_TRUTH` has `c2_host: None`. **C2-host matching is implemented
-and has never fired.** Do not write "matches on certificate hash and C2 host" as a present-tense
-capability.
+**Linkage fires on both keys as of 21 Aug (Day 4).** The C2-host comparison previously used the
+raw `suspicious_strings` value with no `urlparse` call, so a `kind == "url"` indicator (the whole
+scheme+host+path string) could never equal a bare ground-truth hostname — only a bare `kind ==
+"ip"` value ever matched. Fixed with a single normalization function applied to both sides of the
+comparison, so neither side can drift out of sync with the other. `SYNTHETIC_LINKAGE_GROUND_TRUTH`
+carries two entries, one per join key — each a single hand-constructed linkage, not linkage
+observed in the wild. Both the offline validation script and the live `/api/bridge` endpoint were
+confirmed to call the real matcher, not a stub, by sabotage: breaking one comparison branch
+dropped the expected metric (offline TP, live `match_count`) exactly as predicted, restoring the
+file returned it byte-identical. It is now accurate to write "matches on certificate hash or
+C2 host" as a present-tense capability.
 
 ### Matcher validation
 
-**TP=10 / FP=0 / FN=0 / TN=90** — `bridge/confusion_matrix_validation.py`,
-`bridge/fix1_confusion_matrix_results.json`. A **unit-level test of a deterministic exact-match
-function against hand-built near-miss confounders on synthetic ground truth**: 10 same-/24-subnet
-and same-issuer-different-hash confounders each, an all-`None` account, and an unsigned-APK edge
-case. **Never "accuracy." Never a performance metric.**
+**2 distinct ground-truth linkages (one certificate hash, one C2 indicator), 100 hand-built test
+cases, matcher correct on all 100 — not a detection-rate measurement.**
+`bridge/confusion_matrix_validation.py` tests the deterministic exact-match function against: 6
+accounts sharing the cert-hash linkage, 4 sharing the C2 linkage, 20 hand-built near-miss
+confounders (same-/24-subnet and same-issuer-different-hash, 10 each), an all-`None` account, an
+unsigned-APK edge case, and 68 true negatives. Confusion-matrix summary: TP=10/FP=0/FN=0/TN=90 —
+but those 10 "true positives" are 10 correctly-linked *accounts* powered by only 2 distinct
+indicator values, not 10 independent matches. **State the distinct-linkage count (2) alongside
+the account count (10) if either is quoted** — "10 true positives" alone overstates how much was
+exercised. This is a **correctness test of the join logic against hand-built confounders**, not a
+detection-rate or accuracy measurement — no dataset exists where APK-to-account linkage is
+independently known, so no detection rate can be measured. **Never "accuracy." Never a performance
+metric.**
 
 ---
 

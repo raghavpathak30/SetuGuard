@@ -1700,3 +1700,96 @@ touched, per instruction.
 ground-truth entry), `setuguard_app/backend/app.py` (`note` field rewrite),
 `REPORT_FACTS.md` (closing paragraph). `bridge/fix1_confusion_matrix_results.json`
 regenerated identically to the committed version (deterministic) — no diff, not staged.
+
+## 2026-08-21 (Day 4, continued) — REPORT_FACTS.md carry-over closed, real C2 fixture
+
+**Priority 0 — grep sweep, reported before touching anything outside `REPORT_FACTS.md`,**
+per this session's own instruction. Searched the whole repo for `"never fired"`, `"has
+not fired"`, `"no host configured"`, and `TP=10`/`"10 true positives"` phrasing.
+
+`"never fired"` / `"no host configured"`: 11 live hits outside `SESSION_LOG.md` (whose own
+prior entries correctly quote the *pre-fix* state verbatim, per this log's amend-don't-
+rewrite convention, and are not stale). Closed this session: `REPORT_FACTS.md`'s QUOTABLE
+— Bridge section (the item this priority targeted) and — went beyond that file, since
+Item 3 explicitly scoped `CONTEXT.md` back into this update — `CONTEXT.md`'s D-3 defect
+row and its §8 "C2 path has never fired" limitation line. **Left stale, flagged not
+fixed, out of this session's stated scope:** `PLAN.md:359`, `setuguard_app/README.md`
+(two mentions), `demo/DEMO_RUNBOOK.md` (two mentions), `FINALE_PLAN_AND_AUDIT.md:76`. Each
+still describes the C2 path as never having fired; each is a candidate for a follow-up
+sweep.
+
+`TP=10` / `"10 true positives"` framing: live hits in `REPORT_FACTS.md` (closed this
+session), `CONTEXT.md` (closed — two spots, the §4 verified-numbers table and the §8
+limitation line just mentioned), `FINALE_PLAN_AND_AUDIT.md:345`, `ANALYSIS_ID_MIGRATION.md:55`,
+`PLAN.md` (three mentions). **Left stale, flagged not fixed:** the `FINALE_PLAN_AND_AUDIT.md`,
+`ANALYSIS_ID_MIGRATION.md` and `PLAN.md` hits — not in this session's stated scope.
+`SESSION_LOG.md`'s own historical mentions are log entries, not live claims, and are
+correctly left as written.
+
+**Priority 1 — `REPORT_FACTS.md` QUOTABLE — Bridge rewrite.** Two changes: (1) the
+"Mandatory adjacent statement" no longer says C2-host matching has never fired — it states
+both keys fire as of this session, describes the `_normalize_host()` fix in one sentence,
+and states plainly that both wiring claims (offline script, live endpoint) were proven by
+sabotage, not by reading. (2) "Matcher validation" reframed from "TP=10/FP=0/FN=0/TN=90"
+standing alone to leading with **2 distinct ground-truth linkages** (one cert hash, one C2
+indicator) tested against **100 hand-built cases**, matcher correct on all — the
+TP=10/FP=0/FN=0/TN=90 numbers are kept but captioned as "10 correctly-linked accounts
+powered by 2 distinct indicator values," per this session's explicit instruction not to
+let "10" alone overstate what was exercised. Framed as a correctness test of the join
+logic against hand-built confounders, never a detection-rate or accuracy measurement — no
+dataset exists where APK-to-account linkage is independently known.
+
+**Priority 2 — C2 demo fixture search (Item 2).** Searched all 668 cached extractions in
+`harness/feature_cache/` for `kind == "url"` suspicious strings whose value survives
+`_normalize_host()` with a non-empty host. Found 3,762 such indicators across the corpus —
+plenty of candidates, not a scarce resource. Selected **`com.kb`**
+(`cicmaldroid_banking/30baab7000e14cd4a430c8a4a75ea3cae347a6360e0b75ae68c503b5e576cb52.apk`,
+real CICMalDroid banking-malware sample, 361KB): 4 `suspicious_strings`, all
+`http://yessign.net:8688/...`, paths `send_sim_no.php` / `send_bank.php` / `upload.php` /
+bare — a banking-trojan-flavored C2 story (SIM and bank-data exfiltration), not generic ad/
+analytics noise like most other candidates (`schemas.android.com`, tracking SDKs).
+Cross-checked against considered alternatives before picking: `com.pdfaccesslistserv` had
+more hosts but was a noisy ad-SDK mix, weaker single-indicator story;
+`com.venuechart.bubblehorde` (`antivirus-pro.us`) and `com.note.donote`
+(`statisticwebtraf.com`) were plausible but less narratively clean than a banking-specific
+exfiltration path.
+
+**Verified the cache wasn't stale** before committing to this candidate: re-ran
+`static_analysis.analyze_apk()` directly against the real file (bypassing Ollama) and
+separately through the live `/api/analyze_apk` HTTP endpoint — both reproduced the cached
+`suspicious_strings` exactly. Live verdict: `suspicious` / `HIGH`.
+
+**(b) — candidate exists, wired per this session's decision.** Replaced the prior `.test`
+placeholder in `SYNTHETIC_LINKAGE_GROUND_TRUTH`'s C2-host entry (account `9062`) with the
+real extracted host `yessign.net`. The indicator is now real, extracted from an actual
+analyzed sample by our own static analysis; only the account association (`9062` linking
+to this specific host) remains hand-constructed, since no real device↔account join key
+exists anywhere in this repo's source data. Confusion matrix re-run, unaffected (10/0/0/90
+— `confusion_matrix_validation.py` builds its own local ground truth per test case, never
+reads the module-level default).
+
+Rewrote `/api/bridge`'s `note` field in the same change to say exactly that — before/after
+text shown to you directly ahead of this edit. The new text distinguishes the two
+ground-truth entries explicitly: C2-host indicator real / account synthetic, cert-hash
+entry synthetic on both sides.
+
+**(d) — verified live through the exact standing three-call demo sequence,** real HTTP
+calls against a real backend process, not a stub: `POST /api/analyze_apk` with
+`com.kb`'s real file → `POST /api/analyze_dataset` with the real `DataSet.csv` (account
+`9062` confirmed present in `top_alerts`, same deterministic top-ranked account as the
+prior session) → `POST /api/bridge` with both ids. Result: `matched: true, match_count: 1,
+matched_on: c2_host, shared_ioc: "c2_host:yessign.net"`, `note` renders the new text
+correctly. **The APK the demo must upload to show the C2 path live:**
+`cicmaldroid_banking/30baab7000e14cd4a430c8a4a75ea3cae347a6360e0b75ae68c503b5e576cb52.apk`
+(package `com.kb`), followed by the standing `DataSet.csv` upload and a bridge call — the
+same sequence `browser_smoke.js` already automates for the cert-hash demo APK, just with
+this file substituted. **Not done this session:** wiring `browser_smoke.js` itself to add
+this as a third automated demo step, or updating `demo/DEMO_RUNBOOK.md`'s staged talking
+points — out of this item's stated scope ("report which APK"), left for the demo-script
+owner to decide whether to add.
+
+**No frozen-file edits.** Same two files as the prior entry, both non-frozen.
+
+**Files changed:** `bridge/matcher.py` (ground-truth host swap, comment), `setuguard_app/backend/app.py`
+(`note` field rewrite), `REPORT_FACTS.md` (QUOTABLE — Bridge section), `CONTEXT.md` (D-3
+row, §8 limitation, header note).

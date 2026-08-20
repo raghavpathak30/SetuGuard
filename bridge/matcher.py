@@ -123,12 +123,19 @@ SYNTHETIC_LINKAGE_GROUND_TRUTH = {
     },
     # Day 4 (2026-08-21): second entry, one per join key, to demonstrate the
     # C2-host path now that _normalize_host() lets a "url"-kind indicator's
-    # extracted hostname match a bare ground-truth hostname. ".test" is the
-    # RFC 2606 reserved TLD for exactly this — a hand-constructed value that
-    # cannot collide with a real registered domain.
+    # extracted hostname match a bare ground-truth hostname. Replaced the
+    # original RFC 2606 ".test" placeholder (same day, later session) with a
+    # real host: "yessign.net" is extracted by our own static analysis from
+    # com.kb (cicmaldroid_banking/30baab7000e14cd4a430c8a4a75ea3cae347a6360e
+    # 0b75ae68c503b5e576cb52.apk, a real CICMalDroid banking-malware sample)
+    # — 4 suspicious_strings, all "http://yessign.net:8688/..." — so the
+    # indicator itself is real, not fabricated. Only the account association
+    # (which PS2 account this host links to) remains hand-constructed; no
+    # real device<->account join key exists in any source repo, and none is
+    # implied here.
     "9062": {
         "cert_hash": None,
-        "c2_host": "c2-relay.synthetic-ioc.test",
+        "c2_host": "yessign.net",
     },
 }
 
