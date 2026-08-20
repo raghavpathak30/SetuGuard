@@ -1,0 +1,107 @@
+[
+  {
+    "step": "01_apk_matching",
+    "console": [
+      {
+        "type": "debug",
+        "text": "POST http://127.0.0.1:5000/api/analyze_apk"
+      }
+    ],
+    "pageErrors": [],
+    "failedRequests": [],
+    "badResponses": [],
+    "hasErrors": false,
+    "screenshot": "/home/raghavp/BOIhackathon/harness/browser_evidence/day4_item3_c2_wired/01_apk_matching.png",
+    "stepThrew": null
+  },
+  {
+    "step": "02_dataset",
+    "console": [
+      {
+        "type": "debug",
+        "text": "POST http://127.0.0.1:5000/api/analyze_dataset"
+      }
+    ],
+    "pageErrors": [],
+    "failedRequests": [],
+    "badResponses": [],
+    "hasErrors": false,
+    "screenshot": "/home/raghavp/BOIhackathon/harness/browser_evidence/day4_item3_c2_wired/02_dataset.png",
+    "stepThrew": null
+  },
+  {
+    "step": "03_bridge_match",
+    "console": [
+      {
+        "type": "debug",
+        "text": "POST http://127.0.0.1:5000/api/bridge"
+      }
+    ],
+    "pageErrors": [],
+    "failedRequests": [],
+    "badResponses": [],
+    "hasErrors": false,
+    "screenshot": "/home/raghavp/BOIhackathon/harness/browser_evidence/day4_item3_c2_wired/03_bridge_match.png",
+    "stepThrew": null
+  },
+  {
+    "step": "04_apk_c2matching",
+    "console": [
+      {
+        "type": "debug",
+        "text": "POST http://127.0.0.1:5000/api/analyze_apk"
+      }
+    ],
+    "pageErrors": [],
+    "failedRequests": [],
+    "badResponses": [],
+    "hasErrors": false,
+    "screenshot": "/home/raghavp/BOIhackathon/harness/browser_evidence/day4_item3_c2_wired/04_apk_c2matching.png",
+    "stepThrew": null
+  },
+  {
+    "step": "05_bridge_c2match",
+    "console": [
+      {
+        "type": "debug",
+        "text": "POST http://127.0.0.1:5000/api/bridge"
+      }
+    ],
+    "pageErrors": [],
+    "failedRequests": [],
+    "badResponses": [],
+    "hasErrors": false,
+    "screenshot": "/home/raghavp/BOIhackathon/harness/browser_evidence/day4_item3_c2_wired/05_bridge_c2match.png",
+    "stepThrew": null
+  },
+  {
+    "step": "06_apk_nonmatching",
+    "console": [
+      {
+        "type": "debug",
+        "text": "POST http://127.0.0.1:5000/api/analyze_apk"
+      }
+    ],
+    "pageErrors": [],
+    "failedRequests": [],
+    "badResponses": [],
+    "hasErrors": false,
+    "screenshot": "/home/raghavp/BOIhackathon/harness/browser_evidence/day4_item3_c2_wired/06_apk_nonmatching.png",
+    "stepThrew": null
+  },
+  {
+    "step": "07_bridge_nomatch",
+    "console": [
+      {
+        "type": "debug",
+        "text": "POST http://127.0.0.1:5000/api/bridge"
+      }
+    ],
+    "pageErrors": [],
+    "failedRequests": [],
+    "badResponses": [],
+    "hasErrors": false,
+    "screenshot": "/home/raghavp/BOIhackathon/harness/browser_evidence/day4_item3_c2_wired/07_bridge_nomatch.png",
+    "stepThrew": null
+  }
+]

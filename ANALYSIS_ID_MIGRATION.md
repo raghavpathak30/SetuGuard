@@ -45,19 +45,30 @@ final; the checklist is kept only as a record of what was confirmed.
 | Stage demo cross-contamination | A stray upload or refresh silently swaps the linked APK | Bridge names its inputs; a mismatch is visible, not silent |
 | Bridge cannot be evaluated over a set | No way to iterate (APK, dataset) pairs | Pairs are addressable, so a batch harness becomes possible |
 
-**Does not fix — still open after this lands**
+**Does not fix — still open after this lands (as of 18 Aug; see Day 4 update below)**
 
-- The bridge rests on a single synthetic linkage. This spec makes it *addressable*, not
-  *evidenced*. Do not let the migration get described as strengthening the linkage itself.
+- ~~The bridge rests on a single synthetic linkage. This spec makes it *addressable*, not
+  *evidenced*.~~ **Day 4 (21 Aug):** two synthetic linkages now, one per join key
+  (cert-hash and C2-host) — still addressable-not-evidenced; the migration itself never
+  claimed otherwise.
 - `shap_drivers` / `generated_rules` / `rule_validated` are hardcoded across all 9,082
   exported records.
-- The bridge validation script imports functions `matcher.py` does not define, never calls
+- ~~The bridge validation script imports functions `matcher.py` does not define, never calls
   the matcher, and reimplements matching inline. TP=10 / FP=0 / FN=0 / TN=90 remains
-  evidence of nothing. (Note: the live `/api/bridge` handler itself does call
-  `bridge_matcher.extract_ioc_from_ps1` / `match_account_to_apk` for real — this defect is in
-  a separate validation script, not the serving path.)
-- `matcher.py` still ships unused outside the one real call site above.
-- The Play-signed allowlist is still unimplemented in the serving path.
+  evidence of nothing.~~ **Already stale when written** — `confusion_matrix_validation.py`
+  was already at its "v2" revision by this point (calls the real matcher, per its own header
+  comment), so this bullet describes a pre-v2 state, not the state as of this migration.
+  Corrected framing as of Day 4: the confusion matrix is **2 distinct ground-truth linkages
+  tested against 100 hand-built cases, matcher correct on all** — a correctness test of the
+  join logic, not evidence about the world, but not "evidence of nothing" either. The live
+  `/api/bridge` handler calls `bridge_matcher.extract_ioc_from_ps1` / `match_account_to_apk`
+  for real, and this was confirmed by sabotage (not just reading) on Day 4.
+- ~~`matcher.py` still ships unused outside the one real call site above.~~ Also stale as
+  written — `confusion_matrix_validation.py` was already a second real call site. As of Day
+  4, `matcher.py` also carries a `_normalize_host()` helper exercised by both call sites.
+- The Play-signed allowlist is still unimplemented in the serving path. **Resolved Day 3
+  (20 Aug)** — shipped as a display-layer triage tag, not a scorer input; see
+  `REPORT_FACTS.md`.
 
 ---
 

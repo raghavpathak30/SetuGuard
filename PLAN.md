@@ -108,17 +108,21 @@ claim bias checking, KS-test drift monitoring and a greedy counterfactual that i
 - **Stop rule:** if the smoke test is not clean on the first re-run, revert and leave the
   strings. A green build beats an honest label.
 
-### 2. Matcher host extraction + populate `c2_host` (~2h)
+### 2. Matcher host extraction + populate `c2_host` — **DONE, 21 August (Day 4)**
 
 `urlparse` the URL-kind indicators, extract host and IP separately, match against a host set.
-Then **re-run the yield audit counting *matchable* indicators rather than merely present ones** —
-that is the number that belongs on the slide, and today it is 10.6%, not 66.9%.
+Shipped as a single `_normalize_host()` function applied to both sides of the comparison.
+`SYNTHETIC_LINKAGE_GROUND_TRUTH` now carries two entries, one per join key — the C2-host entry's
+indicator (`yessign.net`) is real, extracted from an actual CICMalDroid sample, not fabricated;
+its account association is still hand-constructed. **Not done, still open:** re-running the yield
+audit counting *matchable* indicators rather than merely present ones — 10.6% vs 66.9% is still
+the honest number pending that re-run.
 
-- **Gate:** `bridge/confusion_matrix_validation.py` still returns TP=10/FP=0/FN=0/TN=90.
-- **Dies if it fails:** the runtime-capture experiment has nowhere to join — captured hostnames
-  cannot match a matcher that compares raw URLs. Prerequisite, not enhancement.
+- **Gate (met):** `bridge/confusion_matrix_validation.py` still returns TP=10/FP=0/FN=0/TN=90 —
+  2 distinct ground-truth linkages (one cert hash, one C2 indicator) tested against 100
+  hand-built cases including 20 near-miss confounders, matcher correct on all. Verified by
+  sabotage on both the offline script and the live `/api/bridge` handler, not by reading.
 - **Criterion:** Innovation.
-- **Stop rule:** if it exceeds ~20 lines in `matcher.py`, stop. `matcher.py` is demo-critical.
 
 ### 3. Fail-closed path (~1h)
 
@@ -161,7 +165,8 @@ leaky feature still shipping in a runtime-loaded fixture. Also strike `SESSION_L
 comment asserts the sixteen are real bank apps.
 
 - **Gate:** `confusion_matrix_validation.py` still returns TP=10/FP=0/FN=0/TN=90 after the
-  fixture edit.
+  fixture edit — 2 distinct ground-truth linkages tested against 100 hand-built cases, not
+  a bare "TP=10".
 - **Criterion:** Technical Feasibility.
 
 ### 7. NUL-byte YARA guard — determine scope first (~1h)
@@ -353,11 +358,14 @@ provenance — sample set, seed, commit SHAs for both scorers, per-corpus distri
 Mann-Whitney method and its cross-check against a brute-force pairwise implementation. The
 per-sample table lands after the report, once its corpus labels are corrected.
 
-### 5. "Your matcher compares raw strings — so a URL never matches a hostname?"
+### 5. "Your matcher compares raw strings — so a URL never matches a hostname?" — **RESOLVED, item 2, 21 August**
 
-Correct, and worse: the single ground-truth entry has `c2_host: None`, so C2 matching is
-implemented and has never fired once. Only certificate-hash linkage works today. Say "was" only
-after item 2 ships.
+Was correct through 20 August: the matcher compared raw `suspicious_strings` values with no
+`urlparse` call, so a `kind == "url"` indicator could never equal a bare hostname. Fixed 21
+August (Day 4) with a single normalization function applied to both sides of the comparison.
+Both join keys fire now, each against one hand-constructed ground-truth entry; the C2-host
+indicator itself is real (extracted from an actual malware sample), not fabricated — only the
+account association is constructed.
 
 ### 6. "The bridge is exact-match on a certificate hash. Isn't that just a join?"
 
@@ -367,15 +375,21 @@ across 668 real APKs — in guarding both sides against `None` so an unsigned AP
 account never match on shared emptiness, and in abstaining: most pairs produce zero links and the
 API returns 200 with an empty list. The claim is that two systems a bank runs in different
 departments now produce one case file. What is genuinely weak is that our linkage ground truth
-has one entry, because no real device↔account join key exists in any public dataset.
+has two entries, one per join key, because no real device↔account join key exists in any public
+dataset — and one of the two indicators (the C2 host) is at least real, extracted from an actual
+malware sample, even though the account it links to is constructed.
 
 ### 7. "TP=10/FP=0/FN=0/TN=90 is suspiciously perfect."
 
 It is perfect and it should be — it is a unit test of a deterministic exact-match function, and
-we never call it accuracy. The value is in the negative set: ten same-/24-subnet near misses, ten
-same-issuer-different-hash, an all-`None` account, and an unsigned APK against an empty account —
-the last two because `None == None` is `True` in Python. Zero false positives across those
-confounders is the finding. It says nothing about how often a real link would be found.
+we never call it accuracy. Lead with the accurate framing, not the bare number: **2 distinct
+ground-truth linkages (one cert hash, one C2 indicator) tested against 100 hand-built cases,
+matcher correct on all** — the 10 "true positives" are 10 correctly-linked accounts powered by
+only those 2 values, not 10 independent matches. The value is in the negative set: ten
+same-/24-subnet near misses, ten same-issuer-different-hash, an all-`None` account, and an
+unsigned APK against an empty account — the last two because `None == None` is `True` in Python.
+Zero false positives across those confounders is the finding. It says nothing about how often a
+real link would be found.
 
 ### 8. "81 fraud rows. Does this hold at real base rates?"
 

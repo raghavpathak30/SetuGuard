@@ -73,16 +73,25 @@ The 18 Aug migration (`ANALYSIS_ID_MIGRATION.md`) has `/api/bridge` calling
 plus an `inputs` block naming which two artifacts were joined. Do not spend a day
 re-doing this.
 
-The live bridge defect is different and worse. **The C2 path has never fired.**
-`matcher.py:31-34` builds `apk_c2_hosts` from raw `suspicious_strings` values and
+~~The live bridge defect is different and worse. **The C2 path has never fired.**
+`matcher.py` builds `apk_c2_hosts` from raw `suspicious_strings` values and
 never calls `urlparse`, so for `kind == "url"` the value is scheme + host + path and a
 hostname-valued ground-truth entry can never match. Only a bare dotted quad can join —
-and the single `SYNTHETIC_LINKAGE_GROUND_TRUTH` entry has `c2_host: None`
-(`matcher.py:68`). **In the shipped configuration only cert-hash matching can fire at
-all.**
+and the single `SYNTHETIC_LINKAGE_GROUND_TRUTH` entry has `c2_host: None`.
+**In the shipped configuration only cert-hash matching can fire at
+all.**~~ **RESOLVED 21 Aug (Day 4).** A single host-normalization function, applied to
+both sides of the comparison, lets a `kind == "url"` indicator's extracted hostname match
+a bare ground-truth hostname. `SYNTHETIC_LINKAGE_GROUND_TRUTH` now carries two entries,
+one per join key — the C2-host entry pairs a real extracted indicator (`yessign.net`, from
+an actual CICMalDroid banking-malware sample; not independently confirmed as live C2
+infrastructure) with a hand-constructed account association. Both wiring claims — the
+offline validation script and the live `/api/bridge` handler — verified by sabotage
+(break one comparison branch, confirm the expected metric degrades, restore, confirm zero
+diff), not by reading.
 
 Compounded by D-10: `MAX_SUSPICIOUS_STRINGS = 25` with fixed url→ip→shell ordering
-zeroes IP extraction on 84 of 668 APKs — suppressing the one join key that works.
+zeroes IP extraction on 84 of 668 APKs — still suppresses IP-kind indicators regardless of
+the Day 4 fix, which addresses hostname normalization, not the extraction cap.
 
 ### 0.4 — `run_pipeline.py` is not inverted
 
@@ -339,18 +348,27 @@ card · Day 8 rehearsal and recorded video · Day 9 freeze.
 
 ### Innovation
 
-**Today: thin.** The bridge is one synthetic linkage. Account 9072 is the only key in
-`SYNTHETIC_LINKAGE_GROUND_TRUTH` and has no documented selection rationale; the
-"independently confirmed fraud" framing is retracted but still live at
-`SESSION_LOG.md:430-434`. The unit test TP=10/FP=0/FN=0/TN=90 is over synthetic ground
-truth and is not evidence about the world. In the shipped configuration only cert-hash
-matching can fire, so the "certificate-hash *and* C2-host" description overstates what
-runs by exactly half. The matcher **is** correctly wired into `/api/bridge` (18 Aug
-migration) with an `inputs` block — that part is real and worth showing.
+**As of 21 Aug (Day 4): both join keys fire.** The bridge rests on two distinct synthetic
+linkages, one per key — account `9072` (cert-hash) and account `9062` (C2-host, whose
+indicator `yessign.net` is real, extracted from an actual CICMalDroid sample, but not
+independently confirmed as live C2). Neither has a documented selection rationale beyond
+"deterministically reachable in the demo dataset";
+the "independently confirmed fraud" framing on account 9072 is retracted but still live at
+`SESSION_LOG.md:430-434`. The confusion-matrix test (`TP=10/FP=0/FN=0/TN=90`) rests on
+**2 distinct ground-truth linkages tested against 100 hand-built cases including 20
+near-miss confounders, matcher correct on all** — lead with that framing, not the bare
+TP=10 number, which is 10 correctly-linked accounts powered by only those 2 values. It is
+still a correctness test of the join logic, not evidence about the world. It is now
+accurate to write "certificate-hash *and* C2-host" as a present-tense capability — both
+fire, verified by sabotage on the offline script and the live `/api/bridge` handler. The
+matcher **is** correctly wired into `/api/bridge` (18 Aug migration) with an `inputs`
+block — that part is real and worth showing.
 
-**Best case by 26 Aug:** two working join keys, a firing C2 path, an analyst-facing
-link card, and an honest statement that the linkage is demonstrated on constructed
-data. Not: a bridge validated on real linked fraud. No dataset exists where an APK
+**Done as of Day 4:** two working join keys, a firing C2 path, and an honest statement
+that the linkage is demonstrated on constructed data (both here and in
+`REPORT_FACTS.md`/`demo/DEMO_RUNBOOK.md`). **Still best-case-by-26-Aug, not done:** an
+analyst-facing link card (Day 5 scope). Not achievable at all: a bridge validated on real
+linked fraud. No dataset exists where an APK
 cert hash and a mule account are known to be connected, and none can be obtained in
 nine days.
 

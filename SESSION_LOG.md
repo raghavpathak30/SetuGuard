@@ -1793,3 +1793,146 @@ owner to decide whether to add.
 **Files changed:** `bridge/matcher.py` (ground-truth host swap, comment), `setuguard_app/backend/app.py`
 (`note` field rewrite), `REPORT_FACTS.md` (QUOTABLE — Bridge section), `CONTEXT.md` (D-3
 row, §8 limitation, header note).
+
+## 2026-08-21 (Day 4, third session) — claim accuracy, stale sweep, demo wiring, WHOIS amendment
+
+**Priority 1 (Item 1) — claim accuracy on the C2 indicator.** The field name `c2_host`
+asserts more than static analysis can establish — a hostname parsed out of a URL string is
+evidence the string exists in the APK, not evidence the host is live or malicious
+infrastructure. Field not renamed (per instruction). Added the caveat once, in `/api/bridge`'s
+`note` field and `REPORT_FACTS.md`'s QUOTABLE — Bridge section: "not independently confirmed
+as live C2," account association remains synthetic regardless of key.
+
+**Priority 2 (Item 2) — stale phrasing sweep, the five flagged files.**
+`demo/DEMO_RUNBOOK.md` first and most carefully, per instruction, since it's the stage
+script: rewrote the header/intro (two paths → three), added a full "C2-host matching run"
+section (com.kb, exact command sequence, expected output, a "Say on stage" script),
+recorded three fresh `demo/c2match_*.json` artifacts, updated the Preconditions checklist,
+and rewrote the closing "Honest framing" section to state both keys fire, lead the
+confusion matrix with "2 distinct ground-truth linkages / 100 test cases / 20 near-miss
+confounders," and never a bare "TP=10." Then `FINALE_PLAN_AND_AUDIT.md` (§0.3's "C2 path
+has never fired" struck with a Day 4 resolution note; the Innovation section's stale
+"single synthetic linkage" / "overstates what runs by exactly half" framing rewritten; the
+adjacent "Best case by 26 Aug" sentence updated since two working join keys are now done,
+not best-case), `setuguard_app/README.md` (bridge paragraph rewritten: both keys fire,
+verified by sabotage not reading), `PLAN.md` (item 2 marked **DONE, 21 August**, both
+`TP=10` gate lines captioned, Q&A #5 marked resolved, Q&A #6/#7 reframed to "two entries" /
+"2 distinct linkages"), `ANALYSIS_ID_MIGRATION.md` (struck the "does not fix" bullets that
+were already stale *when originally written* — `confusion_matrix_validation.py` was already
+at its "v2" revision, calling the real matcher, by the 18 Aug migration date — corrected
+framing added for both Day 3's allowlist and Day 4's matcher fix). Also caught and fixed one
+more bare `TP=10` row in `CONTEXT.md`'s own §4 "Verified numbers" table, found during a
+final re-sweep — not one of the five named files, but the same document already under
+active maintenance this session for this exact issue.
+
+Final repo-wide re-grep confirmed zero remaining un-captioned `"never fired"` / `"no host
+configured"` / bare `"TP=10"` instances outside `SESSION_LOG.md`'s own historical entries
+(which correctly preserve pre-fix quotes verbatim, per this log's amend-don't-rewrite
+convention) and the newly-correct reframed instances written this session.
+
+**Priority 3 (Item 3) — wired `com.kb` into `browser_smoke.js`.** Added `C2MATCHING_APK`
+constant; inserted two new steps (`04_apk_c2matching`, `05_bridge_c2match`) between the
+existing cert-hash match step and the non-matching-APK check, which shifted to
+`06_apk_nonmatching` / `07_bridge_nomatch` (verified nothing else in the repo referenced
+those two filenames by name before renumbering — only `03_bridge_match`, unaffected, is
+referenced elsewhere). Updated the file's header comment and the `APK_ANALYSIS_WAIT_MS`
+rationale comment to note com.kb's measured timing. Rewrote `DEMO_RUNBOOK.md`'s Preconditions
+checklist and Non-matching-run description to match (3 files, not 2; "cannot match on
+either key").
+
+**Run output, full automated flow, `--label day4_item3_c2_wired`:** all 7 steps, **PASS —
+zero console errors, zero uncaught exceptions**. `03_bridge_match.txt`: `account 9072`,
+`matched_on` cert_hash (implicit — first/only join key available at that point).
+`05_bridge_c2match.txt`: `account 9062`, `linked_apk com.kb`, `shared_ioc
+c2_host:yessign[.]net` (defanged in this log; the raw evidence file naturally carries the
+live extracted string). `07_bridge_nomatch.txt`: zero links, as expected. Both join keys
+now visible in one standing automated run, not just a hand-run curl sequence.
+
+**Priority 0 (out-of-turn) — WHOIS amendment on the C2 indicator, arrived mid-Item-3.**
+User ran WHOIS on the extracted host directly: **actively registered** (created 2015,
+renewed to 2028, updated 2025, Korean registrar Gabia, live nameservers), ownership
+redacted. This is materially different from an expired/parked/never-registered domain, and
+the prior session's "not independently confirmed as live C2" framing, while not false,
+undersold how much is actually known: this is a live, maintained registration, just with
+unknown current ownership and unknown current use.
+
+Applied to all three required surfaces — `/api/bridge`'s `note`, `REPORT_FACTS.md`'s
+QUOTABLE — Bridge, `demo/DEMO_RUNBOOK.md` (three prose spots: the APK candidate
+description, the "Say on stage" script, the closing "Honest framing" section) — plus
+`CONTEXT.md` (in scope this turn already) since its own three mentions, written earlier
+this same session before the WHOIS check, would otherwise sit inconsistently
+under-caveated next to the corrected copies. **Not touched, flagged instead:** `PLAN.md:116`
+and `FINALE_PLAN_AND_AUDIT.md:85,353` still carry an un-caveated `yessign.net` mention from
+this session's own earlier stale-phrasing-sweep pass — out of the amendment's named scope
+(note field, REPORT_FACTS.md, DEMO_RUNBOOK.md only), left for a follow-up rather than
+silently patched or silently left wrong.
+
+Every prose mention now: displays the host defanged (`yessign[.]net`), states it mimics the
+Korean accredited-certificate brand "yessign" in a sample impersonating KB Kookmin Bank
+(package `com.kb`), states the WHOIS facts plainly, and states explicitly that no claim is
+made about current ownership, registration, or activity, and that it is not confirmed as
+live C2. Structured/data fields (`c2_candidates`, `shared_ioc`, the ground-truth dict value
+itself) were deliberately left un-defanged — they represent literal system output, and
+defanging a machine-facing field would misrepresent what the tool actually returns; defanging
+applies to narrative prose written for a human reader.
+
+**Network-isolation claim — verified by reading, not asserted.** Grepped every import in
+`setuguard_ps1/static_analysis.py`, `bridge/matcher.py`, `setuguard_app/backend/app.py`, and
+`setuguard_ps1/yara_gen.py` for `socket`, `requests`, `urllib.request`, `http.client`, DNS
+resolution, `.connect(`: zero hits in all four. The only `urllib.parse` usage anywhere
+(`app.py`, `matcher.py`) is `urlparse()` for string parsing, never to open a connection. The
+only network calls anywhere in the pipeline are `rag_report.py`'s `ollama.embed()` /
+`ollama.chat()` to the local Ollama server, and those pass only the indicator's `kind` token
+(`"url"`, `"ip"`, etc.) into the embedding query text, never the host value itself
+(confirmed at the exact line that builds that query). **Extraction is static; nothing
+resolves or fetches an extracted indicator at runtime, anywhere in this codebase.** Added as
+a hard rule in `demo/DEMO_RUNBOOK.md`'s Honest framing section, with this verification
+summarized inline.
+
+**Priority 4 (Item 4) — port-stripping decision, logged, behavior unchanged.**
+`_normalize_host()` strips a port when one survives into the fallback path (e.g. a
+schemeless ground-truth value like `host:port`); for a `kind == "url"` value, `urlparse`'s
+`.hostname` already excludes the port before the manual strip ever runs. This is
+**deliberate**: the join key is host identity, not host+port, so two indicators pointing at
+the same host on different ports still join. Consequence, stated plainly: `com.kb`'s
+`yessign[.]net:8688` uses port **8688** — not 80, 443, or any other standard HTTP(S) port.
+**A non-standard port on what looks like an exfiltration path (`send_sim_no.php`,
+`send_bank.php`) is itself a signal this system does not currently use anywhere** — not in
+the rule scorer (`_url_has_nonstandard_port()` exists and is scored in
+`_rule_based_verdict()`, but that's a separate, already-live signal on the *verdict* side,
+unrelated to the *matcher*'s join logic) and not as an additional join dimension in the
+bridge. Recorded here as an observation, not a task — **no behavior change made**, per
+instruction.
+
+**Durability observation, logged per instruction.** `com.kb` is a 2018-era CICMalDroid
+sample (`Banking.tar.gz`); its embedded network indicator (`yessign[.]net`) is, per WHOIS
+run this session, still an **active registration in 2026** — eight years later. This
+demonstrates that a statically-extracted network indicator is a **durable artifact, not a
+current one**: the string survives in the APK forever, but what it *means* (who owns it,
+whether it's still hostile infrastructure, whether it's been sinkholed, reassigned, or
+abandoned) can drift arbitrarily far from what it meant at collection time. **Consequence
+for any real deployment: an indicator re-validation cadence is required** — a bank running
+this bridge against fresh uploads would need a process to periodically re-check (WHOIS,
+reputation feeds, active-resolution checks) whether ground-truth indicators still mean what
+they meant when extracted, not just extract-once-and-trust. Not built here — this system's
+ground truth is two hand-constructed demo entries, not a live-maintained indicator feed —
+but worth stating plainly as a gap between "we can extract an indicator" and "we know what
+that indicator currently is."
+
+**No frozen-file edits.** `setuguard_ps1/static_analysis.py` and `setuguard_ps1/yara_gen.py`
+were read (for the network-isolation grep) but not edited. All edited files
+(`bridge/matcher.py` — not touched this session, `setuguard_app/backend/app.py`,
+`REPORT_FACTS.md`, `demo/DEMO_RUNBOOK.md`, `harness/browser_smoke.js`, `CONTEXT.md`,
+`FINALE_PLAN_AND_AUDIT.md`, `setuguard_app/README.md`, `PLAN.md`, `ANALYSIS_ID_MIGRATION.md`)
+are non-frozen.
+
+**Files changed:** `setuguard_app/backend/app.py` (`note` field, caveat + WHOIS amendment),
+`REPORT_FACTS.md` (QUOTABLE — Bridge, caveat + WHOIS amendment), `demo/DEMO_RUNBOOK.md`
+(full rewrite: three-APK structure, C2-matching-run section, checklist, honest framing,
+hard network rule), `harness/browser_smoke.js` (C2MATCHING_APK, steps 04/05, renumbered
+06/07), `CONTEXT.md` (D-3 row, §8, header, §4 table row, WHOIS amendment), `FINALE_PLAN_AND_AUDIT.md`,
+`setuguard_app/README.md`, `PLAN.md`, `ANALYSIS_ID_MIGRATION.md` (stale-phrasing sweep).
+New evidence: `demo/c2match_01_apk.json`, `demo/c2match_02_dataset.json`,
+`demo/c2match_03_bridge.json` (regenerated after the WHOIS amendment to carry final text),
+`harness/browser_evidence/day4_item3_c2_wired/` (full 7-step run, regenerated after the
+amendment for the same reason).

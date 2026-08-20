@@ -944,10 +944,13 @@ def bridge_endpoint():
     note = (
         f"Matching is on certificate-hash or C2-host overlap, exact-match against a small "
         f"ground-truth table (matcher.SYNTHETIC_LINKAGE_GROUND_TRUTH, two entries, one per "
-        f"join key). The C2-host entry's indicator is real — yessign.net, extracted by our "
-        f"own static analysis from an actual CICMalDroid banking-malware sample — but which "
-        f"account it links to is hand-constructed, not observed in the wild; the cert-hash "
-        f"entry is synthetic on both sides. No real device<->account join key exists in any "
+        f"join key). The C2-host entry's indicator is a hostname extracted from the sample's "
+        f"strings by our own static analysis — yessign[.]net, mimicking the Korean "
+        f"accredited-certificate brand \"yessign,\" in a sample impersonating KB Kookmin Bank "
+        f"(package com.kb). No claim is made about the domain's current ownership, "
+        f"registration, or activity; it is not confirmed as live C2. Which account it links "
+        f"to is hand-constructed, not observed in the wild; the cert-hash entry is synthetic "
+        f"on both sides. No real device<->account join key exists in any "
         f"of the source repos. Matched APK indicators, not a malice verdict, against "
         f"{len(ds['top_alerts'])} scored account(s). "
         + (f"{len(links)} match(es) found." if links else

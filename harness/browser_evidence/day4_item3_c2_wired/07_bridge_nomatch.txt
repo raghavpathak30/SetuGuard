@@ -1,0 +1,11 @@
+unified_dashboard / case_view
+
+linked_inputs   apk=com.baidu.pay2 (explicit)   dataset=DataSet.csv (explicit)
+
+ALERT   account    tier  (null)   status: PENDING REVIEW
+  linked_apk        family:    severity: 
+  shared_ioc     
+  yara_rule         validated: null
+  recommended    
+
+// Matching is on certificate-hash or C2-host overlap, exact-match against a small ground-truth table (matcher.SYNTHETIC_LINKAGE_GROUND_TRUTH, two entries, one per join key). The C2-host entry's indicator is a hostname extracted from the sample's strings by our own static analysis — yessign[.]net, mimicking the Korean accredited-certificate brand "yessign," in a sample impersonating KB Kookmin Bank (package com.kb). No claim is made about the domain's current ownership, registration, or activity; it is not confirmed as live C2. Which account it links to is hand-constructed, not observed in the wild; the cert-hash entry is synthetic on both sides. No real device<->account join key exists in any of the source repos. Matched APK indicators, not a malice verdict, against 15 scored account(s). 0 matches -- no account in this dataset run shares a certificate hash or C2 host with this APK. This is the expected result for most APK/dataset pairs: the ground-truth table is small, and the account associations in it are synthetic by construction.

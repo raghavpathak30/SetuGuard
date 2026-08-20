@@ -217,7 +217,16 @@ scheme+host+path string) could never equal a bare ground-truth hostname — only
 "ip"` value ever matched. Fixed with a single normalization function applied to both sides of the
 comparison, so neither side can drift out of sync with the other. `SYNTHETIC_LINKAGE_GROUND_TRUTH`
 carries two entries, one per join key — each a single hand-constructed linkage, not linkage
-observed in the wild. Both the offline validation script and the live `/api/bridge` endpoint were
+observed in the wild. **The C2-host value is a hostname extracted from the sample's strings by
+our own static analysis, not independently confirmed as live C2 infrastructure** — a hostname
+parsed out of a URL string is evidence the string exists in the APK, not evidence the host is
+active or malicious infrastructure. The specific value — display defanged as **yessign[.]net** —
+mimics the Korean accredited-certificate brand "yessign," extracted from a sample impersonating
+KB Kookmin Bank (package `com.kb`). WHOIS shows the domain is actively registered (created 2015,
+renewed to 2028, updated 2025, live nameservers); ownership is redacted. **No claim is made about
+the domain's current ownership, registration, or activity — it is not confirmed as live C2.** The
+account association is synthetic regardless of which join key fires. Both the offline validation
+script and the live `/api/bridge` endpoint were
 confirmed to call the real matcher, not a stub, by sabotage: breaking one comparison branch
 dropped the expected metric (offline TP, live `match_count`) exactly as predicted, restoring the
 file returned it byte-identical. It is now accurate to write "matches on certificate hash or

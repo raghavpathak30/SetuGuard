@@ -3,12 +3,24 @@
  * test. Not part of the shipped app; nothing here runs in production.
  *
  * Starts the Flask backend fresh, loads setuguard_app/frontend/index.html in
- * headless Chromium (via Playwright), and drives four flows end to end:
- *   1. APK analysis (matching-cert APK, so bridge step 3 has something to match)
+ * headless Chromium (via Playwright), and drives six flows end to end:
+ *   1. APK analysis (cert-hash-matching APK, so bridge step 3 has something to match)
  *   2. Dataset analysis (real DataSet.csv)
- *   3. Bridge, expected to MATCH (last_apk = the matching-cert APK from step 1)
- *   4. APK analysis with a different (non-matching) APK, then Bridge again,
+ *   3. Bridge, expected to MATCH on cert_hash (account 9072)
+ *   4. APK analysis (C2-host-matching APK, com.kb -- Day 4, 21 Aug), so bridge
+ *      step 5 has something to match on the other join key
+ *   5. Bridge, expected to MATCH on c2_host (account 9062, host yessign.net --
+ *      a real network string extracted by our own static analysis from this
+ *      sample, not independently confirmed as live C2 infrastructure; only
+ *      the account association is constructed)
+ *   6. APK analysis with a different (non-matching) APK, then Bridge again,
  *      expected to produce ZERO links
+ *
+ * Both ground-truth linkages that steps 3 and 5 exercise are single
+ * hand-constructed entries in bridge/matcher.py's SYNTHETIC_LINKAGE_GROUND_TRUTH
+ * -- see REPORT_FACTS.md's QUOTABLE -- Bridge section and demo/DEMO_RUNBOOK.md
+ * for the full honest framing. This script demonstrates both keys fire; it is
+ * not evidence of a validated real-world linkage rate.
  *
  * Captures every console message, every uncaught page exception, and every
  * failed/non-2xx network request, per step. Screenshots each step's rendered
@@ -18,8 +30,9 @@
  * Usage:
  *   node harness/browser_smoke.js [--label ollama_up] [--skip-second-apk]
  *
- * --skip-second-apk lets Task B re-run just the APK+bridge-match path
- * without needing the second (non-matching) APK for a degradation check.
+ * --skip-second-apk lets Task B re-run just the two match paths (cert-hash
+ * and C2-host) without needing the third (non-matching) APK for a
+ * degradation check.
  */
 const { chromium } = require("playwright");
 const { spawn } = require("child_process");
@@ -34,6 +47,8 @@ const MATCHING_APK = path.join(REPO_ROOT, "cicmaldroid_banking",
   "007556ca146f4b2e9ac6bd51dc66be5130538d514f5aa04d60c1a0b079585ef3.apk");
 const NONMATCHING_APK = path.join(REPO_ROOT, "cicmaldroid_banking",
   "00049d038a2abc2d5fe3b190d6cf5c1cb1ba63441defdf136be251c7a00727d8.apk");
+const C2MATCHING_APK = path.join(REPO_ROOT, "cicmaldroid_banking",
+  "30baab7000e14cd4a430c8a4a75ea3cae347a6360e0b75ae68c503b5e576cb52.apk");
 const DATASET_CSV = path.join(REPO_ROOT, "DataSet.csv");
 
 // analyze_apk's wall-clock is dominated by Ollama/RAG narrative latency, not file
@@ -43,8 +58,10 @@ const DATASET_CSV = path.join(REPO_ROOT, "DataSet.csv");
 // at 46.47s. The prior 60000ms value was never safely above that range; both
 // analyze_apk waits in this script timed out against it (unrelated to any other
 // change today -- confirmed by diff). Sized at 250000ms = observed max (163s) +
-// ~53% headroom, applied to both APK-analysis waits since both draw on the same
+// ~53% headroom, applied to all APK-analysis waits since all draw on the same
 // Ollama call and neither file size predicts which end of the range you get.
+// com.kb (30baab70..., 361KB, the C2-matching APK added Day 4) measured 46.45s on
+// a warm model -- within the existing budget, no change needed.
 const APK_ANALYSIS_WAIT_MS = 250000;
 
 const args = process.argv.slice(2);
@@ -209,9 +226,35 @@ async function main() {
   const bridgeMatchHtml = await page.$eval("#bridge-results", (el) => el.innerText);
   fs.writeFileSync(path.join(EVIDENCE_DIR, "03_bridge_match.txt"), bridgeMatchHtml);
 
+  // ---- Step 4: APK analysis (C2-host-matching APK, com.kb -- Day 4) ----
+  results.push(await runStep(page, "04_apk_c2matching", async () => {
+    await page.click('.nav-item[data-page="malware"]');
+    await page.setInputFiles("#apk-input", C2MATCHING_APK);
+    await page.waitForSelector("#apk-analyze-btn:not([disabled])", { timeout: 10000 });
+    await page.click("#apk-analyze-btn");
+    await page.waitForSelector("#apk-analyze-btn:not([disabled])", { timeout: APK_ANALYSIS_WAIT_MS });
+    await page.waitForFunction(
+      () => document.getElementById("apk-results").innerHTML.trim().length > 0
+        || document.getElementById("apk-status").classList.contains("error"),
+      { timeout: 5000 }
+    );
+  }));
+
+  // ---- Step 5: Bridge, expect MATCH on c2_host (the other join key) ----
+  results.push(await runStep(page, "05_bridge_c2match", async () => {
+    await page.click('.nav-item[data-page="bridge"]');
+    await page.click("#bridge-btn");
+    await page.waitForFunction(
+      () => document.getElementById("bridge-results").innerHTML.trim().length > 0,
+      { timeout: 15000 }
+    );
+  }));
+  const bridgeC2MatchHtml = await page.$eval("#bridge-results", (el) => el.innerText);
+  fs.writeFileSync(path.join(EVIDENCE_DIR, "05_bridge_c2match.txt"), bridgeC2MatchHtml);
+
   if (!SKIP_SECOND_APK) {
-    // ---- Step 4: APK analysis (non-matching APK) ----
-    results.push(await runStep(page, "04_apk_nonmatching", async () => {
+    // ---- Step 6: APK analysis (non-matching APK) ----
+    results.push(await runStep(page, "06_apk_nonmatching", async () => {
       await page.click('.nav-item[data-page="malware"]');
       await page.setInputFiles("#apk-input", NONMATCHING_APK);
       await page.waitForSelector("#apk-analyze-btn:not([disabled])", { timeout: 10000 });
@@ -224,8 +267,8 @@ async function main() {
       );
     }));
 
-    // ---- Step 5: Bridge, expect ZERO links ----
-    results.push(await runStep(page, "05_bridge_nomatch", async () => {
+    // ---- Step 7: Bridge, expect ZERO links ----
+    results.push(await runStep(page, "07_bridge_nomatch", async () => {
       await page.click('.nav-item[data-page="bridge"]');
       await page.click("#bridge-btn");
       await page.waitForFunction(
@@ -234,7 +277,7 @@ async function main() {
       );
     }));
     const bridgeNoMatchHtml = await page.$eval("#bridge-results", (el) => el.innerText);
-    fs.writeFileSync(path.join(EVIDENCE_DIR, "05_bridge_nomatch.txt"), bridgeNoMatchHtml);
+    fs.writeFileSync(path.join(EVIDENCE_DIR, "07_bridge_nomatch.txt"), bridgeNoMatchHtml);
   }
 
   await browser.close();

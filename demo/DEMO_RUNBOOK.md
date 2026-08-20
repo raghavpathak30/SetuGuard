@@ -1,30 +1,49 @@
-# Bridge demo runbook — verified matching and non-matching paths
+# Bridge demo runbook — verified cert-hash, C2-host, and non-matching paths
 
-**Status:** both paths run end to end against the live backend on 2026-08-18 and recorded
-as JSON artifacts in this directory (`demo/match_*.json`, `demo/nomatch_*.json`).
+**Status:** all three paths run end to end against the live backend and recorded as JSON
+artifacts in this directory (`demo/match_*.json` — 2026-08-18; `demo/c2match_*.json` and
+`demo/nomatch_*.json` — 2026-08-21, Day 4).
 
-The bridge only produces `matched: true` for one specific APK against the one entry in
-`bridge/matcher.py`'s `SYNTHETIC_LINKAGE_GROUND_TRUTH` (account `9072`, cert-hash join key
-only). Driving the live demo off an arbitrary APK shows an empty bridge panel — this
-runbook exists so the matching path is never left to chance on stage.
+The bridge fires on two independent join keys as of Day 4 (21 Aug):
+`bridge/matcher.py`'s `SYNTHETIC_LINKAGE_GROUND_TRUTH` carries two entries, one per key —
+account `9072` (cert-hash) and account `9062` (C2-host). Each entry is a single
+hand-constructed linkage; **the account association is synthetic in both cases**, since no
+real device-to-account join key exists in any source repo. Driving the live demo off an
+arbitrary APK still shows an empty bridge panel — this runbook exists so neither matching
+path is ever left to chance on stage.
 
 ---
 
-## The two APKs
+## The three APKs
 
-**Matching run:**
+**Cert-hash matching run:**
 - Path: `cicmaldroid_banking/007556ca146f4b2e9ac6bd51dc66be5130538d514f5aa04d60c1a0b079585ef3.apk`
 - SHA-256: `007556ca146f4b2e9ac6bd51dc66be5130538d514f5aa04d60c1a0b079585ef3`
 - Package: `duyskab.txtxorxqlni.nflfnauti`
 - cert_sha256: `d6e80c1de6423814bb8b8e4de46d9eb84d7eaa5cadfd5c8116918e4922e070d6` — matches
   `SYNTHETIC_LINKAGE_GROUND_TRUTH["9072"]["cert_hash"]` exactly
 
+**C2-host matching run (Day 4):**
+- Path: `cicmaldroid_banking/30baab7000e14cd4a430c8a4a75ea3cae347a6360e0b75ae68c503b5e576cb52.apk`
+- SHA-256: `30baab7000e14cd4a430c8a4a75ea3cae347a6360e0b75ae68c503b5e576cb52`
+- Package: `com.kb` (real CICMalDroid banking-malware sample)
+- 4 `suspicious_strings`, all `http://yessign.net:8688/...` (paths `send_sim_no.php` /
+  `send_bank.php` / `upload.php` / bare) — normalizes to host `yessign.net`, which matches
+  `SYNTHETIC_LINKAGE_GROUND_TRUTH["9062"]["c2_host"]` exactly. **On stage, write and say the
+  host defanged: yessign[.]net.** It mimics the Korean accredited-certificate brand
+  "yessign," extracted from a sample impersonating KB Kookmin Bank (package `com.kb`). WHOIS
+  shows the domain actively registered (created 2015, renewed to 2028, updated 2025, live
+  nameservers) with ownership redacted — **we make no claim about the domain's current
+  ownership, registration, or activity; it is not confirmed as live C2.** The indicator
+  itself is real, extracted from this sample by our own static analysis; only the link to
+  account `9062` is constructed.
+
 **Non-matching run:**
 - Path: `banking_holdout_16/06c9ce6a7ba2c0c012bcc1079af86349b345e79ffe03e1156f8755987e2c13c3.apk`
 - SHA-256: `06c9ce6a7ba2c0c012bcc1079af86349b345e79ffe03e1156f8755987e2c13c3`
 - Package: `com.tmznjgf1.dudtjsq5`
-- cert_sha256: `None` (unsigned/no cert extracted) — cannot match on cert_hash, and this
-  sample's C2 host is not in the linkage table either
+- cert_sha256: `None` (unsigned/no cert extracted), no `suspicious_strings` matching either
+  ground-truth entry — cannot match on either key
 
 ---
 
@@ -69,7 +88,7 @@ pipeline run happening right now, not a pre-run."
   Ollama is down) but both recorded runs had it live (`narrative_source: "ollama_rag"`).
 - [ ] Backend running: `cd setuguard_app/backend && python3 app.py`, confirm
   `curl http://127.0.0.1:5000/` returns `{"service":"SetuGuard backend","status":"ok"}`.
-- [ ] Both APK files present at the paths above.
+- [ ] All three APK files present at the paths above.
 - [ ] `DataSet.csv` present at repo root.
 - [ ] For the Play-signed allowlist demo: `harness/banking_legit_corpus/7B1A1348794100FFBABCB6ADCE168E236D720BBD9C5AAED8914C838093EC83AC.apk` present.
 - [ ] **Warm-up call**, run once, as early as practical before judges arrive:
@@ -110,6 +129,55 @@ Recorded output: `demo/match_01_apk.json`, `demo/match_02_dataset.json`,
 `demo/match_03_bridge.json` — ids used were `apk_4b38730f` / `ds_19c7d9ce`; a fresh run will
 mint new ids each time (they're regenerated per analysis), only the join fields
 (`cert_sha256`, `account_hash: "9072"`) are guaranteed to repeat.
+
+---
+
+## C2-host matching run (Day 4) — exact command sequence
+
+```
+cd ~/BOIhackathon
+
+curl -s -X POST -F "apk=@cicmaldroid_banking/30baab7000e14cd4a430c8a4a75ea3cae347a6360e0b75ae68c503b5e576cb52.apk" \
+  http://127.0.0.1:5000/api/analyze_apk
+```
+Expected: `analysis_id` prefixed `apk_`, `verdict: "suspicious"`, `severity: "HIGH"`,
+`package: "com.kb"`, `c2_candidates` containing 4 `http://yessign.net:8688/...` strings.
+**Measured wall-clock: 46.45s** (`analysis_seconds` in the response; small file, 361KB —
+no residency penalty observed on this run, consistent with a warm model).
+
+```
+curl -s -X POST -F "dataset=@DataSet.csv" http://127.0.0.1:5000/api/analyze_dataset
+```
+Expected: same shape as the cert-hash run's dataset step; `top_alerts` contains account
+`9062` (the top-ranked account by score — deterministic given the fixed model, confirmed
+present across multiple runs).
+
+```
+curl -s -X POST -H "Content-Type: application/json" \
+  -d '{"apk_id":"<apk_id from step 1>","dataset_id":"<ds_id from step 2>"}' \
+  http://127.0.0.1:5000/api/bridge
+```
+Expected: `matched: true`, `match_count: 1`, `account_hash: "9062"`, `tier: "T4"`,
+`score: 0.988`, `matched_on: "c2_host"`, `shared_ioc: "c2_host:yessign.net"`,
+`inputs.apk.source` / `inputs.dataset.source` both `"explicit"`.
+
+Recorded output: `demo/c2match_01_apk.json`, `demo/c2match_02_dataset.json`,
+`demo/c2match_03_bridge.json` — ids used were `apk_1c6e9395` / `ds_a2689ac9`; a fresh run
+will mint new ids each time, only the join fields (`shared_ioc`, `account_hash: "9062"`)
+are guaranteed to repeat.
+
+**Say on stage, in this order:** "This APK's static analysis surfaced a network string —
+written here defanged, yessign[.]net, so we're not putting a live-looking host on a slide
+— on a non-standard port, in paths named `send_sim_no.php` and `send_bank.php`. It mimics
+the Korean accredited-certificate brand 'yessign,' in a sample impersonating KB Kookmin
+Bank. We checked WHOIS: the domain is actively registered, renewed through 2028, ownership
+redacted — we make no claim about who holds it today or what it's used for now, and we
+don't claim it's live C2. What we do know is that this exact string is embedded in this
+exact malware sample, extracted by our own static analysis. The bridge joins that
+indicator against an account carrying the same host. The account link is constructed for
+this demo — no real dataset exists where an APK's C2 indicator and a mule account are
+independently known to be connected — but the indicator itself is real, pulled from an
+actual malware sample, not fabricated for the demo."
 
 ---
 
@@ -179,13 +247,46 @@ stat row.
 
 ## Honest framing for the demo
 
-The bridge matches on certificate hash, exact-match only — nothing fuzzy, no semantic
-similarity. C2-host matching is implemented in the same matcher but has never fired: the
-one ground-truth entry has no host configured, so in the shipped configuration only the
-cert-hash path can produce a link. The linkage table it matches against
-(`bridge/matcher.py:SYNTHETIC_LINKAGE_GROUND_TRUTH`) is a small, explicitly synthetic
-stand-in with exactly one entry, because no real device-to-account join key exists in any
-of the source repos; it does not represent a validated real-world linkage rate. The
-non-matching run above is included deliberately, not as a fallback — it demonstrates that
-the bridge does not link unconditionally, and that a `matched: false` result with `links:
-[]` is the correct, expected output for an arbitrary APK/dataset pair, not an error state.
+The bridge matches on certificate hash **or** C2 host, exact-match only — nothing fuzzy, no
+semantic similarity. Both keys fire as of Day 4 (21 Aug): the linkage table it matches
+against (`bridge/matcher.py:SYNTHETIC_LINKAGE_GROUND_TRUTH`) carries two entries, one per
+key, because no real device-to-account join key exists in any of the source repos. **Two
+distinct ground-truth linkages, each with a synthetic account association** — this does not
+represent a validated real-world linkage rate, and should never be described as one. The
+C2-host entry's indicator — written defanged, yessign[.]net — is a real hostname extracted
+from an actual malware sample by our own static analysis; it mimics the Korean
+accredited-certificate brand "yessign," in a sample impersonating KB Kookmin Bank (package
+`com.kb`). It has not been independently confirmed as live C2 infrastructure, and that
+distinction should be stated if the point comes up — a hostname parsed out of a URL string
+is evidence the string exists in the APK, not evidence the host is active or malicious
+infrastructure. WHOIS shows the domain is actively registered (created 2015, renewed to
+2028, updated 2025, live nameservers); ownership is redacted. **No claim is made about the
+domain's current ownership, registration, or activity.** Only which account it links to is
+constructed.
+
+**Hard rule: the demo machine must never issue a network request to this host, or to any
+host extracted from an analyzed APK.** Extraction is static — parsing strings out of the
+DEX/manifest — and nothing in the analysis or bridge code path resolves or fetches an
+extracted indicator at runtime. Confirmed by reading every import in
+`setuguard_ps1/static_analysis.py`, `bridge/matcher.py`, `setuguard_app/backend/app.py`,
+and `setuguard_ps1/yara_gen.py`: no `socket`, `requests`, `urllib.request`, `http.client`,
+or DNS-resolution call anywhere in any of them (`urllib.parse.urlparse` is used for string
+parsing only, never to open a connection). The only network calls anywhere in the pipeline
+are `rag_report.py`'s `ollama.embed()`/`ollama.chat()` to the local Ollama server, and those
+pass only the indicator's `kind` (e.g. `"url"`, `"ip"`) as a token, never the host value
+itself.
+
+The matcher's join logic was verified by sabotage, not just by reading: breaking one
+comparison branch (cert-hash, then separately C2-host) and confirming the expected metric
+degraded — offline in `confusion_matrix_validation.py`, and live through `/api/bridge` with
+a real backend and real uploads — then restoring the file and confirming a byte-identical,
+zero-diff return. If the confusion matrix (`TP=10/FP=0/FN=0/TN=90`) comes up, lead with **2
+distinct ground-truth linkages tested against 100 hand-built cases including 20 near-miss
+confounders, matcher correct on all** — the bare "TP=10" overstates it, since those 10 are
+10 correctly-linked accounts powered by only 2 distinct indicator values, and it is a
+correctness test of the join logic, never a detection-rate or accuracy measurement.
+
+The non-matching run above is included deliberately, not as a fallback — it demonstrates
+that the bridge does not link unconditionally, and that a `matched: false` result with
+`links: []` is the correct, expected output for an arbitrary APK/dataset pair, not an error
+state.

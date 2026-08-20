@@ -51,15 +51,18 @@ explainer is also fitted once at import. The AUCPR/AUROC figures the response
 surfaces are the offline 20-seed holdout study's numbers (`models/
 ps2_repeated_splits_metrics.json`), not anything computed from your upload.
 
-**Bridge matching is real, but only one of its two join keys fires.**
+**Bridge matching is real, and both of its join keys fire (Day 4, 21 Aug).**
 `/api/bridge` calls `bridge_matcher.extract_ioc_from_ps1()` and
 `bridge_matcher.match_account_to_apk()` directly — nothing is reimplemented inline.
-In the shipped configuration, only certificate-hash matching can produce a link: the
-C2-host path is implemented but its one ground-truth entry has no host configured, so
-it has never fired end-to-end. The account-to-APK linkage itself is constructed for
-demonstration purposes — no dataset exists anywhere that links real Android malware
-certificates to real Indian bank accounts, so the matching *mechanism* is real and the
-*linkage* it's demonstrated against is labelled as constructed.
+Certificate-hash and C2-host matching both produce a link, each against a single
+hand-constructed ground-truth entry (verified by sabotage on both the offline validation
+script and the live endpoint, not by reading). The C2-host indicator is a real network
+string extracted from an actual malware sample by our own static analysis — not
+independently confirmed as live C2 infrastructure. The account-to-APK linkage itself is
+constructed for demonstration purposes in both cases — no dataset exists anywhere that
+links real Android malware indicators to real Indian bank accounts, so the matching
+*mechanism* is real and the *linkage* it's demonstrated against is labelled as
+constructed.
 
 **PS1's static-only ranking inverts on legitimate banking apps.** Measured, not
 assumed: PRIMARY AUC 0.1444 [0.0905, 0.2081] over 51 real legitimate banking apps

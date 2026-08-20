@@ -15,6 +15,10 @@ value swapped from a placeholder to a real extracted indicator
 (`yessign.net`, from an actual malware sample); §6's D-3 row and §8's
 synthetic-ground-truth limitation updated to match, and the "10 true
 positives" framing corrected to name the 2 distinct linkages underneath it.
+Third session, same day: WHOIS on the host showed an active registration
+(ownership redacted) — a no-claim-about-ownership caveat and display
+defanging (`yessign[.]net`) added everywhere it's mentioned; §6's D-3 row
+and §8 updated.
 
 This is a description of what the repo *is*. The narrative history lives in `SESSION_LOG.md` and
 stays there. Quotable numbers live in `REPORT_FACTS.md`. Forward work lives in `PLAN.md`.
@@ -208,7 +212,7 @@ Full quotable set with caveats: **`REPORT_FACTS.md`**. Summary of what reproduce
 | IOC yield, malicious | 66.9% ≥1 host, 99.4% cert hash | `harness/ioc_yield_audit.json` | Valid |
 | PS2 AUCPR / AUROC | median **0.271** [0.221–0.362] / **0.872** | `harness/ps2_repeated_splits.py` | Valid |
 | PS2 recall @1% / @5% | **25.0%** / **53.1%** | same | Valid |
-| Bridge unit test | TP=10 FP=0 FN=0 TN=90 | `bridge/confusion_matrix_validation.py` | Valid, unit-level only |
+| Bridge unit test | 2 distinct ground-truth linkages, 100 hand-built cases (20 near-miss confounders), correct on all (TP=10/FP=0/FN=0/TN=90) | `bridge/confusion_matrix_validation.py` | Valid, unit-level only — the 10 are 10 correctly-linked accounts powered by 2 distinct indicator values, not 10 independent matches |
 
 **PS2 split procedure verified:** `train_test_split(X, y, test_size=0.2, random_state=seed,
 stratify=y)` at `ps2_repeated_splits.py:70-72` and `train_ps2_model.py:124-126`. `shuffle`
@@ -336,7 +340,7 @@ more than any defect below. Nothing here is fixed during report week. Full sched
 |---|---|---|---|---|
 | D-1 | ~~`setuguard_app/README.md` describes the rule-based verdict as the Ollama-unreachable *fallback* — the exact inverse of `d1-inversion` — plus "trains XGBoost with stratified CV (falls back to IsolationForest)" and "auto-detects the label column". None is true.~~ **RESOLVED 19 Aug.** README fully rewritten to describe the verified `_try_llm_narrative()`/`verdict_source` mechanics and the inference-only PS2 path. | `setuguard_app/README.md` | ~~High~~ **Closed.** | 19 Aug |
 | D-2 | ~~Frontend claims capabilities that do not exist: "real XGBoost + SHAP trained on your data" (`index.html:157`), button "Run Data Audit + Train" (`:164`), on-screen status "…then training XGBoost + SHAP…" (`app.js:164`), "CV AUCPR (0-fold)" rendered over a 20-seed holdout median (`app.js:223,489`), plus bias-checking, KS-test drift monitoring and a "greedy counterfactual" (`index.html:212-214`) that is `null`.~~ **RESOLVED 19 Aug.** All four claims removed/corrected; dead counterfactual column dropped; Compliance-page rows rewritten to match what actually runs. Verified via `harness/browser_smoke.js` (clean pass, `harness/browser_evidence/day1_verify_20260819/`) and a standalone Compliance-page check. | frontend | ~~High~~ **Closed.** | 19 Aug |
-| D-3 | ~~Matcher compares raw URL strings, never parsed hosts; ground-truth `c2_host` is `None`. C2 matching has never fired.~~ **RESOLVED 21 Aug (Day 4).** A single host-normalization function, applied to both sides of the comparison, lets a `kind == "url"` indicator's extracted hostname match a ground-truth hostname. Verified by sabotage on both the offline validation script and the live `/api/bridge` handler (break one comparison branch, confirm the expected metric degrades, restore, confirm zero diff) — not by reading. The ground-truth C2-host entry now pairs a real extracted indicator (`yessign.net`, from an actual CICMalDroid banking-malware sample) with a hand-constructed account association. | `matcher.py`, `app.py` | ~~High~~ **Closed.** | 21 Aug |
+| D-3 | ~~Matcher compares raw URL strings, never parsed hosts; ground-truth `c2_host` is `None`. C2 matching has never fired.~~ **RESOLVED 21 Aug (Day 4).** A single host-normalization function, applied to both sides of the comparison, lets a `kind == "url"` indicator's extracted hostname match a ground-truth hostname. Verified by sabotage on both the offline validation script and the live `/api/bridge` handler (break one comparison branch, confirm the expected metric degrades, restore, confirm zero diff) — not by reading. The ground-truth C2-host entry now pairs a real extracted hostname (display-defanged `yessign[.]net`, from an actual CICMalDroid banking-malware sample, mimicking the Korean accredited-certificate brand "yessign" — WHOIS shows it actively registered, ownership redacted, no claim made about current ownership or activity, not confirmed as live C2) with a hand-constructed account association. | `matcher.py`, `app.py` | ~~High~~ **Closed.** | 21 Aug |
 | D-4 | ~~No fail-closed path. Parse failure → HTTP 500 with the raw exception string rendered in the UI.~~ **RESOLVED 19 Aug (Day 2).** Parse failure now caught in a try/except scoped to just `static_analysis.analyze_apk()`, degrading to HTTP 200 `{"status":"requires_manual_review","reason":...,"action":"escalate to manual review"}` per `PLAN.md` item 3. Frontend renders a dedicated review card, not a raw error string. Error-path degradation, not a correction to the underlying parser. Verified against all 4 known corrupt samples + a real-browser check, zero console errors. | `app.py:443-475`, `frontend/app.js` | ~~Medium-high~~ **Closed.** | 19 Aug |
 | D-5 | ~~No upload size cap — no `MAX_CONTENT_LENGTH`, no client-side check.~~ **RESOLVED 19 Aug (Day 2).** 50MB cap added, scoped to `/api/analyze_apk` only via a manual `request.content_length` + post-save size check (deliberately NOT Flask-wide `MAX_CONTENT_LENGTH`, which would have broken `/api/analyze_dataset`'s own ~111MB `DataSet.csv` upload — caught before shipping by testing against the live dataset path). Client-side check added too. Verified: `cash.p.terminal_243.apk` (172.2MB) now rejected in 0.16s, not a 300s timeout; dataset upload unaffected. | `app.py`, `frontend/app.js` | ~~Medium-high~~ **Closed.** | 19 Aug |
 | D-6 | Evidence chain gitignored — `results_716.csv` does not survive a clone. | `.gitignore:77` | **Medium.** "Show me" has no answer. Must be relabelled first: its `banking_holdout` rows carry the false corpus label. | 18 Aug, `PLAN.md` 5 |
@@ -481,8 +485,12 @@ connection.
 
 **Synthetic bridge ground truth, two entries (one per join key) as of 21 Aug.** No real
 device↔account join key exists in any source dataset; both entries' account associations are
-hand-constructed. The C2-host entry's indicator itself is real (`yessign.net`, extracted from
-an actual CICMalDroid sample) — only which account it links to is constructed. 2 distinct
+hand-constructed. The C2-host entry's indicator itself is a real hostname (display-defanged
+`yessign[.]net`, extracted from an actual CICMalDroid sample, mimicking the Korean
+accredited-certificate brand "yessign" in a sample impersonating KB Kookmin Bank) — WHOIS
+shows it actively registered with ownership redacted; no claim is made about current
+ownership, registration, or activity, and it is not confirmed as live C2. Only which account
+it links to is constructed. 2 distinct
 ground-truth linkages, tested against 100 hand-built cases including 20 near-miss confounders,
 matcher correct on all: this validates that the matching *function* behaves correctly, not how
 often a real link would be found. State the distinct-linkage count (2), not "10 true positives"
