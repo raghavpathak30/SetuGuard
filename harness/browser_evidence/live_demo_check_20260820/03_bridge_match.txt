@@ -1,0 +1,11 @@
+unified_dashboard / case_view
+
+linked_inputs   apk=duyskab.txtxorxqlni.nflfnauti (explicit)   dataset=DataSet.csv (explicit)
+
+ALERT   account 9072   tier T4 (0.982)   status: PENDING REVIEW
+  linked_apk     duyskab.txtxorxqlni.nflfnauti   family: Generic Android Threat   severity: CRITICAL
+  shared_ioc     cert_hash:d6e80c1de6423814bb8b8e4de46d9eb84d7eaa5cadfd5c8116918e4922e070d6
+  yara_rule      SetuGuard_duyskab_txtxorxqlni_nflfnauti   validated: false
+  recommended    Immediate debit freeze on account + device quarantine.
+
+// Matching is on certificate-hash or C2-host overlap, exact-match against a small ground-truth table (matcher.SYNTHETIC_LINKAGE_GROUND_TRUTH, two entries, one per join key). The C2-host entry's indicator is a hostname extracted from the sample's strings by our own static analysis — yessign[.]net, mimicking the Korean accredited-certificate brand "yessign," in a sample impersonating KB Kookmin Bank (package com.kb). No claim is made about the domain's current ownership, registration, or activity; it is not confirmed as live C2. Which account it links to is hand-constructed, not observed in the wild; the cert-hash entry is synthetic on both sides. No real device<->account join key exists in any of the source repos. Matched APK indicators, not a malice verdict, against 15 scored account(s). 1 match(es) found.
