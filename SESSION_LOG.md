@@ -2134,3 +2134,57 @@ in this session.
 (committed, new), `PLAN.md`, `FINALE_PLAN_AND_AUDIT.md`, `CONTEXT.md`,
 `harness/day6_scaling_harness.py` (new). None are among the six frozen `setuguard_ps1/`
 files; no `FROZEN_FILE_FINDINGS.md` entry needed.
+
+## 2026-08-21 — five stray files triaged and committed (commit `5cde402`)
+
+Re-examined the five untracked files flagged, but not acted on, in this session's earlier
+Phase 0c. **The initial recommendation there — delete three, gitignore two — is
+reversed.** All five are evidence, not scratch or regenerable cache; all five committed,
+none deleted.
+
+**`harness/fdroid_sha256_cache.tsv` is the SAMPLING FRAME, not the scored set.** 802 rows,
+exactly one per file in `fdroid_benign_apks/`. `build_sample_set_716.py` draws
+`random.Random(42).sample(sorted(glob), 300)` from it; of those 300, 292 parsed (7 EOCD
+`ValueError`, 1 manual timeout, both enumerated by exception type in
+`docs/evidence/2026-08-12_scorer_v2.json`). The 17.1% (50 of 292) general-benign FPR and
+the 0.9366 AUC are both computed over those 292, negative class = F-Droid general benign —
+not 802, not 300.
+
+**Negative-result-adjacent finding: the 802-vs-292 gap was live and undocumented before
+this commit.** Committing the TSV on its own, without stating the disambiguation
+inline, would have put an 802-row file directly next to metrics stated as n=292 with
+nothing connecting the two — a file-count-as-sample-count error discoverable with `wc
+-l`, the same failure mode §0 root-caused for `banking_holdout_16/` and this log's own
+19 Aug session root-caused again for the banking-legit corpus (68/47 vs 51/32 vs
+73/53/33). This is the **second near-miss of this class on this project**, caught this
+time before the commit rather than after. The disambiguation is now stated inline at the
+commit message and in `CONTEXT.md`'s corpora section, not left implicit.
+
+**`harness/download_run.log` checked for credentials before committing.** Grepped for
+request URLs and `apikey`-style parameters: zero of either. Committed clean.
+
+**Three tiering worksheets relocated and renamed.** Moved into
+`harness/tiering_worksheets/` (new directory, with a README recording provenance) from
+their original comma- and space-containing filenames at repo root
+(`appi.txt`, `com.csam.icici.bank.imobile,A.txt`, `in.hsbc.hsbcindia, A.txt` in the prior
+Phase 0c report — the first two are, on inspection, ICICI- and general-bank-focused
+worksheets, matching the third's HSBC/SC focus, not the disposable scratch they first
+looked like against the bare `pkgname,tier` format). Contents unmodified, only the path
+and filename changed. Declared **NOT FROZEN** in the new README.
+
+**Ordering chain recorded in `harness/tiering_worksheets/README.md`:** labels committed
+at `fd2f620` (15 Aug 01:18) → pre-registration at `be6a15c` (15 Aug 21:04) → PRIMARY AUC
+computed at `2b558a9` (15 Aug 22:51). States plainly that git commit dates are
+operator-settable and this ordering is corroboration, not proof of anything by itself.
+The substantive defence against a "the tiers were picked to fit the result" challenge
+doesn't rest on the dates at all: issuer clusters are defined by manually-researched bank
+identity (`harness/banking_packages.csv`), a rule that makes no reference to any score,
+computed or otherwise.
+
+**Closes the "F-Droid corpus unsourced" item**, open since project start: the negative
+class is now regenerable from a fixed seed against a committed, inspectable frame, not
+just described in prose.
+
+**No frozen-file edits.** `harness/download_run.log`, `harness/fdroid_sha256_cache.tsv`,
+`harness/tiering_worksheets/*` are all new, non-frozen paths under `harness/`. `CONTEXT.md`
+updated in the same pass with the sampling-frame disambiguation note. Commit `5cde402`.

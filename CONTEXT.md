@@ -128,6 +128,17 @@ Deliverable: one Flask backend (`setuguard_app/backend/app.py`) plus a static da
 12 GB; `DataSet.csv` 117 MB; `harness/banking_legit_corpus/` 95 APKs / 5.6 GB (AndroZoo,
 downloaded and verified 15 Aug).
 
+**`harness/fdroid_sha256_cache.tsv`, committed 21 Aug (commit `5cde402`): the sampling
+frame, not the scored set.** 802 rows, exactly one per file in `fdroid_benign_apks/`. This
+is the pool `build_sample_set_716.py` draws from — `random.Random(42).sample(sorted(glob),
+300)` — not the set anything was measured over. Of those 300, 292 parsed (7 EOCD
+`ValueError`, 1 manual timeout, enumerated by exception type in
+`docs/evidence/2026-08-12_scorer_v2.json`). **The 17.1% (50/292) general-benign FPR and the
+0.9366 AUC (§4) are both over those 292**, negative class = F-Droid general benign — never
+802, never 300. 802 vs. 292 is a file-count-vs-sample-count gap of exactly the kind §0 and
+this table's own legitimate-banking-corpus row warn about; stated here explicitly so
+committing this file doesn't sit next to a bare "n=292" with nothing connecting the two.
+
 ---
 
 ## 3. Architecture — traced from code
