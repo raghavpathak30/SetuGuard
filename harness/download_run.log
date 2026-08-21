@@ -1,0 +1,115 @@
+nohup: ignoring input
+[download] priority queue: 95 targets (workers=6, capped to [4,6])
+  era_matched  tier A: 20
+  era_matched  tier B: 1
+  era_matched  tier D: 5
+  era_matched  tier C: 1
+  current      tier A: 53
+  current      tier C: 3
+  current      tier D: 8
+  current      tier B: 4
+[download] 0 already on disk and verified, 95 to fetch
+[download] OK  era_matched  A com.corporatefedmobile                            6480KB  68.8s | cumulative 6.6MB in 69s (94 KB/s avg) | 1 ok / 0 failed / 89 queued
+[download] OK  era_matched  A com.db.pbc.mybank.in                              5760KB  74.7s | cumulative 12.5MB in 75s (164 KB/s avg) | 2 ok / 0 failed / 89 queued
+[download] OK  era_matched  A com.lcode.ucoupi                                  8333KB  96.1s | cumulative 21.1MB in 96s (214 KB/s avg) | 3 ok / 0 failed / 89 queued
+[download] OK  era_matched  A com.lcode.ucomobilebanking                        8540KB 127.1s | cumulative 29.8MB in 127s (229 KB/s avg) | 4 ok / 0 failed / 89 queued
+[download] OK  era_matched  A com.msf.kbank.mobile                             13465KB 144.5s | cumulative 43.6MB in 145s (295 KB/s avg) | 5 ok / 0 failed / 89 queued
+[download] OK  era_matched  A com.lcode.clabmbanking                           14510KB 164.9s | cumulative 58.5MB in 165s (346 KB/s avg) | 6 ok / 0 failed / 89 queued
+[download] OK  era_matched  A com.fedmobile                                    14938KB 143.7s | cumulative 73.8MB in 309s (233 KB/s avg) | 7 ok / 0 failed / 83 queued
+[download] OK  era_matched  A com.indusindbank.IndusDirect                     15850KB 149.1s | cumulative 90.0MB in 314s (280 KB/s avg) | 8 ok / 0 failed / 83 queued
+[download] OK  era_matched  A com.sbi.lotusintouch                             16143KB 168.9s | cumulative 106.5MB in 334s (312 KB/s avg) | 9 ok / 0 failed / 83 queued
+[download] OK  era_matched  A com.bankofbaroda.mconnect                        17172KB 177.7s | cumulative 124.1MB in 343s (354 KB/s avg) | 10 ok / 0 failed / 83 queued
+[download] OK  era_matched  A com.infrasoft.uboi                               22604KB 217.3s | cumulative 147.2MB in 382s (376 KB/s avg) | 11 ok / 0 failed / 83 queued
+[download] OK  era_matched  A com.canarabank.mobility                          23618KB 289.7s | cumulative 171.4MB in 455s (368 KB/s avg) | 12 ok / 0 failed / 83 queued
+[download] OK  era_matched  A com.dbs.in.digitalbank                           29283KB 257.9s | cumulative 201.4MB in 713s (276 KB/s avg) | 13 ok / 0 failed / 77 queued
+[download] OK  era_matched  A com.snapwork.hdfc                                27044KB 268.8s | cumulative 229.1MB in 723s (309 KB/s avg) | 14 ok / 0 failed / 77 queued
+[download] OK  era_matched  A com.axis.mobile                                  32973KB 296.7s | cumulative 262.9MB in 751s (342 KB/s avg) | 15 ok / 0 failed / 77 queued
+[download] OK  era_matched  A com.icicibank.ibizz                              30332KB 317.0s | cumulative 293.9MB in 772s (372 KB/s avg) | 16 ok / 0 failed / 77 queued
+[download] OK  era_matched  A com.Version1                                     36857KB 398.6s | cumulative 331.7MB in 853s (380 KB/s avg) | 17 ok / 0 failed / 77 queued
+[download] OK  era_matched  A com.csam.icici.bank.imobile                      39143KB 430.3s | cumulative 371.8MB in 885s (410 KB/s avg) | 18 ok / 0 failed / 77 queued
+[download] OK  era_matched  D com.sc.breezeje.banking                          12002KB  82.1s | cumulative 384.0MB in 967s (388 KB/s avg) | 19 ok / 0 failed / 71 queued
+[download] OK  era_matched  C indwin.c3.shareapp                               12114KB 105.6s | cumulative 396.5MB in 991s (391 KB/s avg) | 20 ok / 0 failed / 71 queued
+[download] OK  era_matched  D com.db.pbc.mibanco                               23887KB 205.7s | cumulative 420.9MB in 1091s (377 KB/s avg) | 21 ok / 0 failed / 71 queued
+[download] OK  era_matched  B net.one97.paytm                                  25052KB 208.3s | cumulative 446.6MB in 1093s (399 KB/s avg) | 22 ok / 0 failed / 71 queued
+[download] OK  era_matched  A com.sbi.SBIFreedomPlus                           39941KB 372.8s | cumulative 487.5MB in 1258s (378 KB/s avg) | 23 ok / 0 failed / 71 queued
+[download] OK  era_matched  A air.app.scb.breeze.android.main.in.prod          65187KB 720.0s | cumulative 554.2MB in 1605s (337 KB/s avg) | 24 ok / 0 failed / 71 queued
+[download] OK  current      A com.ubi.parivar                                   2155KB  17.9s | cumulative 556.4MB in 1623s (335 KB/s avg) | 25 ok / 0 failed / 65 queued
+[download] OK  current      A com.infra.aryavartupi                             6001KB  45.1s | cumulative 562.6MB in 1650s (333 KB/s avg) | 26 ok / 0 failed / 65 queued
+[download] OK  current      A com.canarabank.candimerchant                     11047KB 115.5s | cumulative 573.9MB in 1720s (326 KB/s avg) | 27 ok / 0 failed / 65 queued
+[download] OK  era_matched  D com.sc.privatebank.pvm                           28318KB 318.0s | cumulative 602.9MB in 1923s (306 KB/s avg) | 28 ok / 0 failed / 65 queued
+[download] OK  era_matched  D com.db.pwcc.dbmobile                             46913KB 506.8s | cumulative 650.9MB in 2112s (301 KB/s avg) | 29 ok / 0 failed / 65 queued
+[download] OK  era_matched  D com.dbs.sg.dbsmbanking                           52551KB 535.1s | cumulative 704.7MB in 2140s (322 KB/s avg) | 30 ok / 0 failed / 65 queued
+[download] OK  current      A com.esaf.mobileBanking                           14114KB 176.7s | cumulative 719.2MB in 2317s (303 KB/s avg) | 31 ok / 0 failed / 59 queued
+[download] OK  current      A com.shivalik.mb                                  16102KB 184.4s | cumulative 735.7MB in 2324s (309 KB/s avg) | 32 ok / 0 failed / 59 queued
+[download] OK  current      A com.mgs.pnbupi                                   18725KB 204.0s | cumulative 754.8MB in 2344s (314 KB/s avg) | 33 ok / 0 failed / 59 queued
+[download] OK  current      A com.lcode.clabmbanking                           16479KB 210.4s | cumulative 771.7MB in 2350s (321 KB/s avg) | 34 ok / 0 failed / 59 queued
+[download] OK  current      A com.indianbank.creditcard                        16830KB 231.3s | cumulative 789.0MB in 2371s (325 KB/s avg) | 35 ok / 0 failed / 59 queued
+[download] OK  current      A com.ujjivanbank.mobilebanking                    18281KB 256.2s | cumulative 807.7MB in 2396s (329 KB/s avg) | 36 ok / 0 failed / 59 queued
+[download] OK  current      A com.pnb.cbdc                                     18988KB 166.3s | cumulative 827.1MB in 2562s (315 KB/s avg) | 37 ok / 0 failed / 53 queued
+[download] OK  current      A com.euronet.iobupi                               24313KB 209.2s | cumulative 852.0MB in 2605s (319 KB/s avg) | 38 ok / 0 failed / 53 queued
+[download] OK  current      A com.yesbank.yespaynext                           25790KB 221.3s | cumulative 878.4MB in 2618s (328 KB/s avg) | 39 ok / 0 failed / 53 queued
+[download] OK  current      A com.capitalfirst.connector                       27647KB 255.7s | cumulative 906.7MB in 2652s (334 KB/s avg) | 40 ok / 0 failed / 53 queued
+[download] OK  current      A com.suryoday.MB                                  28381KB 259.5s | cumulative 935.8MB in 2656s (344 KB/s avg) | 41 ok / 0 failed / 53 queued
+[download] OK  current      A com.iob.iobconnect                               34324KB 287.1s | cumulative 970.9MB in 2683s (353 KB/s avg) | 42 ok / 0 failed / 53 queued
+[download] OK  current      A com.msf.kbank.mobile                             37365KB 371.0s | cumulative 1009.2MB in 3054s (323 KB/s avg) | 43 ok / 0 failed / 47 queued
+[download] OK  current      A com.db.pbc.mybank.in                             38899KB 382.7s | cumulative 1049.0MB in 3066s (334 KB/s avg) | 44 ok / 0 failed / 47 queued
+[download] OK  current      A com.janabank.mtc                                 36416KB 390.8s | cumulative 1086.3MB in 3074s (345 KB/s avg) | 45 ok / 0 failed / 47 queued
+[download] OK  current      A com.canarabank.mobility                          48985KB 526.9s | cumulative 1136.5MB in 3210s (346 KB/s avg) | 46 ok / 0 failed / 47 queued
+[download] OK  current      A com.infrasofttech.CentralBank                    55108KB 526.9s | cumulative 1192.9MB in 3210s (363 KB/s avg) | 47 ok / 0 failed / 47 queued
+[download] OK  current      A com.snapwork.hdfc                                53128KB 550.9s | cumulative 1247.3MB in 3234s (377 KB/s avg) | 48 ok / 0 failed / 47 queued
+[download] OK  current      A com.idfcfirstbank.optimus                        58541KB 593.9s | cumulative 1307.3MB in 3828s (333 KB/s avg) | 49 ok / 0 failed / 41 queued
+[download] OK  current      A com.utkarsh.mobile                               62029KB 644.2s | cumulative 1370.8MB in 3878s (345 KB/s avg) | 50 ok / 0 failed / 41 queued
+[download] OK  current      A com.corporatefedmobile                           60461KB 649.6s | cumulative 1432.7MB in 3884s (360 KB/s avg) | 51 ok / 0 failed / 41 queued
+[download] OK  current      A com.sbi.upi                                      57846KB 702.3s | cumulative 1491.9MB in 3936s (370 KB/s avg) | 52 ok / 0 failed / 41 queued
+[download] OK  current      A com.boi.ua.android                               68418KB 759.4s | cumulative 1562.0MB in 3994s (382 KB/s avg) | 53 ok / 0 failed / 41 queued
+[download] OK  current      A com.dbs.in.digitalbank                           71143KB 796.5s | cumulative 1634.8MB in 4031s (396 KB/s avg) | 54 ok / 0 failed / 41 queued
+[download] OK  current      A com.equitas.elevate                              74038KB 557.9s | cumulative 1710.7MB in 4589s (364 KB/s avg) | 55 ok / 0 failed / 35 queued
+[download] OK  current      A com.psb.omniretail                               77749KB 576.4s | cumulative 1790.3MB in 4607s (379 KB/s avg) | 56 ok / 0 failed / 35 queued
+[download] OK  current      A com.hdfcbank.android.now                         72883KB 577.4s | cumulative 1864.9MB in 4608s (395 KB/s avg) | 57 ok / 0 failed / 35 queued
+[download] OK  current      A in.irisbyyes.app                                 72939KB 591.3s | cumulative 1939.6MB in 4622s (410 KB/s avg) | 58 ok / 0 failed / 35 queued
+[download] OK  current      A com.lcode.ucoupi                                 80028KB 612.4s | cumulative 2021.5MB in 4643s (425 KB/s avg) | 59 ok / 0 failed / 35 queued
+[download] OK  current      A com.ausmallfinancebank.amb                       78348KB 662.7s | cumulative 2101.8MB in 4693s (437 KB/s avg) | 60 ok / 0 failed / 35 queued
+[download] RETRY com.indusind.indiebiz: ConnectionError: HTTPSConnectionPool(host='androzoo.uni.lu', port=443): Read timed out.
+[download] RETRY com.centralbank.retail.omni: ConnectionError: HTTPSConnectionPool(host='androzoo.uni.lu', port=443): Read timed out.
+[download] RETRY com.sbi.SBIFreedomPlus: ConnectionError: HTTPSConnectionPool(host='androzoo.uni.lu', port=443): Read timed out.
+[download] RETRY com.kotak811mobilebankingapp.instantsavingsupiscanandpayrecharge: ConnectionError: HTTPSConnectionPool(host='androzoo.uni.lu', port=443): Read timed out.
+[download] RETRY com.kotak.bank.mobile: ConnectionError: HTTPSConnectionPool(host='androzoo.uni.lu', port=443): Read timed out.
+[download] RETRY com.axis.mobile: ConnectionError: HTTPSConnectionPool(host='androzoo.uni.lu', port=443): Read timed out.
+[download] OK  current      A com.bankofbaroda.mconnect                        94676KB 812.2s | cumulative 2198.7MB in 5941s (361 KB/s avg) | 61 ok / 0 failed / 29 queued
+[download] OK  current      A air.app.scb.breeze.android.main.in.prod          94134KB 870.4s | cumulative 2295.1MB in 6000s (374 KB/s avg) | 62 ok / 0 failed / 29 queued
+[download] OK  current      A com.fedmobile                                   102072KB 1063.5s | cumulative 2399.6MB in 6193s (378 KB/s avg) | 63 ok / 0 failed / 29 queued
+[download] OK  current      A com.indusind.indie                              105349KB 1069.7s | cumulative 2507.5MB in 6199s (395 KB/s avg) | 64 ok / 0 failed / 29 queued
+[download] OK  current      A com.sbi.lotusintouch                            112034KB 1108.4s | cumulative 2622.2MB in 6238s (411 KB/s avg) | 65 ok / 0 failed / 29 queued
+[download] OK  current      A com.indusindbank.IndusDirect                    121764KB 1319.8s | cumulative 2746.9MB in 6449s (416 KB/s avg) | 66 ok / 0 failed / 29 queued
+[download] OK  current      A com.bankofbaroda.upi                            128982KB 1332.0s | cumulative 2879.0MB in 7781s (361 KB/s avg) | 67 ok / 0 failed / 23 queued
+[download] OK  current      A com.iexceed.ib.digitalbankingprod               151273KB 1402.0s | cumulative 3033.9MB in 7851s (377 KB/s avg) | 68 ok / 0 failed / 23 queued
+[download] OK  current      A com.lcode.ucomobilebanking                      139341KB 1441.9s | cumulative 3176.6MB in 7891s (393 KB/s avg) | 69 ok / 0 failed / 23 queued
+[download] OK  current      A com.Version1                                    135480KB 1492.1s | cumulative 3315.3MB in 7941s (408 KB/s avg) | 70 ok / 0 failed / 23 queued
+[download] OK  current      A com.infrasoft.uboi                              158310KB 1582.4s | cumulative 3477.4MB in 8031s (423 KB/s avg) | 71 ok / 0 failed / 23 queued
+[download] OK  current      A com.icicibank.ibizz                             164257KB 1641.5s | cumulative 3645.6MB in 8090s (440 KB/s avg) | 72 ok / 0 failed / 23 queued
+[download] OK  current      C com.euronet.merchantapp                           6864KB  60.3s | cumulative 3652.7MB in 8151s (438 KB/s avg) | 73 ok / 0 failed / 17 queued
+[download] OK  current      D com.sc.breezeje.banking                          14269KB 115.9s | cumulative 3667.3MB in 8206s (436 KB/s avg) | 74 ok / 0 failed / 17 queued
+[download] OK  current      B com.google.android.apps.nbu.paisa.user           18730KB 143.2s | cumulative 3686.4MB in 8234s (437 KB/s avg) | 75 ok / 0 failed / 17 queued
+[download] OK  current      C com.naviapp                                      29554KB 219.8s | cumulative 3716.7MB in 8310s (437 KB/s avg) | 76 ok / 0 failed / 17 queued
+[download] OK  current      A com.csam.icici.bank.imobile                     245525KB 2335.1s | cumulative 3968.1MB in 10426s (372 KB/s avg) | 77 ok / 0 failed / 17 queued
+[download] OK  current      A in.hsbc.hsbcindia                               245190KB 2411.7s | cumulative 4219.2MB in 10502s (392 KB/s avg) | 78 ok / 0 failed / 17 queued
+[download] OK  current      B org.npci.erupeeINDIAN                            33630KB 322.9s | cumulative 4253.6MB in 10825s (384 KB/s avg) | 79 ok / 0 failed / 11 queued
+[download] OK  current      D com.db.pwcc.dbmobile                             33553KB 346.9s | cumulative 4288.0MB in 10849s (386 KB/s avg) | 80 ok / 0 failed / 11 queued
+[download] OK  current      B org.npci.erupeeFEDERAL                           37984KB 347.1s | cumulative 4326.9MB in 10849s (389 KB/s avg) | 81 ok / 0 failed / 11 queued
+[download] OK  current      B net.one97.paytm                                  48927KB 491.7s | cumulative 4377.0MB in 10994s (389 KB/s avg) | 82 ok / 0 failed / 11 queued
+[download] OK  current      D com.dbs.sg.dbsmbanking                           90064KB 879.7s | cumulative 4469.2MB in 11382s (383 KB/s avg) | 83 ok / 0 failed / 11 queued
+[download] OK  current      D com.YONOUKMobileApp                              90024KB 909.9s | cumulative 4561.4MB in 11412s (390 KB/s avg) | 84 ok / 0 failed / 11 queued
+[download] OK  current      A com.indusind.indiebiz                            91170KB 887.0s | cumulative 4654.8MB in 12299s (370 KB/s avg) | 85 ok / 0 failed / 5 queued
+[download] OK  current      D bm.com.hsbc.hsbcbermuda                         122123KB 1031.9s | cumulative 4779.8MB in 12444s (375 KB/s avg) | 86 ok / 0 failed / 5 queued
+[download] OK  current      C indwin.c3.shareapp                              128697KB 1157.0s | cumulative 4911.6MB in 12569s (382 KB/s avg) | 87 ok / 0 failed / 5 queued
+[download] OK  current      D com.db.pbc.mibanco                              138771KB 1351.1s | cumulative 5053.7MB in 12763s (387 KB/s avg) | 88 ok / 0 failed / 5 queued
+[download] OK  current      D com.sc.privatebank.pvm                          181390KB 1573.4s | cumulative 5239.4MB in 12986s (394 KB/s avg) | 89 ok / 0 failed / 5 queued
+[download] OK  current      D ae.hsbc.hsbcuae                                 275894KB 2744.9s | cumulative 5522.0MB in 14157s (381 KB/s avg) | 90 ok / 0 failed / 5 queued
+[download] OK  current      A com.kotak.bank.mobile                            84928KB 730.7s | cumulative 5608.9MB in 14888s (368 KB/s avg) | 91 ok / 0 failed / 0 queued
+[download] OK  current      A com.centralbank.retail.omni                      85814KB 773.8s | cumulative 5696.8MB in 14931s (373 KB/s avg) | 92 ok / 0 failed / 0 queued
+[download] OK  current      A com.sbi.SBIFreedomPlus                           84626KB 792.0s | cumulative 5783.5MB in 14949s (378 KB/s avg) | 93 ok / 0 failed / 0 queued
+[download] OK  current      A com.axis.mobile                                  87492KB 833.7s | cumulative 5873.1MB in 14991s (383 KB/s avg) | 94 ok / 0 failed / 0 queued
+[download] OK  current      A com.kotak811mobilebankingapp.instantsavingsupiscanandpayrecharge    91450KB 850.0s | cumulative 5966.7MB in 15007s (388 KB/s avg) | 95 ok / 0 failed / 0 queued
+
+[download] done this invocation: 95 ok, 0 gave up, 5966.7MB in 15007s
+[download] re-run to resume -- already-good files are re-verified and skipped, not re-fetched

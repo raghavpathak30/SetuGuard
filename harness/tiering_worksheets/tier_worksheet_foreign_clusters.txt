@@ -1,0 +1,12 @@
+in.hsbc.hsbcindia, A
+ae.hsbc.hsbcuae,B
+bm.com.hsbc.hsbcbermuda,C
+air.app.scb.breeze.android.main.in.prod,A
+com.sc.privatebank.pvm,B
+com.sc.breezeje.banking,C
+com.dbs.in.digitalbank,A
+com.dbs.sg.dbsmbanking,B
+com.compass.reward,C
+com.db.pwcc.dbmobile,A	
+com.db.pbc.mybank.in,B	
+com.db.pbc.mibanco,C
