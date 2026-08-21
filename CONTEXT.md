@@ -18,7 +18,12 @@ positives" framing corrected to name the 2 distinct linkages underneath it.
 Third session, same day: WHOIS on the host showed an active registration
 (ownership redacted) — a no-claim-about-ownership caveat and display
 defanging (`yessign[.]net`) added everywhere it's mentioned; §6's D-3 row
-and §8 updated.
+and §8 updated. 21 August, later session: §1's architecture line corrected
+— the PS1 serving path runs two resident llama-server processes (an
+`nomic-embed-text` embedding server for FAISS retrieval, plus Mistral-7B for
+narrative), not "Mistral-7B via Ollama" alone as previously stated. Same
+session: §5's harness-convention list and §6's D-9 row updated for
+`harness/day6_scaling_harness.py`, built this session and not yet run.
 
 This is a description of what the repo *is*. The narrative history lives in `SESSION_LOG.md` and
 stays there. Quotable numbers live in `REPORT_FACTS.md`. Forward work lives in `PLAN.md`.
@@ -80,7 +85,11 @@ the sole contributor.
 Three components:
 
 - **PS1 — Android banking-malware triage.** Androguard static analysis → FAISS retrieval over a
-  16-chunk MITRE ATT&CK knowledge base → Mistral-7B narrative via local Ollama → YARA generation.
+  16-chunk MITRE ATT&CK knowledge base (embedded via a resident `nomic-embed-text` llama-server,
+  `--embedding -c 2048`) → Mistral-7B narrative (a second resident llama-server, `-c 4096`,
+  chatml), both served locally through Ollama → YARA generation. Two llama-server processes are
+  resident throughout a session, not one — both must be counted in any memory or serving-footprint
+figure (`SESSION_LOG.md`, 20 Aug entry).
 - **PS2 — mule-account detection.** XGBoost over the bank's 18 finalized features from a
   9,082-row account dataset, with SHAP attribution and risk tiering.
 - **Bridge — IOC linkage.** Joins a PS1 APK's certificate hash to a PS2-scored account.
@@ -275,7 +284,9 @@ frozen file. Offline training writes versioned artifacts to `models/`; the live 
 loads them. Conforming: `browser_smoke.js`, `build_sample_set_716.py`, `extract_features_pool.py`,
 `identify_holdout_16.py`, `measure_app_verdicts.py`, `ps2_repeated_splits.py`,
 `rescore_from_cache.py`, `test_leakage_assert.py`, `threshold_sweep.py`, `train_ps2_model.py`,
-`verify_chartjs.js`, plus `setuguard_ps1/`'s `batch_baseline.py`, `d2_ab_harness.py`,
+`verify_chartjs.js`, `day6_scaling_harness.py` (built 21 Aug, Day 6 — not yet run; imports
+`app.py`'s pipeline functions rather than reimplementing them, same as `extract_features_pool.py`),
+plus `setuguard_ps1/`'s `batch_baseline.py`, `d2_ab_harness.py`,
 `d2_negative_chunks.py`, `fix3_fp_harness.py`, `stress_harness.py`, `_stress_worker.py`,
 `validation_gate.py`. One exception: `harness/process_large_outliers.sh` calls itself "a one-off
 driver, not part of the harness proper" without using the words *non-frozen*.
@@ -346,7 +357,7 @@ more than any defect below. Nothing here is fixed during report week. Full sched
 | D-6 | Evidence chain gitignored — `results_716.csv` does not survive a clone. | `.gitignore:77` | **Medium.** "Show me" has no answer. Must be relabelled first: its `banking_holdout` rows carry the false corpus label. | 18 Aug, `PLAN.md` 5 |
 | D-7 | **Partially resolved 19 Aug.** `bridge/test_fixtures_ps2_sample.json` (202 records, loaded at runtime by `confusion_matrix_validation.py:240`) had the five withdrawn fields (`model_version`, `shap_drivers`/`graph_betweenness`, `counterfactual`, `generated_rules`, `rule_validated`) stripped from all 202 records — confirmed unused by either consumer (`matcher.py`, `confusion_matrix_validation.py`) before deletion; confusion matrix re-verified unchanged (TP=10/FP=0/FN=0/TN=90). **`ps2/ps2_bridge_payload.json` still carries all five** — left deliberately: zero import hits from `setuguard_app/` or `bridge/`, dead in the live path per this table's own `ps2/01`–`ps2/07` row. | `ps2/ps2_bridge_payload.json` (residue) | ~~Medium~~ **Low** — dead-path only. | 19 Aug (live artifact); `ps2/` residue unscheduled |
 | D-8 | ~~Finding 5 NUL-byte YARA crash unfixed; `run_pipeline.py` unguarded, API scope unconfirmed.~~ **CHARACTERIZED AND RESOLVED 19 Aug (Day 2) — the premise was wrong.** Tested all 32 previously-known-affected samples through the real code chain: 8/8 that reached YARA generation hit the NUL-byte `ValueError`, and `app.py:368-377`'s existing try/except already caught every one — confirmed via a real live HTTP call (`app.flicky_940.apk` → HTTP 200, `compiles: false`). **"One demo run in five throws" never applied to the live API** — that number came from `fix3_fp_harness.py`, an offline harness that caught only `yara.Error` and missed this `ValueError`; a harness-observed defect was attributed to the product without checking the live code path. Same class as the two inherited-artifact gaps already in this table. The real bug, User-Experience-criterion, traceability failure: `app.js`'s alert log unconditionally said "New YARA rule generated" regardless of compile status, including when no rule was ever attempted — fixed to check `yar_text`/`compiles` state first. | `app.py:368-377` (already correct), `frontend/app.js` (fixed) | ~~Medium~~ **Closed.** | 19 Aug |
-| D-9 | Endpoint timings have no producing harness (§7 U1). | — | **Medium.** Blocks the scalability argument. | 18 Aug, `PLAN.md` 8 |
+| D-9 | ~~Endpoint timings have no producing harness (§7 U1).~~ **Harness built 21 Aug (Day 6), not yet run.** `harness/day6_scaling_harness.py` — n≥30 latency+memory against the real banking corpus, a full-corpus APK-size/memory sweep, and a separate demo-only peak-memory measurement, with a pre-flight swap refusal and a void condition on any Mistral-7B VmSwap. No numbers exist yet; this closes the "no harness" gap, not the "no measurement" one. | — | **Medium.** Blocks the scalability argument until it's actually run. | 18 Aug, `PLAN.md` 8 |
 | D-10 | `MAX_SUSPICIOUS_STRINGS = 25` with fixed url→ip→shell order right-censors every indicator count and zeroes IP extraction on 84/668 APKs. | `static_analysis.py:86` | **Medium.** IPs are the only match type the bridge can currently fire on, so this suppresses the one working linkage path. **Frozen file** — needs sign-off and invalidates the feature cache. | 18–19 Aug, `PLAN.md` 9 |
 | D-11 | `banking_holdout_16/` misnamed; `sample_set_banking_holdout_16.txt:2-3` asserts the false reading in a committed comment. | those paths | **High, but documentation-mitigated.** §0 and `REPORT_FACTS.md` now carry the correction; the rename is a data/code change. | after 17 Aug |
 | D-12 | Findings 1 and 2 (`None` manifest, `None` component name) open. | `static_analysis.py:91-106` | **Low.** Both already degrade cleanly at every call site. | unscheduled |

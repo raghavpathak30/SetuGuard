@@ -82,9 +82,11 @@ and the single `SYNTHETIC_LINKAGE_GROUND_TRUTH` entry has `c2_host: None`.
 all.**~~ **RESOLVED 21 Aug (Day 4).** A single host-normalization function, applied to
 both sides of the comparison, lets a `kind == "url"` indicator's extracted hostname match
 a bare ground-truth hostname. `SYNTHETIC_LINKAGE_GROUND_TRUTH` now carries two entries,
-one per join key — the C2-host entry pairs a real extracted indicator (`yessign.net`, from
-an actual CICMalDroid banking-malware sample; not independently confirmed as live C2
-infrastructure) with a hand-constructed account association. Both wiring claims — the
+one per join key — the C2-host entry pairs a real extracted indicator (display-defanged
+`yessign[.]net`, a hostname extracted from the sample's strings by our own static analysis,
+mimicking the Korean accredited-certificate brand "yessign" in a sample impersonating KB
+Kookmin Bank; no claim made about the domain's current ownership, registration, or activity;
+not confirmed as live C2) with a hand-constructed account association. Both wiring claims — the
 offline validation script and the live `/api/bridge` handler — verified by sabotage
 (break one comparison branch, confirm the expected metric degrades, restore, confirm zero
 diff), not by reading.
@@ -350,8 +352,11 @@ card · Day 8 rehearsal and recorded video · Day 9 freeze.
 
 **As of 21 Aug (Day 4): both join keys fire.** The bridge rests on two distinct synthetic
 linkages, one per key — account `9072` (cert-hash) and account `9062` (C2-host, whose
-indicator `yessign.net` is real, extracted from an actual CICMalDroid sample, but not
-independently confirmed as live C2). Neither has a documented selection rationale beyond
+indicator is a hostname extracted from the sample's strings by our own static analysis —
+display-defanged `yessign[.]net`, mimicking the Korean accredited-certificate brand
+"yessign" in a sample impersonating KB Kookmin Bank; no claim made about the domain's
+current ownership, registration, or activity; not confirmed as live C2). Neither has a
+documented selection rationale beyond
 "deterministically reachable in the demo dataset";
 the "independently confirmed fraud" framing on account 9072 is retracted but still live at
 `SESSION_LOG.md:430-434`. The confusion-matrix test (`TP=10/FP=0/FN=0/TN=90`) rests on

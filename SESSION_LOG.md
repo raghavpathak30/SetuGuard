@@ -2005,3 +2005,132 @@ Flagged for a later pass, do not edit `DEMO_RUNBOOK.md` now:
 4. Start Ollama, warm both models with one throwaway analysis
 5. Verify VmSwap reads 0 kB for the Mistral-7B process specifically
 6. Only then start Flask and drive the demo
+
+## 2026-08-21 — Day 6 open: hygiene, truth-maintenance carry-overs, Day 6 harness built
+
+Six working days out from the 27-28 Aug finale (27 Aug is travel). Day 4 closed early
+the prior session. This session worked Phase 0 (working-tree hygiene), Phase 1 (the
+carry-over items flagged open at the end of the 20 Aug session), and Phase 2 (build,
+not run, the Day 6 timing/scaling harness).
+
+**Phase 0a — `app.py` MAX_APK_UPLOAD_MB revert. Negative result.** The described
+uncommitted change (300MB cap, commented "TEMPORARY, NOT COMMITTED") was not present:
+`git diff` on the file was empty, `MAX_APK_UPLOAD_MB = 50` was already what's on disk,
+and no "TEMPORARY" string exists anywhere in the file. Nothing to revert. Either it was
+never actually written to disk, or it was already reverted before this session started;
+the repo's own history can't distinguish those from here, and it doesn't need to.
+
+**Phase 0b — `harness/browser_evidence/live_demo_check_20260820/` committed.**
+Inspected before deciding: a clean, full 7-step `browser_smoke.js` run (zero page
+errors, zero failed requests, zero bad responses on every step), file timestamps
+2026-08-20 19:28-19:30 IST — after the C2-host normalization fix (16:17) and after
+`com.kb` was wired into `browser_smoke.js` (17:46), before that evening's final docs
+commit (20:11). Its disclosure captures already carry the corrected WHOIS-caveated
+`yessign[.]net` framing, and account 9072 reads "hand-constructed, not observed in the
+wild" — not the retracted phrasing. Committed by explicit path, matching this repo's
+own convention of committing every `browser_evidence/*` run directory (14 others already
+are). Commit `4c322f2`.
+
+**Phase 0c — five stray untracked files. Reported, not acted on**, per instruction:
+`appi.txt`, `com.csam.icici.bank.imobile,A.txt`, and `in.hsbc.hsbcindia, A.txt` are
+bare `pkgname,tier` scratch lists (no issuer/source/note columns) that read as
+precursor working notes superseded by the tracked, fuller-schema
+`harness/banking_packages.csv` — delete recommended. `harness/download_run.log` is the
+AndroZoo download log for the 95-file legit banking corpus; flagged that
+`CONTEXT.md` §2's evidence table cites this exact file as provenance for that corpus row,
+so leaving it permanently uncommitted (per this session's instruction) means the doc
+points to evidence nobody can actually open from a clone — same shape of gap as D-6.
+`harness/fdroid_sha256_cache.tsv` (802 rows, matching `fdroid_benign_apks/`'s 802-file
+count) is a regenerable cache, same class as the already-gitignored
+`harness/feature_cache/` — gitignore recommended. No action taken on any of the five.
+
+**Phase 1a — un-caveated `yessign.net` in `PLAN.md` and `FINALE_PLAN_AND_AUDIT.md`,
+fixed.** Both files still carried the pre-WHOIS-amendment phrasing flagged open at the
+end of the 20 Aug session (`PLAN.md`'s item 2, `FINALE_PLAN_AND_AUDIT.md`'s §0.3 and its
+Innovation-criterion paragraph). All three sites now read: display-defanged
+`yessign[.]net`, framed as a hostname extracted from the sample's strings by this
+project's own static analysis, mimicking the Korean accredited-certificate brand
+"yessign" in a sample impersonating KB Kookmin Bank, with an explicit no-claim on the
+domain's current ownership/registration/activity and "not confirmed as live C2" — matching
+the treatment already applied to `REPORT_FACTS.md`, `demo/DEMO_RUNBOOK.md`, `CONTEXT.md`
+and the live `/api/bridge` note.
+
+**Phase 1b — account-9072 framing check. Clean, no changes.** Grepped every occurrence
+of "9072" across the repo (narrative docs, JSON fixtures/evidence, `bridge/matcher.py`,
+`bridge/test_fixtures_ps2_sample.json`, `ps2/` dead-path files, `models/ps2_xgb_v1.json`).
+Every current-facing occurrence describes it as a synthetic/hand-constructed ground-truth
+linkage or plain match/score data — never "confirmed fraud." The only surviving instance
+of the retracted phrasing is the single historical entry at this log's own 11 Aug section
+(preserved verbatim by this log's no-rewrite convention, already carrying an inline
+retraction pointer, already tracked in `CONTEXT.md`'s C10 and `REPORT_FACTS.md`'s void
+table). Apparent hits in `models/ps2_xgb_v1.json`, `ps2/ps2_bridge_payload.json` and
+`ps2/counterfactual_explanations.json` are all coincidental substrings inside UUIDs,
+hashes, or unrelated numeric data, not framing text — checked individually, not assumed.
+The regenerated `live_demo_check_20260820/` evidence (Phase 0b) also carries the correct
+framing. Nothing changed here.
+
+**Phase 1c — frontend linkify check. Clean, no changes.** `app.js`'s only rendering path
+for the bridge disclosure note (`` // ${esc(d.note)}</div> ``) runs it through `esc()`,
+which escapes `&<>"` only — no linkify/autolink/URL-detection logic exists anywhere in
+`app.js`, and no defang/re-fang logic (`[.]` -> `.` substitution or the reverse) exists
+anywhere in `app.js`, `app.py`, or `matcher.py`; the only place `yessign[.]net` appears
+un-reversed is its source string in `app.py`. `yessign[.]net` renders as inert plain text
+with its brackets intact. No frontend change made.
+
+**Phase 1d — two-model architecture correction, applied to `CONTEXT.md`.** §1's PS1
+architecture bullet corrected: names both the resident `nomic-embed-text` embedding
+llama-server (FAISS retrieval) and the Mistral-7B llama-server (narrative), replacing the
+undercounting "Mistral-7B via Ollama" phrasing flagged in this log's 20 Aug entry. For the
+report's system description: **no LaTeX/PDF/docx source for the report exists anywhere in
+this repo or the home directory tree** — same gap `FINALE_PLAN_AND_AUDIT.md`'s T1 note
+already recorded for the 17 Aug Progress Report submission, re-confirmed this session, not
+newly found. Grepped `REPORT_FACTS.md` and `setuguard_app/README.md` for the "Mistral-7B
+via Ollama" phrase: absent from both. The only other occurrence is inside this log's own
+20 Aug entry, describing the problem rather than asserting it, frozen by this log's
+no-rewrite convention. So `CONTEXT.md` was the one place actually carrying the stale
+description, and it's now the corrected one; nothing else needed a sign-off edit.
+Proposed wording for whenever a report document exists: "Mistral-7B for narrative
+generation and `nomic-embed-text` for FAISS retrieval, both served locally via Ollama as
+resident processes."
+
+**Phase 2 — `harness/day6_scaling_harness.py` built, not run.** Non-frozen (declared in
+its own module docstring). Four modes: `preflight` (enforced automatically before every
+other mode — `free -h`, both llama-server PIDs' VmSwap, `vm.swappiness`, refuses to
+proceed on non-trivial swap with a clear message), `latency` (n>=30 against
+`harness/banking_legit_corpus/` through the LIVE `/api/analyze_apk` endpoint, restricted
+to files under the endpoint's own 50MB cap since larger ones are rejected before analysis
+starts; median/IQR only, never a single figure or "p50"), `size-sweep` (full corpus
+range up to the 269.4MB max, including the 43 files already over the current 50MB cap —
+necessarily bypasses the HTTP layer's cap by calling the same pipeline functions
+`app.py` calls, imported from `setuguard_app.backend.app`, never reimplemented, same
+convention as `extract_features_pool.py`; produces a same-shape evidence table for
+setting the cap, does not set it), and `demo-footprint` (Flask + both models + one
+browser tab, the same three-call sequence `browser_smoke.js` drives against the same
+fixtures, peak concurrent total memory against the 15GB stage-machine ceiling, gated
+behind an explicit `--i-have-one-tab-open` flag since the harness can't itself verify
+that condition). Both llama-server PIDs are resolved by inspecting each candidate's full
+`/proc/<pid>/cmdline` for `--embedding` vs `chatml`/`-c 4096` — never by `pgrep | head -1`,
+the exact bug class that produced the malformed-path incident in this log's 20 Aug entry.
+The Mistral-7B VOID CONDITION (non-zero VmSwap at any sampled point during a run) is
+enforced in code in both `latency` and `size-sweep`: voided runs are excluded from the
+reported medians and logged by name and reason in `excluded_runs`. A kernel-OOM check
+(`dmesg -T` / `journalctl -k`, both attempted, failures reported rather than swallowed)
+runs after every mode. Output: `harness/DAY6_SCALING_RESULTS.json`, same provenance-heavy
+style as `harness/BANKING_AUC_RESULTS.json`.
+
+**Verified, not just written.** `python3 -m py_compile` clean. Ran `preflight` mode alone
+(read-only: `free -h`, `/proc` reads — no APK analysis, no HTTP call, no results file
+written) against this actual dev machine: both llama-server PIDs resolved correctly
+(embedding 16910, Mistral 19884, matching a direct `ps aux` cross-check), VmRSS/VmSwap
+parsed correctly, and the refusal fired correctly — this session's own machine currently
+carries ~6.1GB of system swap in use and non-zero VmSwap on both llama-servers (VS Code +
+Claude Code + browser tooling open), exactly the swap-pressure condition the 20 Aug memory
+finding describes. Exit code 1, no output file written, confirming both the refusal logic
+and that this machine is correctly not a valid measurement environment right now — which
+is the reason the actual n>=30 run is deferred to a clean machine per instruction, not run
+in this session.
+
+**No frozen-file edits.** Files touched this session: `harness/browser_evidence/live_demo_check_20260820/*`
+(committed, new), `PLAN.md`, `FINALE_PLAN_AND_AUDIT.md`, `CONTEXT.md`,
+`harness/day6_scaling_harness.py` (new). None are among the six frozen `setuguard_ps1/`
+files; no `FROZEN_FILE_FINDINGS.md` entry needed.

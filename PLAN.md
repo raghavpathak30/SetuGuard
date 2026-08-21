@@ -113,8 +113,11 @@ claim bias checking, KS-test drift monitoring and a greedy counterfactual that i
 `urlparse` the URL-kind indicators, extract host and IP separately, match against a host set.
 Shipped as a single `_normalize_host()` function applied to both sides of the comparison.
 `SYNTHETIC_LINKAGE_GROUND_TRUTH` now carries two entries, one per join key — the C2-host entry's
-indicator (`yessign.net`) is real, extracted from an actual CICMalDroid sample, not fabricated;
-its account association is still hand-constructed. **Not done, still open:** re-running the yield
+indicator is a hostname extracted from the sample's strings by our own static analysis
+(`yessign[.]net`, mimicking the Korean accredited-certificate brand "yessign" in a sample
+impersonating KB Kookmin Bank), not fabricated. No claim is made about the domain's current
+ownership, registration, or activity; it is not confirmed as live C2. Its account association is
+still hand-constructed. **Not done, still open:** re-running the yield
 audit counting *matchable* indicators rather than merely present ones — 10.6% vs 66.9% is still
 the honest number pending that re-run.
 
