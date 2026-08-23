@@ -1,0 +1,537 @@
+{
+  "generated_at_utc": "2026-08-22T16:05:33.325155+00:00",
+  "machine": {
+    "cpu_count": 20,
+    "platform": "Linux-6.17.13+2-amd64-x86_64-with-glibc2.41",
+    "hostname": "parrot"
+  },
+  "preflight": {
+    "free_h": "               total        used        free      shared  buff/cache   available\nMem:            15Gi       8.4Gi       3.0Gi       663Mi       5.1Gi       6.8Gi\nSwap:          8.0Gi       8.0Ki       8.0Gi\n",
+    "llama_server_pids": {
+      "embedding": 8776,
+      "mistral": 8902
+    },
+    "llama_server_swap": {
+      "embedding": {
+        "vm_rss_kb": 502592,
+        "vm_swap_kb": 0
+      },
+      "mistral": {
+        "vm_rss_kb": 5114400,
+        "vm_swap_kb": 0
+      }
+    },
+    "system_swap_used_kb": 8,
+    "vm_swappiness": "vm.swappiness = 10",
+    "problems": [],
+    "passed": true
+  },
+  "latency": {
+    "n_requested": 30,
+    "n_sampled": 30,
+    "n_valid": 14,
+    "n_excluded": 16,
+    "excluded_runs": [
+      {
+        "file": "F66039981FC3719D7E351C97F0A954C5AF728F0B731E549DCB34DD49BA48C6AE.apk",
+        "reason": "non-zero VmSwap on Mistral-7B during this run"
+      },
+      {
+        "file": "D53D37482B2D729F46D6F41A86468C8E7C6231DBF5B60B6CDD9567728599B316.apk",
+        "reason": "non-zero VmSwap on Mistral-7B during this run"
+      },
+      {
+        "file": "43EE6DC1BD10B3DE0F6F19732839958C66A0805DE70D573BBE7B98E505BB5CC5.apk",
+        "reason": "non-zero VmSwap on Mistral-7B during this run"
+      },
+      {
+        "file": "DF5A892C682521452E89655DF6F5271D67B879FEFCB4A9FB910AC58567561732.apk",
+        "reason": "non-zero VmSwap on Mistral-7B during this run"
+      },
+      {
+        "file": "9EAE3D15663E74B6667248D177C24D3C0B555102A24411DB3074DE8556DB5261.apk",
+        "reason": "non-zero VmSwap on Mistral-7B during this run"
+      },
+      {
+        "file": "FD9A5EF34EC7A6ACA78392F1628029F1C93F4766E9B69ADAA362EE076412AA39.apk",
+        "reason": "non-zero VmSwap on Mistral-7B during this run"
+      },
+      {
+        "file": "432FC8898DBEF3096245E2AE12492AA27DC8F7F162DCA550AD5D538AB7D754F6.apk",
+        "reason": "non-zero VmSwap on Mistral-7B during this run"
+      },
+      {
+        "file": "6EA25AF6D5D31DD39ECB8056CC3135FE9BA71F88E2E9C0E93905DBB972030DA9.apk",
+        "reason": "non-zero VmSwap on Mistral-7B during this run"
+      },
+      {
+        "file": "699E801BCAAB35DD7914955363238251DDCF91CF765810E35C881B145614E436.apk",
+        "reason": "non-zero VmSwap on Mistral-7B during this run"
+      },
+      {
+        "file": "95E694A347F63727D269100BC229ED013B19C61CC8CF71FB2894C595869A29DD.apk",
+        "reason": "non-zero VmSwap on Mistral-7B during this run"
+      },
+      {
+        "file": "F29F594442566E7F3BA9B7493766CA7768E005E3A3628E79474868A9FEC064CE.apk",
+        "reason": "non-zero VmSwap on Mistral-7B during this run"
+      },
+      {
+        "file": "B7D14AE05406AFE44D70EE402862CB547C9580D620D87817B51DEAF354CF8806.apk",
+        "reason": "non-zero VmSwap on Mistral-7B during this run"
+      },
+      {
+        "file": "FD7015A382FFD008161B0DFE6A73DFE50AEE3913512CE7AEB3AD2F8B20F3186C.apk",
+        "reason": "non-zero VmSwap on Mistral-7B during this run"
+      },
+      {
+        "file": "D863BA44F48F43413BBAAE89E580F31CE75C34212127A99F7F7E4E276AE2F697.apk",
+        "reason": "non-zero VmSwap on Mistral-7B during this run"
+      },
+      {
+        "file": "630339D0D6B04C8FFC3631102D46B8F643BA89A23E4ABB31A06C754431EAAE7E.apk",
+        "reason": "non-zero VmSwap on Mistral-7B during this run"
+      },
+      {
+        "file": "DF3D7D319A6DADC9490D1340A8D681AEE6FA9F568FEFDC1D4341F070B7CA4E35.apk",
+        "reason": "non-zero VmSwap on Mistral-7B during this run"
+      }
+    ],
+    "latency_s": {
+      "median": 123.93900000000001,
+      "iqr_25": 107.11350000000002,
+      "iqr_75": 145.6515,
+      "min": 77.589,
+      "max": 188.679,
+      "n": 14
+    },
+    "peak_rss_kb_embedding": {
+      "median": 507208.0,
+      "iqr_25": 435720.0,
+      "iqr_75": 507425.0,
+      "min": 435668,
+      "max": 507492,
+      "n": 14
+    },
+    "peak_rss_kb_mistral": {
+      "median": 7315786.0,
+      "iqr_25": 6252824.0,
+      "iqr_75": 8480839.0,
+      "min": 5413120,
+      "max": 9355416,
+      "n": 14
+    },
+    "peak_rss_kb_flask": {
+      "median": 2167910.0,
+      "iqr_25": 1735107.0,
+      "iqr_75": 3936318.0,
+      "min": 1022832,
+      "max": 4271904,
+      "n": 14
+    },
+    "records": [
+      {
+        "file": "D220B4F96C9FD3140B4E5628F33E13184E513BAC992372B7859E2ED1C1CA769D.apk",
+        "size_bytes": 16874981,
+        "elapsed_s": 119.787,
+        "outcome": "ok",
+        "peak_rss_kb": {
+          "embedding": 507152,
+          "mistral": 5413120,
+          "flask": 1022832
+        },
+        "mistral_ever_swapped_during_run": false,
+        "voided": false
+      },
+      {
+        "file": "2D7FBD230999F311829ECE02F79459E3632CD6752547AE3851E4CCC827B6B66E.apk",
+        "size_bytes": 15296320,
+        "elapsed_s": 145.68,
+        "outcome": "ok",
+        "peak_rss_kb": {
+          "embedding": 507264,
+          "mistral": 5736844,
+          "flask": 1599540
+        },
+        "mistral_ever_swapped_during_run": false,
+        "voided": false
+      },
+      {
+        "file": "034D44D7E9037D980C0E4FEC8F13BF8E574701E04E735DD74B297EBF2B06C0E1.apk",
+        "size_bytes": 34358487,
+        "elapsed_s": 85.546,
+        "outcome": "ok",
+        "peak_rss_kb": {
+          "embedding": 507336,
+          "mistral": 6081560,
+          "flask": 1780296
+        },
+        "mistral_ever_swapped_during_run": false,
+        "voided": false
+      },
+      {
+        "file": "E458C9E904B3431538BFEE18D1DAE8B5C19E86367197DE84C34544568A80F73D.apk",
+        "size_bytes": 16230135,
+        "elapsed_s": 89.727,
+        "outcome": "ok",
+        "peak_rss_kb": {
+          "embedding": 507416,
+          "mistral": 6309912,
+          "flask": 1994348
+        },
+        "mistral_ever_swapped_during_run": false,
+        "voided": false
+      },
+      {
+        "file": "614FDF72E33C1F1CEC38D9903690E3AC8292CB6462D106492DC1B8B1A44BFB5E.apk",
+        "size_bytes": 38261767,
+        "elapsed_s": 188.679,
+        "outcome": "ok",
+        "peak_rss_kb": {
+          "embedding": 507472,
+          "mistral": 6536992,
+          "flask": 3859824
+        },
+        "mistral_ever_swapped_during_run": false,
+        "voided": false
+      },
+      {
+        "file": "56033FFCF574BB046EE32800017D474D855ADCA2A5F883827AEB53ADAD43F26C.apk",
+        "size_bytes": 18719950,
+        "elapsed_s": 112.909,
+        "outcome": "ok",
+        "peak_rss_kb": {
+          "embedding": 507492,
+          "mistral": 6979148,
+          "flask": 4165800
+        },
+        "mistral_ever_swapped_during_run": false,
+        "voided": false
+      },
+      {
+        "file": "508308344EACB5A767339F2F5AE791D4543E105BC5BFA7C3D691628AE12781BC.apk",
+        "size_bytes": 12290043,
+        "elapsed_s": 77.589,
+        "outcome": "ok",
+        "peak_rss_kb": {
+          "embedding": 507452,
+          "mistral": 7251900,
+          "flask": 4170792
+        },
+        "mistral_ever_swapped_during_run": false,
+        "voided": false
+      },
+      {
+        "file": "2DD141F375714CFB4CCF0201C656DD610C428107DE97B43991F4B46AEE191DAF.apk",
+        "size_bytes": 40900027,
+        "elapsed_s": 149.634,
+        "outcome": "ok",
+        "peak_rss_kb": {
+          "embedding": 507280,
+          "mistral": 7379672,
+          "flask": 4271904
+        },
+        "mistral_ever_swapped_during_run": false,
+        "voided": false
+      },
+      {
+        "file": "23005064FF63D6695F525DFF1D342CE9532A2EADA8A2C50EC71B96C57A66F6B5.apk",
+        "size_bytes": 26408745,
+        "elapsed_s": 143.875,
+        "outcome": "ok",
+        "peak_rss_kb": {
+          "embedding": 435668,
+          "mistral": 7723996,
+          "flask": 2258924
+        },
+        "mistral_ever_swapped_during_run": false,
+        "voided": false
+      },
+      {
+        "file": "ADB8E6D1580BED91DA8506AA787F859EFB19849C699132C353270CB7FA9633F7.apk",
+        "size_bytes": 23146054,
+        "elapsed_s": 133.543,
+        "outcome": "ok",
+        "peak_rss_kb": {
+          "embedding": 435688,
+          "mistral": 8064400,
+          "flask": 2076896
+        },
+        "mistral_ever_swapped_during_run": false,
+        "voided": false
+      },
+      {
+        "file": "22213A31147480996F7CAE0236914BF373D38DB6D3D3B7B4DA9865979BD95061.apk",
+        "size_bytes": 8745179,
+        "elapsed_s": 128.091,
+        "outcome": "ok",
+        "peak_rss_kb": {
+          "embedding": 435708,
+          "mistral": 8400596,
+          "flask": 1883124
+        },
+        "mistral_ever_swapped_during_run": false,
+        "voided": false
+      },
+      {
+        "file": "C32100528109815CD81DE0727E6B88F45BE3275A44FE8D17C878CAA62868BA4B.apk",
+        "size_bytes": 34436798,
+        "elapsed_s": 145.642,
+        "outcome": "ok",
+        "peak_rss_kb": {
+          "embedding": 435724,
+          "mistral": 8721568,
+          "flask": 2433876
+        },
+        "mistral_ever_swapped_during_run": false,
+        "voided": false
+      },
+      {
+        "file": "7F69A97E633101FA414B2637AE99C3F83199C525E66B718E8D34CFF5FDA88F77.apk",
+        "size_bytes": 11312403,
+        "elapsed_s": 114.346,
+        "outcome": "ok",
+        "peak_rss_kb": {
+          "embedding": 435760,
+          "mistral": 9062604,
+          "flask": 2659556
+        },
+        "mistral_ever_swapped_during_run": false,
+        "voided": false
+      },
+      {
+        "file": "038DFEDC8611E3EF4452F3D69AE67CFF992201D09E5881919191AF0D89A2EAB0.apk",
+        "size_bytes": 37289542,
+        "elapsed_s": 117.314,
+        "outcome": "ok",
+        "peak_rss_kb": {
+          "embedding": 435796,
+          "mistral": 9355416,
+          "flask": 1497048
+        },
+        "mistral_ever_swapped_during_run": false,
+        "voided": false
+      },
+      {
+        "file": "F66039981FC3719D7E351C97F0A954C5AF728F0B731E549DCB34DD49BA48C6AE.apk",
+        "size_bytes": 33763849,
+        "elapsed_s": 141.293,
+        "outcome": "ok",
+        "peak_rss_kb": {
+          "embedding": 435804,
+          "mistral": 9622136,
+          "flask": 1767136
+        },
+        "mistral_ever_swapped_during_run": true,
+        "voided": true
+      },
+      {
+        "file": "D53D37482B2D729F46D6F41A86468C8E7C6231DBF5B60B6CDD9567728599B316.apk",
+        "size_bytes": 35147643,
+        "elapsed_s": 134.797,
+        "outcome": "ok",
+        "peak_rss_kb": {
+          "embedding": 398812,
+          "mistral": 9622084,
+          "flask": 2200568
+        },
+        "mistral_ever_swapped_during_run": true,
+        "voided": true
+      },
+      {
+        "file": "43EE6DC1BD10B3DE0F6F19732839958C66A0805DE70D573BBE7B98E505BB5CC5.apk",
+        "size_bytes": 27693290,
+        "elapsed_s": 156.609,
+        "outcome": "ok",
+        "peak_rss_kb": {
+          "embedding": 396372,
+          "mistral": 9609884,
+          "flask": 2634084
+        },
+        "mistral_ever_swapped_during_run": true,
+        "voided": true
+      },
+      {
+        "file": "DF5A892C682521452E89655DF6F5271D67B879FEFCB4A9FB910AC58567561732.apk",
+        "size_bytes": 19179130,
+        "elapsed_s": 180.049,
+        "outcome": "ok",
+        "peak_rss_kb": {
+          "embedding": 396388,
+          "mistral": 9906288,
+          "flask": 1821824
+        },
+        "mistral_ever_swapped_during_run": true,
+        "voided": true
+      },
+      {
+        "file": "9EAE3D15663E74B6667248D177C24D3C0B555102A24411DB3074DE8556DB5261.apk",
+        "size_bytes": 30262998,
+        "elapsed_s": 152.268,
+        "outcome": "ok",
+        "peak_rss_kb": {
+          "embedding": 396344,
+          "mistral": 9906248,
+          "flask": 3859972
+        },
+        "mistral_ever_swapped_during_run": true,
+        "voided": true
+      },
+      {
+        "file": "FD9A5EF34EC7A6ACA78392F1628029F1C93F4766E9B69ADAA362EE076412AA39.apk",
+        "size_bytes": 24896356,
+        "elapsed_s": 135.13,
+        "outcome": "ok",
+        "peak_rss_kb": {
+          "embedding": 390156,
+          "mistral": 9037164,
+          "flask": 4366512
+        },
+        "mistral_ever_swapped_during_run": true,
+        "voided": true
+      },
+      {
+        "file": "432FC8898DBEF3096245E2AE12492AA27DC8F7F162DCA550AD5D538AB7D754F6.apk",
+        "size_bytes": 5898737,
+        "elapsed_s": 105.094,
+        "outcome": "ok",
+        "peak_rss_kb": {
+          "embedding": 314396,
+          "mistral": 8835020,
+          "flask": 4379004
+        },
+        "mistral_ever_swapped_during_run": true,
+        "voided": true
+      },
+      {
+        "file": "6EA25AF6D5D31DD39ECB8056CC3135FE9BA71F88E2E9C0E93905DBB972030DA9.apk",
+        "size_bytes": 16530653,
+        "elapsed_s": 123.133,
+        "outcome": "ok",
+        "peak_rss_kb": {
+          "embedding": 314404,
+          "mistral": 9093316,
+          "flask": 1209728
+        },
+        "mistral_ever_swapped_during_run": true,
+        "voided": true
+      },
+      {
+        "file": "699E801BCAAB35DD7914955363238251DDCF91CF765810E35C881B145614E436.apk",
+        "size_bytes": 50160582,
+        "elapsed_s": 187.179,
+        "outcome": "ok",
+        "peak_rss_kb": {
+          "embedding": 314360,
+          "mistral": 9052916,
+          "flask": 3975632
+        },
+        "mistral_ever_swapped_during_run": true,
+        "voided": true
+      },
+      {
+        "file": "95E694A347F63727D269100BC229ED013B19C61CC8CF71FB2894C595869A29DD.apk",
+        "size_bytes": 12405182,
+        "elapsed_s": 170.023,
+        "outcome": "ok",
+        "peak_rss_kb": {
+          "embedding": 314264,
+          "mistral": 9229988,
+          "flask": 4284580
+        },
+        "mistral_ever_swapped_during_run": true,
+        "voided": true
+      },
+      {
+        "file": "F29F594442566E7F3BA9B7493766CA7768E005E3A3628E79474868A9FEC064CE.apk",
+        "size_bytes": 29985764,
+        "elapsed_s": 174.878,
+        "outcome": "ok",
+        "peak_rss_kb": {
+          "embedding": 314176,
+          "mistral": 9630684,
+          "flask": 2464792
+        },
+        "mistral_ever_swapped_during_run": true,
+        "voided": true
+      },
+      {
+        "file": "B7D14AE05406AFE44D70EE402862CB547C9580D620D87817B51DEAF354CF8806.apk",
+        "size_bytes": 17234201,
+        "elapsed_s": 115.473,
+        "outcome": "ok",
+        "peak_rss_kb": {
+          "embedding": 314200,
+          "mistral": 10032880,
+          "flask": 2014020
+        },
+        "mistral_ever_swapped_during_run": true,
+        "voided": true
+      },
+      {
+        "file": "FD7015A382FFD008161B0DFE6A73DFE50AEE3913512CE7AEB3AD2F8B20F3186C.apk",
+        "size_bytes": 14611265,
+        "elapsed_s": 114.419,
+        "outcome": "ok",
+        "peak_rss_kb": {
+          "embedding": 314212,
+          "mistral": 10324840,
+          "flask": 1763560
+        },
+        "mistral_ever_swapped_during_run": true,
+        "voided": true
+      },
+      {
+        "file": "D863BA44F48F43413BBAAE89E580F31CE75C34212127A99F7F7E4E276AE2F697.apk",
+        "size_bytes": 6145512,
+        "elapsed_s": 124.324,
+        "outcome": "ok",
+        "peak_rss_kb": {
+          "embedding": 314224,
+          "mistral": 10596068,
+          "flask": 2065904
+        },
+        "mistral_ever_swapped_during_run": true,
+        "voided": true
+      },
+      {
+        "file": "630339D0D6B04C8FFC3631102D46B8F643BA89A23E4ABB31A06C754431EAAE7E.apk",
+        "size_bytes": 7028778,
+        "elapsed_s": 81.992,
+        "outcome": "ok",
+        "peak_rss_kb": {
+          "embedding": 314252,
+          "mistral": 10926460,
+          "flask": 1614208
+        },
+        "mistral_ever_swapped_during_run": true,
+        "voided": true
+      },
+      {
+        "file": "DF3D7D319A6DADC9490D1340A8D681AEE6FA9F568FEFDC1D4341F070B7CA4E35.apk",
+        "size_bytes": 31060313,
+        "elapsed_s": 144.762,
+        "outcome": "ok",
+        "peak_rss_kb": {
+          "embedding": 314256,
+          "mistral": 11113916,
+          "flask": 1527128
+        },
+        "mistral_ever_swapped_during_run": true,
+        "voided": true
+      }
+    ],
+    "note": "Restricted to corpus files <= the live endpoint's 50MB cap (MAX_APK_UPLOAD_MB in setuguard_app/backend/app.py) -- files above it are rejected by the endpoint before analysis starts, by design (D-5). See the size-sweep section for the full range."
+  },
+  "kernel_oom_check": {
+    "sources_tried": [
+      "dmesg",
+      "journalctl"
+    ],
+    "oom_events_found": [],
+    "errors": [
+      "dmesg exited 1: dmesg: read kernel buffer failed: Operation not permitted"
+    ],
+    "clean": false
+  }
+}

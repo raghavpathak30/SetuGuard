@@ -1,0 +1,1 @@
+256834b docs: log the stray-file triage (5cde402), sampling-frame note in CONTEXT.md
