@@ -183,7 +183,7 @@ def _extract_certificate(a):
             "subject": None,
             "issuer": None,
             "sha256": None,
-            "self_signed": False,
+            "self_signed": None,
             "is_debug": False,
         }
     cert = certs[0]

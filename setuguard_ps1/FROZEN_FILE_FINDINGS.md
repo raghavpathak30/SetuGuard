@@ -405,6 +405,33 @@ a minute of wait after a proper warm-up, not the 100+ additional seconds a cold 
 See `demo/DEMO_RUNBOOK.md`'s updated timing-risk section for the warm-up-call mitigation
 this enables.
 
+## Finding 7 — YARA meta key `confidence` renamed to `evidence_score`, `yara_gen.py:94`
+
+**Sign-off given 2026-08-23, applied same session (payload-correction task, not a bug report).**
+`confidence` meta key renamed to `evidence_score`: the scorer produces a heuristic evidence
+tally, not a calibrated probability; matches the rename already applied to `family_verdict` and
+the narrative preamble (`app.py`, non-frozen). YARA rule text is an artifact a consuming bank
+ingests directly, so a misleading meta key there carries further than a UI string. Value and all
+matching logic unchanged; only the meta key name differs. `yara.compiles` verified true on all
+three re-captured APK responses after the edit.
+
+## Finding 8 — `self_signed` was hardcoded `False` (not `None`) when certificate extraction fails entirely, `static_analysis.py:176-182`
+
+**Sign-off given 2026-08-23, applied same session (payload-correction task, not a bug report).**
+In `_extract_certificate()`'s "no certificate at all" branch, `self_signed` changed from
+hardcoded `False` to `None`, matching `subject`/`issuer`/`sha256` already being `None` in that
+branch. Reporting `self_signed: False` when extraction failed entirely is a false negative claim
+— the code never determined self-signed-ness, so `False` states something it doesn't know.
+`None` is honest: "unknown," not "no." One-line change, only that branch's `self_signed` value.
+
+**Known, not-yet-applied side effect:** `validation_gate.py`'s `CERTIFICATE_SCHEMA` and its
+unsigned-cert invariant check (lines ~78, ~206-222) assert `self_signed` is `bool` and expects
+exactly `False` when a cert is fully absent. That file is non-frozen and not on the live API
+path (`app.py` never imports it), so this doesn't affect the demo capture — but it will report a
+spurious violation on a real CLI run against an unparseable-certificate APK until it's updated
+to accept `None` too. Tracked as a companion fix in this same session, applied directly to
+`validation_gate.py` since that file is not frozen.
+
 ## Status
 
 - **Finding 1** (unguarded `manifest.iter()`) — sign-off-gated, **not applied** this session.
@@ -417,6 +444,11 @@ this enables.
   now has `enum: [the 16 CHUNKS ids]`, generated from `knowledge_base.CHUNKS`. Verified: 0/3
   post-edit runs produced an id outside the legal 16 (was 1/4, reproducible fabrication,
   pre-edit). Citation jitter among valid ids persists — not this finding's claim to fix.
+- **Finding 7** (YARA meta key `confidence` → `evidence_score`) — **applied** (2026-08-23,
+  payload-correction task). `yara.compiles` verified true post-edit.
+- **Finding 8** (`self_signed` hardcoded `False` instead of `None` on failed cert extraction) —
+  **applied** (2026-08-23, payload-correction task). Companion `validation_gate.py` update
+  (non-frozen) applied in the same session; CLI gate re-run and verified clean post-edit.
 
 **Not a frozen-file finding, noted here only as a cross-reference:** the 2026-08-18 `STATE` →
 addressable-analysis-id migration (`setuguard_app/backend/app.py`, non-frozen) is logged in full

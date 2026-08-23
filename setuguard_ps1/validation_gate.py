@@ -75,7 +75,7 @@ CERTIFICATE_SCHEMA = {
     "subject": (str, type(None)),
     "issuer": (str, type(None)),
     "sha256": (str, type(None)),
-    "self_signed": bool,
+    "self_signed": (bool, type(None)),
     "is_debug": bool,
 }
 
@@ -207,18 +207,20 @@ def validate_features_schema(features: dict) -> list[str]:
             if key in cert:
                 _check_type(cert[key], expected_type, f"features.certificate.{key}", violations)
         # Guarded unsigned-APK invariant from _extract_certificate(): if there's
-        # no certificate at all, subject/issuer/sha256 are all None together and
-        # self_signed/is_debug are both False — never a partial None.
+        # no certificate at all, subject/issuer/sha256 are all None together,
+        # self_signed is None (extraction never determined it), and is_debug
+        # is False — never a partial None.
         cert_none_fields = [k for k in ("subject", "issuer", "sha256") if cert.get(k) is None]
         if cert_none_fields and len(cert_none_fields) != 3:
             violations.append(
                 f"features.certificate: inconsistent unsigned-cert state — only "
                 f"{cert_none_fields} are None, expected all of subject/issuer/sha256 together or none"
             )
-        if len(cert_none_fields) == 3 and (cert.get("self_signed") is not False or cert.get("is_debug") is not False):
+        if len(cert_none_fields) == 3 and (cert.get("self_signed") is not None or cert.get("is_debug") is not False):
             violations.append(
                 "features.certificate: unsigned (subject/issuer/sha256 all None) but "
-                f"self_signed={cert.get('self_signed')!r} / is_debug={cert.get('is_debug')!r}, expected both False"
+                f"self_signed={cert.get('self_signed')!r} / is_debug={cert.get('is_debug')!r}, expected "
+                f"self_signed=None / is_debug=False"
             )
 
     try:

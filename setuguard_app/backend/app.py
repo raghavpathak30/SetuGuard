@@ -429,7 +429,7 @@ def _adapt_apk_response(features: dict, report: dict, yar_text, elapsed: float) 
     elif yar_text:
         yar_compiles = True  # yara-python unavailable; assume syntactically generated rule is fine
 
-    narrative = ["Verdict and confidence produced by SetuGuard's rule-based evidence scorer (deterministic)."]
+    narrative = ["Verdict and evidence score produced by SetuGuard's rule-based evidence scorer (deterministic)."]
     if report["rationale"]:
         narrative.append(report["rationale"])
     if report.get("_narrative_source") == "ollama_rag":
@@ -780,9 +780,11 @@ def analyze_dataset_endpoint():
         # only 16 holdout positives (see ps2/README.md's contiguity note and
         # harness/ps2_repeated_splits.py's docstring). Report the 20-seed
         # median when that study is available -- not the single-split
-        # number -- and carry the full distribution + the single-split
-        # reference alongside, clearly labeled, rather than silently
-        # picking one favorable draw as if it were the headline.
+        # number -- and carry the full distribution alongside, clearly
+        # labeled, rather than silently picking one favorable draw as if it
+        # were the headline. The single-split reference itself (retired
+        # numbers, most flattering figures in the project) stays on disk in
+        # models/ps2_xgb_v1_metrics.json for audit but is not served here.
         holdout_metrics = PS2_ARTIFACT["metrics"]["holdout_metrics"]
         repeated = PS2_ARTIFACT.get("repeated_splits")
         if repeated is not None:
@@ -807,22 +809,8 @@ def analyze_dataset_endpoint():
             "holdout_auroc": reported_auroc,
             "holdout_aucpr_distribution": repeated["aucpr_distribution"] if repeated else None,
             "holdout_auroc_distribution": repeated["auroc_distribution"] if repeated else None,
-            "holdout_single_split_reference": {
-                "aucpr": holdout_metrics["aucpr"],
-                "auroc": holdout_metrics["auroc"],
-                "seed": PS2_ARTIFACT["metrics"]["seed"],
-                "note": "this model artifact's own training-time holdout split (one seed) -- "
-                        "kept for reference, not reported as the headline metric above",
-            },
             "metrics_source": metrics_source,
-            # cv_aucpr_mean/n_cv_folds kept for the existing frontend field
-            # names, which read them as "CV AUCPR (n-fold)" — that label is
-            # stale now, but the *value* underneath is the real, honest
-            # holdout AUCPR (20-seed median when available), not an
-            # in-request CV number (n_cv_folds=0 because no CV runs in this
-            # process anymore).
-            "cv_aucpr_mean": reported_aucpr,
-            "n_cv_folds": 0,
+            "headline_aucpr": reported_aucpr,
             "audit": {
                 "n_rows": len(df),
                 "prevalence_pct": prevalence_pct,

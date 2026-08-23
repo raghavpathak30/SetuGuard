@@ -274,7 +274,7 @@ function renderCsvResults(d) {
   el.innerHTML = `
     <div class="result-panel">
     <div class="stat-row">
-      <div class="stat-box"><div class="v">${d.cv_aucpr_mean !== null ? d.cv_aucpr_mean.toFixed(3) : 'n/a'}</div><div class="l">Holdout AUCPR (20-seed median)</div></div>
+      <div class="stat-box"><div class="v">${d.headline_aucpr != null ? d.headline_aucpr.toFixed(3) : 'n/a'}</div><div class="l">Holdout AUCPR (20-seed median)</div></div>
       <div class="stat-box"><div class="v">${d.audit.prevalence_pct}%</div><div class="l">FRAUD PREVALENCE</div></div>
       <div class="stat-box"><div class="v">${d.audit.flagged_columns.length}</div><div class="l">COLUMNS FLAGGED</div></div>
       <div class="stat-box"><div class="v">${d.feature_columns.length}</div><div class="l">FEATURES USED</div></div>
@@ -553,7 +553,7 @@ function renderReports() {
     <tbody>${state.apkAnalyses.map(a => `<tr><td>${esc(a.filename)}</td><td><span class="severity-badge sev-${a.result.severity}">${a.result.severity}</span></td><td>${a.result.risk_score}</td><td>${new Date(a.ts).toLocaleString()}</td></tr>`).join("") || "<tr><td colspan='4'>none</td></tr>"}</tbody></table>
     <h3 class="subhead">Dataset Runs</h3>
     <table class="mini-table"><thead><tr><th>File</th><th>Rows</th><th>Holdout AUCPR</th><th>T3/T4</th><th>Time</th></tr></thead>
-    <tbody>${state.datasetAnalyses.map(a => `<tr><td>${esc(a.filename)}</td><td>${a.result.audit.n_rows}</td><td>${a.result.cv_aucpr_mean !== null ? a.result.cv_aucpr_mean.toFixed(3) : 'n/a'}</td><td>${a.result.tier_counts.T3 + a.result.tier_counts.T4}</td><td>${new Date(a.ts).toLocaleString()}</td></tr>`).join("") || "<tr><td colspan='5'>none</td></tr>"}</tbody></table>
+    <tbody>${state.datasetAnalyses.map(a => `<tr><td>${esc(a.filename)}</td><td>${a.result.audit.n_rows}</td><td>${a.result.headline_aucpr != null ? a.result.headline_aucpr.toFixed(3) : 'n/a'}</td><td>${a.result.tier_counts.T3 + a.result.tier_counts.T4}</td><td>${new Date(a.ts).toLocaleString()}</td></tr>`).join("") || "<tr><td colspan='5'>none</td></tr>"}</tbody></table>
   `;
 }
 

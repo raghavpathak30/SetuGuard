@@ -91,7 +91,7 @@ def generate_yara(features: dict, report: dict) -> str | None:
     lines.append(f'        package = "{features["package_name"]}"')
     lines.append(f'        sha256 = "{features["sha256"]}"')
     lines.append(f'        verdict = "{verdict}"')
-    lines.append(f'        confidence = "{confidence}"')
+    lines.append(f'        evidence_score = "{confidence}"')
     lines.append(f'        generated_by = "{GENERATED_BY}"')
     lines.append("    strings:")
     for var_name, value, modifiers in indicators:
