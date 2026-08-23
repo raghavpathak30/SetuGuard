@@ -2278,3 +2278,104 @@ still-unfixed cause of slow analyses, distinct from the Ollama-residency cause t
 runbook previously described as the whole story — is now also documented in the runbook
 itself, in a new subsection under the same heading, so a reader of the runbook alone (not
 just this log) sees both causes and their current status.
+
+## 2026-08-23 (Day 5) — negative result: kernel memory-pressure onset far earlier than previously documented, n=18 warm-cache latency measurement
+
+Same session as the payload-correction + demo re-capture work above (SetuGuard payload
+correction / evidence-score, `headline_aucpr`, `self_signed:null` — see the two commits
+immediately following the nine-file re-capture). After the re-capture, ran a follow-up
+measurement to characterize warm-cache single-APK latency, motivated by wanting a
+stronger scalability story than either "single-digit-seconds warm" or "123.9s median
+(Day 6, 30-run batch)" alone.
+
+**Method:** the three demo APKs (`007556ca...` / match, `30baab70...` / c2match,
+`06c9ce6a...` / nomatch), five additional live `/api/analyze_apk` calls each, sequential,
+no parallelism, against the same backend process the demo re-capture had already warmed
+up (both Ollama models resident, `keep_alive=-1`, confirmed via `ollama ps` before
+starting). Combined with each file's already-recorded demo-capture sample, this gives
+n=6 per file, n=18 total.
+
+**Raw values, in call order (seconds):**
+- match: 9.03, 2.86, 7.39, 62.63, 63.62, 63.64
+- c2match: 6.66, 84.52, 40.25, 39.40, 39.33, 38.97
+- nomatch: 7.12, 91.54, 52.04, 51.22, 52.35, 52.06
+
+(First value in each row is the demo-capture sample recorded in `demo/{name}_01_apk.json`
+earlier this session; the remaining five are this measurement's additional calls,
+`{name}_r1..r5.json`.)
+
+Per-file: match min=2.86 median=35.83 max=63.64; c2match min=6.66 median=39.36
+max=84.52; nomatch min=7.12 median=52.05 max=91.54. Pooled n=18: min=2.86 median=45.73
+max=91.54.
+
+**Negative result, stated plainly: the clean two-number story does not hold.** Only the
+first 1-3 calls of the whole 18-call sequence stayed in the 3-9s range that would
+support a "warm-cache is single-digit-seconds" claim. By the 3rd-4th call on every file,
+latency jumped to 40-90s and *stayed there* for all subsequent calls — no recovery. This
+contradicts the onset threshold implied by the existing kernel-memory-pressure
+documentation (`FROZEN_FILE_FINDINGS.md` Finding 6, `demo/DEMO_RUNBOOK.md`'s "kernel
+memory pressure" subsection, `CONTEXT.md` D-9): those describe onset after 15+ of 30
+sequential Day-6-harness calls against `banking_legit_corpus/`. Here, onset showed up
+within roughly 4 calls against three CICMalDroid/holdout APKs, a much smaller and
+different-corpus batch. Do not read the two results as disagreeing on the mechanism —
+read them as disagreeing on the threshold, which is exactly the kind of number this
+project's convention says must be re-measured, not assumed to generalize.
+
+**Root cause confirmed directly, live, at measurement time — not inferred:**
+`ollama ps` (`curl localhost:11434/api/ps`) showed both `mistral:latest` and
+`nomic-embed-text:latest` at `size_vram: 0` while `expires_at` on both was still the
+far-future `keep_alive=-1` sentinel (`2318-12-03T...`). Ollama's own bookkeeping believes
+the models are still pinned resident; the physical backing memory is not actually
+resident. `free -h` at the same moment: swap 2.4-2.5 GiB used (steady across repeated
+checks, not climbing further), available memory 4.3-4.6 GiB of 15 GiB total. This is the
+same second, independent, not-Ollama-setting-fixable mechanism as Day 6's finding
+(kernel page reclaim under memory pressure, distinct from Ollama's idle-unload, which
+`keep_alive=-1` already rules out) — reproduced here with direct `size_vram`/`expires_at`
+evidence rather than the Day 6 run's `VmSwap`/RSS proxy evidence. `dmesg` was again
+permission-denied (`Operation not permitted`), so kernel OOM involvement remains
+UNKNOWN, not verified-absent, same caveat as Day 6.
+
+**Correctness surface unaffected, checked on every one of the 18 calls:** `verdict`,
+`risk_score`, and `verdict_source` were constant per file across all 5 new runs plus the
+demo-capture sample (match: malicious/88/rule_based; c2match: suspicious/70/rule_based;
+nomatch: malicious/92/rule_based) — confirming again that latency variance, however
+severe, never touches the verdict path (the same d1-inversion property `CONTEXT.md` §1
+and `report.py`'s docstring already establish).
+
+**Fresh-boot measurement (fills the gap above):** ran under a full machine reboot —
+Flask started fresh, `ollama ps` confirmed zero models resident before the first call,
+nothing else running on the machine. Three calls, stage order: 14.66s, 6.7s, 6.42s. The
+first call is the model cold-load; the two after it settle. No degradation appeared
+across the three-call stage sequence.
+
+**No-reboot re-capture (same measurement, machine not rebooted):** captured during the
+post-`analysis_seconds`-removal re-capture below — Flask freshly restarted, but the
+machine itself not rebooted; the Ollama daemon had been continuously up throughout,
+under another user, and not killable from this session. Three calls: 3.63s, 6.54s,
+96.62s. Stated plainly: a fresh Flask process is not equivalent to a fresh machine —
+that difference is the evidence behind the runbook's pre-flight step requiring a full
+reboot rather than a backend restart.
+
+**`analysis_seconds` removed from the API payload, this session:** `analysis_seconds`
+was removed from the `/api/analyze_apk` response (`app.py`'s `_adapt_apk_response`), and
+the now-dead `elapsed` parameter and `t0` timer that fed it were removed with it.
+`frontend/app.js:118` was the sole read site; it now guards with `!= null`, rendering
+`"Done."` when the field is absent instead of leaving it undefined. All nine demo
+captures were re-taken with the field absent. Reason: single samples spanning 2.86s to
+96.62s on one machine are not a latency measurement, and leaving them in committed files
+invited a direct contradiction against the Day 6 distribution.
+
+**Runbook updated with the fresh-boot result:** the fresh-boot, three-call, stage-order
+measurement above ran; the live demo was found viable under fresh-boot conditions.
+`demo/DEMO_RUNBOOK.md` was updated accordingly — the timing claim in the stage-guidance
+text was removed (the post-fix demo-APK timing is now stated as not measured, rather
+than asserting a number), and a reboot pre-flight step was added to the Preconditions
+checklist (full machine reboot, not just a Flask restart, plus the `ollama ps`-zero-
+resident check and the Day 5 ~4-call onset note). No swappiness change, no warm-up-call
+change, no other tuning applied beyond what the checklist now documents.
+
+**Files touched:** this entry (`SESSION_LOG.md`), a `CONTEXT.md` §6 D-9 addendum,
+`demo/DEMO_RUNBOOK.md` (reboot pre-flight step, timing-claim removal),
+`setuguard_app/backend/app.py` and `setuguard_app/frontend/app.js` (`analysis_seconds`
+removal), and all nine `demo/*.json` captures (re-taken with the field absent). No
+frozen file touched.
