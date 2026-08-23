@@ -47,7 +47,7 @@ path is ever left to chance on stage.
 
 ---
 
-## Timing risk — solved, with a documented mitigation. Read before running this live.
+## Timing risk — one cause fixed (residency), a second (memory pressure) identified and NOT fixed. Read before running this live.
 
 `analyze_apk` on the matching-cert APK (`007556ca...`) originally measured 46.47s,
 61.47s, 162.2s, and 162.74s across direct timings taken 2026-08-19 — wide run-to-run
@@ -66,20 +66,69 @@ idle — longer than the window that produced the pre-fix 192.8s result — and 
 post-idle call came back at **68.27s**, not slow. The idle-triggered reload penalty is
 gone.
 
-**What is not solved, and must still be said on stage:** ~46-80s of genuine
-embedding+generation compute remains per call regardless of residency (also seen on the
-smaller non-matching APK, 46.47s standalone) — `keep_alive` prevents a reload, it does
-not make inference free. Expect roughly a minute of wait after a proper warm-up, not
-2-3 minutes, but not "instant" either.
+**What the only post-fix measurement says, and must be said on stage:** the only
+measurement taken after the residency fix is Day 6 (`harness/DAY6_SCALING_RESULTS.json`,
+22 Aug 2026): wall-clock **median 123.9s**, **IQR 107.1-145.7s**, **n=14 valid of 30**
+requested/sampled, against the live `/api/analyze_apk` endpoint on
+`harness/banking_legit_corpus/`, files <=50 MB (`MAX_APK_UPLOAD_MB`). That is the number
+to plan around.
+
+**Caveat that must not be dropped:** the three demo APKs (see "The three APKs" above)
+are CICMalDroid samples — a different corpus from `harness/banking_legit_corpus/`, which
+is what Day 6 measured. The demo APKs' post-residency-fix timing is **not measured**. Do
+not estimate it and do not interpolate it from the banking-corpus median — if asked, say
+"not measured."
+
+**Stage guidance:** plan the patter around roughly **two minutes**, not one. The only
+measured post-fix median (123.9s, on a different corpus) is already close to two
+minutes, with an IQR reaching 145.7s; being early is survivable, being late in front of
+judges is not.
+
+### Second, separate cause: kernel memory pressure (identified 22 Aug, NOT fixed)
+
+Ollama model residency and kernel memory pressure are **independent mechanisms**.
+`keep_alive=-1` stops Ollama from unloading the model on idle; it does not stop the
+kernel from paging the model's resident pages out under memory pressure — those are two
+different subsystems.
+
+Measured 22 Aug on the 15 GB machine (Day 6 harness run,
+`harness/DAY6_SCALING_RESULTS.json`): preflight showed both llama-servers at
+`VmSwap=0kB` and system swap at 8 KiB used. After 30 consecutive analyses, system swap
+was 5.5 GiB used, the Mistral-7B process had `VmSwap` 4,793,536 kB, the embedding server
+115,436 kB, and available memory was down to 3.3 GiB. Runs 1-14 were clean
+(`voided=false`); runs 15-30 were all voided — a clean transition, not scattered noise.
+
+Peak RSS under analysis, same run: Mistral-7B median 7,315,786 kB (max 9,355,416 kB);
+Flask median 2,167,910 kB (max 4,271,904 kB); embedding server median 507,208 kB. Idle
+Mistral RSS is about 5.1 GB, so the working set roughly doubles under load on a 15 GB
+machine.
+
+**Consequence for the stage machine, stated plainly:** this system cannot sustain thirty
+consecutive analyses on 15 GB without paging. The demo itself is three calls, which is
+within budget, but a judge asking for a fourth and fifth APK is a known hazard. This is
+**not fixed** — it is managed operationally: fresh boot, `vm.swappiness=10`, no dev
+tooling running, exactly one browser tab, warm-up done before judges arrive.
+
+Two checks on the Day 6 result, stated plainly rather than glossed over:
+- **Not a file-size artifact:** valid-run `size_mb` median 23.1 (range 8.7-40.9) vs.
+  voided-run median 24.9 (range 5.9-50.2) — near-identical distributions. But the 14
+  valid runs are simply the first 14 in execution order, not an independent random
+  subsample.
+- **Kernel OOM check was inconclusive, not clean:** `dmesg` was permission-denied
+  (`errors=1`), so `oom_events_found=0` reflects a failed read, not a verified absence of
+  OOM events (`clean=false`). Do not describe OOM as ruled out.
 
 **Recommended demo sequence:** run one warm-up call (any APK) as the first item in the
 Preconditions checklist below, well before judges are in the room — this both confirms
 Ollama is reachable and puts the model into the now-persistent `keep_alive=-1` state so
 it never unloads again for the rest of the session. Then the matching-cert APK can be
-run live during the demo itself; expect ~1 minute, not 2-3. If asked why the wait is
-short, say plainly: "the model is kept warm for the session — that's a one-line fix, not
-a trick — the verdict and bridge match you're about to see come from a real, unmodified
-pipeline run happening right now, not a pre-run."
+run live during the demo itself; plan for roughly two minutes, not one — the demo APKs'
+timing is not measured post-fix, and the closest measured figure (Day 6, a different
+corpus) has a median of 123.9s and an IQR reaching 145.7s. If asked why the wait is not
+instant, say plainly: "the model is kept warm for the session — that's a one-line fix,
+not a trick, and it removes the reload penalty — but the embedding and generation
+compute itself still takes real time; the verdict and bridge match you're about to see
+come from a real, unmodified pipeline run happening right now, not a pre-run."
 
 ## Preconditions checklist
 

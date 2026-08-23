@@ -2189,7 +2189,7 @@ just described in prose.
 `harness/tiering_worksheets/*` are all new, non-frozen paths under `harness/`. `CONTEXT.md`
 updated in the same pass with the sampling-frame disambiguation note. Commit `5cde402`.
 
-## 2026-08-23 — Day 6 latency results committed, runbook contradiction fixed, void timings purged (commit `02c7816`)
+## 2026-08-23 — Day 6 latency results committed (`02c7816`); runbook contradiction fixed, void timings purged (`1e3b2c7`)
 
 **Day 6 `latency` mode results committed.** `harness/day6_scaling_harness.py` (built 21
 Aug, not run then) was run for the first time on the night of 22 Aug. Only `latency`
@@ -2251,3 +2251,30 @@ resolved in this pass.
 `setuguard_ps1/` files; no `FROZEN_FILE_FINDINGS.md` entry needed. `size-sweep` and
 `demo-footprint` were deliberately NOT run this session — they need a clean machine with
 all dev tooling, including the assistant, closed.
+
+**Correction (later same day): commit attribution in this entry's heading was wrong,
+and the runbook's timing section was still overclaiming.** The heading originally
+attributed all of this entry's changes to `02c7816`; that commit contains only
+`harness/DAY6_SCALING_RESULTS.json` and `harness/day6_results/*` — the runbook fix, the
+void-timing purge, and the `CONTEXT.md`/`SESSION_LOG.md` updates are in `1e3b2c7`.
+Heading corrected to attribute each change to the commit that actually contains it.
+
+Separately, `demo/DEMO_RUNBOOK.md`'s "Timing risk" section still headlined "solved, with
+a documented mitigation" and predicted "roughly a minute of wait after a proper warm-up,
+not 2-3 minutes" — both derived from void, pre-Day-6 measurements and directly
+contradicted by the Day 6 result recorded above (median 123.9s, IQR 107.1-145.7s). This
+is a correction, not an improvement: the prediction the runbook was making for stage use
+was wrong on the numbers this session itself had just committed. The section now states
+the Day 6 figures as the only post-residency-fix measurement, an explicit caveat that
+the demo APKs are CICMalDroid samples (not `banking_legit_corpus/`) and their post-fix
+timing is not measured, and stage guidance to plan for roughly two minutes rather than
+one. The historical residency-diagnosis figures (46.47s/61.47s/162.2s/162.74s,
+157.28/71.81/192.8, post-fix 68.27s) were left in place as the historical record they
+are — nothing there was void or wrong, only the forward-looking prediction built on top
+of them was.
+
+The kernel-memory-pressure finding from the entry above — an independent, second, and
+still-unfixed cause of slow analyses, distinct from the Ollama-residency cause the
+runbook previously described as the whole story — is now also documented in the runbook
+itself, in a new subsection under the same heading, so a reader of the runbook alone (not
+just this log) sees both causes and their current status.
