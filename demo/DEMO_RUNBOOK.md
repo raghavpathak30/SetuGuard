@@ -142,6 +142,21 @@ come from a real, unmodified pipeline run happening right now, not a pre-run."
   in a dedicated terminal that stays open and is not closed or killed for the rest of the
   session. Confirm `curl http://127.0.0.1:5000/` returns
   `{"service":"SetuGuard backend","status":"ok"}`.
+- [ ] **The dashboard is `setuguard_app/frontend/index.html`, opened directly in the
+  browser (`file://...`) — there is no second server to start.** `CORS(app)` on the
+  Flask backend has no origin restriction, and `app.js` calls an absolute base URL, so
+  opening the HTML file directly works with zero extra process on stage. `127.0.0.1:5000`
+  in the address bar is the API only and returns the health JSON above, not the UI — if a
+  judge asks for "the URL," the answer is the local `index.html` path, not a port.
+- [ ] **Check `localStorage` key `sg_base_url` on the demo machine's browser profile before
+  the freeze.** `app.js:3` reads its API base URL from `localStorage.getItem("sg_base_url")`,
+  falling back to `http://127.0.0.1:5000` only if that key is unset. If it was ever set to
+  something else during earlier testing on this machine, it persists silently across
+  reloads — the dashboard loads fine and every call then fails against the wrong host.
+  This is the worst kind of failure to debug live: no visible symptom until the first
+  upload. Clear the key once (DevTools → Application → Local Storage, or
+  `localStorage.removeItem("sg_base_url")` in the console) before judges arrive, and
+  re-check after any browser-based testing between then and stage time.
 - [ ] All three APK files present at the paths above.
 - [ ] `DataSet.csv` present at repo root.
 - [ ] For the Play-signed allowlist demo: `harness/banking_legit_corpus/7B1A1348794100FFBABCB6ADCE168E236D720BBD9C5AAED8914C838093EC83AC.apk` present.
@@ -166,7 +181,11 @@ Expected: `analysis_id` prefixed `apk_`, `verdict: "malicious"`, `severity: "CRI
 machine, and VOID.** For current measured latency see
 `harness/DAY6_SCALING_RESULTS.json`: Day 6 latency-mode median 123.9s, IQR
 107.1-145.7s (n=14 valid runs of 30, live `/api/analyze_apk`, corpus files <=50 MB).
-This specific run has not been separately re-measured post-fix.
+This specific run was re-captured 2026-08-23 against the live post-fix backend (payload
+correction + demo re-capture session): **9.03s**, model already warm from prior calls in
+the same session. One sample, not a distribution — do not treat it as a new median, and
+do not drop the Day 6 figures above; this only confirms the residency fix still holds on
+this exact APK.
 
 ```
 curl -s -X POST -F "dataset=@DataSet.csv" http://127.0.0.1:5000/api/analyze_dataset
@@ -203,10 +222,11 @@ Expected: `analysis_id` prefixed `apk_`, `verdict: "suspicious"`, `severity: "HI
 machine, and VOID.** For current measured latency see
 `harness/DAY6_SCALING_RESULTS.json`: Day 6 latency-mode median 123.9s, IQR
 107.1-145.7s (n=14 valid runs of 30, live `/api/analyze_apk`, corpus files <=50 MB).
-This specific run has not been separately re-measured post-fix. Note also:
-`demo/c2match_01_apk.json` (the recorded output for this run) has a baked-in
-`"analysis_seconds":46.57` field from the same void era — flagged, not yet corrected,
-caveat to be decided separately.
+This specific run was re-captured 2026-08-23 against the live post-fix backend (payload
+correction + demo re-capture session): **6.66s**, model already warm. `demo/c2match_01_apk.json`
+now carries this measured value in its `analysis_seconds` field — the old `46.57` void-era
+number is gone from the committed file, not just re-flagged. One sample, not a distribution;
+the Day 6 figures above remain the number to plan around on stage.
 
 ```
 curl -s -X POST -F "dataset=@DataSet.csv" http://127.0.0.1:5000/api/analyze_dataset
@@ -257,7 +277,9 @@ Expected: `analysis_id` prefixed `apk_`, `cert_sha256: null`.
 machine, and VOID.** For current measured latency see
 `harness/DAY6_SCALING_RESULTS.json`: Day 6 latency-mode median 123.9s, IQR
 107.1-145.7s (n=14 valid runs of 30, live `/api/analyze_apk`, corpus files <=50 MB).
-This specific run has not been separately re-measured post-fix.
+This specific run was re-captured 2026-08-23 against the live post-fix backend (payload
+correction + demo re-capture session): **7.12s**, model already warm. One sample, not a
+distribution — the Day 6 figures above remain the number to plan around on stage.
 
 ```
 curl -s -X POST -F "dataset=@DataSet.csv" http://127.0.0.1:5000/api/analyze_dataset
