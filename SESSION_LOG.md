@@ -2188,3 +2188,66 @@ just described in prose.
 **No frozen-file edits.** `harness/download_run.log`, `harness/fdroid_sha256_cache.tsv`,
 `harness/tiering_worksheets/*` are all new, non-frozen paths under `harness/`. `CONTEXT.md`
 updated in the same pass with the sampling-frame disambiguation note. Commit `5cde402`.
+
+## 2026-08-23 — Day 6 latency results committed, runbook contradiction fixed, void timings purged (commit `02c7816`)
+
+**Day 6 `latency` mode results committed.** `harness/day6_scaling_harness.py` (built 21
+Aug, not run then) was run for the first time on the night of 22 Aug. Only `latency`
+mode completed — `size-sweep` and `demo-footprint` were not run. Measured against the
+live `/api/analyze_apk` HTTP endpoint, `harness/banking_legit_corpus/`, restricted to
+files <=50 MB (`MAX_APK_UPLOAD_MB`): wall-clock **median 123.9s, IQR 107.1-145.7s, n=14
+valid runs of 30 requested/sampled** (min 77.6s, max 188.7s). Peak RSS median: mistral
+7,315,786 kB, flask 2,167,910 kB, embedding 507,208 kB. Full record, including
+per-request fields (`file`, `size_bytes`, `elapsed_s`, `outcome`, `peak_rss_kb`,
+`mistral_ever_swapped_during_run`, `voided`), in `harness/DAY6_SCALING_RESULTS.json`.
+
+**Negative result, stated as a finding in its own right: the void condition fired on 16
+of 30 runs.** Runs 1-14 were `voided=False`, runs 15-30 were `voided=True` — a clean
+transition partway through the run, not scattered noise. Preflight at the start showed
+both models `VmSwap=0kB` and only 8.0Ki of system swap in use; by the end, system swap
+was 5.5 GiB used, mistral (pid 8902) `VmSwap` 4,793,536 kB, embedding (pid 8776) `VmSwap`
+115,436 kB, available memory down to 3.3 GiB. Root cause: the kernel paged Mistral-7B out
+partway through the run under memory pressure on the 15GB machine, and once that
+happened later requests were excluded by the harness's own void condition rather than
+silently averaged in. **Ordering-bias check performed before trusting the exclusion:**
+valid n=14 `size_mb` median 23.1 (range 8.7-40.9) vs. voided n=16 median 24.9 (range
+5.9-50.2) — near-identical distributions, so the exclusion is not a file-size artifact.
+Stated plainly: the 14 valid runs are simply the first 14 in execution order, not an
+independent random subsample. **OOM check inconclusive** — `dmesg` was
+permission-denied (`errors=1` in the harness output), so kernel OOM status is UNKNOWN,
+not verified-absent.
+
+**`CONTEXT.md` updated:** D-9 changed from "harness built, not yet run" to "PARTIALLY
+RESOLVED — latency measured (n=14/30, with the void caveat above); `size-sweep` and
+`demo-footprint` OUTSTANDING." Harness-convention entry (§5) updated to match.
+
+**Real contradiction found and fixed in `demo/DEMO_RUNBOOK.md`: backend startup command
+was undetectable by the harness.** The runbook instructed `cd setuguard_app/backend &&
+python3 app.py`, which produces the cmdline `python3 app.py`. The Day 6 harness resolves
+the Flask PID by grepping `/proc/<pid>/cmdline` for `backend/app.py` and refuses to
+proceed if it can't find it — this exact mismatch cost a full debugging cycle on the
+night of 22 Aug before the run above could be started. Fixed: the runbook now instructs
+starting the backend from the repo root as `python3 setuguard_app/backend/app.py`
+(verified working), in a dedicated terminal left running and not closed or killed for
+the rest of the session.
+
+**Void pre-Day-6 timing figures purged from `demo/DEMO_RUNBOOK.md`.** Three "Measured
+wall-clock" lines stated void figures as expected values for a live demo: 162.2s
+(matching/cert-hash run), 46.45s (C2-host matching run), 119.7s (non-matching run). All
+three are pre-Day-6, measured on a swapping machine, and on the VOID list — none may be
+quoted going forward. Each replaced with a pointer to
+`harness/DAY6_SCALING_RESULTS.json` and the n=14 median/IQR (123.9s / 107.1-145.7s), with
+an explicit note that no per-run figure has been separately re-measured post-fix. No
+estimate substituted for any of the three.
+
+**Flagged, not edited: `demo/c2match_01_apk.json` carries a baked-in
+`"analysis_seconds":46.57`** from the same void era, inside a recorded HTTP response
+artifact. Left as-is per instruction; a caveat (if any) to be decided separately, not
+resolved in this pass.
+
+**No frozen-file edits.** Files touched: `harness/DAY6_SCALING_RESULTS.json`,
+`harness/day6_results/*` (both new, non-frozen paths under `harness/`),
+`demo/DEMO_RUNBOOK.md`, `CONTEXT.md`, this file. None are among the six frozen
+`setuguard_ps1/` files; no `FROZEN_FILE_FINDINGS.md` entry needed. `size-sweep` and
+`demo-footprint` were deliberately NOT run this session — they need a clean machine with
+all dev tooling, including the assistant, closed.

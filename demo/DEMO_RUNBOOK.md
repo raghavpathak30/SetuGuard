@@ -86,8 +86,13 @@ pipeline run happening right now, not a pre-run."
 - [ ] Ollama running: `systemctl status ollama` shows `active (running)` — narrative
   enrichment is optional (the endpoint still returns a complete rule-based-only report if
   Ollama is down) but both recorded runs had it live (`narrative_source: "ollama_rag"`).
-- [ ] Backend running: `cd setuguard_app/backend && python3 app.py`, confirm
-  `curl http://127.0.0.1:5000/` returns `{"service":"SetuGuard backend","status":"ok"}`.
+- [ ] Backend running: from the repo root, `python3 setuguard_app/backend/app.py`
+  (verified working). Do not `cd` into `setuguard_app/backend` first and run `python3
+  app.py` -- that produces a `python3 app.py` cmdline that the Day 6 harness cannot
+  detect (it looks for `backend/app.py` in the cmdline and refuses to proceed). Start it
+  in a dedicated terminal that stays open and is not closed or killed for the rest of the
+  session. Confirm `curl http://127.0.0.1:5000/` returns
+  `{"service":"SetuGuard backend","status":"ok"}`.
 - [ ] All three APK files present at the paths above.
 - [ ] `DataSet.csv` present at repo root.
 - [ ] For the Play-signed allowlist demo: `harness/banking_legit_corpus/7B1A1348794100FFBABCB6ADCE168E236D720BBD9C5AAED8914C838093EC83AC.apk` present.
@@ -108,8 +113,11 @@ curl -s -X POST -F "apk=@cicmaldroid_banking/007556ca146f4b2e9ac6bd51dc66be51305
 ```
 Expected: `analysis_id` prefixed `apk_`, `verdict: "malicious"`, `severity: "CRITICAL"`,
 `cert_sha256: "d6e80c1de6423814bb8b8e4de46d9eb84d7eaa5cadfd5c8116918e4922e070d6"`.
-**Measured wall-clock: 162.2s** (`analysis_seconds` in the response; this APK is large —
-do not expect the smaller holdout sample's time here, see the non-matching run below).
+**Timing: do not quote 162.2s — that figure is pre-Day-6, measured on a swapping
+machine, and VOID.** For current measured latency see
+`harness/DAY6_SCALING_RESULTS.json`: Day 6 latency-mode median 123.9s, IQR
+107.1-145.7s (n=14 valid runs of 30, live `/api/analyze_apk`, corpus files <=50 MB).
+This specific run has not been separately re-measured post-fix.
 
 ```
 curl -s -X POST -F "dataset=@DataSet.csv" http://127.0.0.1:5000/api/analyze_dataset
@@ -142,8 +150,14 @@ curl -s -X POST -F "apk=@cicmaldroid_banking/30baab7000e14cd4a430c8a4a75ea3cae34
 ```
 Expected: `analysis_id` prefixed `apk_`, `verdict: "suspicious"`, `severity: "HIGH"`,
 `package: "com.kb"`, `c2_candidates` containing 4 `http://yessign.net:8688/...` strings.
-**Measured wall-clock: 46.45s** (`analysis_seconds` in the response; small file, 361KB —
-no residency penalty observed on this run, consistent with a warm model).
+**Timing: do not quote 46.45s — that figure is pre-Day-6, measured on a swapping
+machine, and VOID.** For current measured latency see
+`harness/DAY6_SCALING_RESULTS.json`: Day 6 latency-mode median 123.9s, IQR
+107.1-145.7s (n=14 valid runs of 30, live `/api/analyze_apk`, corpus files <=50 MB).
+This specific run has not been separately re-measured post-fix. Note also:
+`demo/c2match_01_apk.json` (the recorded output for this run) has a baked-in
+`"analysis_seconds":46.57` field from the same void era — flagged, not yet corrected,
+caveat to be decided separately.
 
 ```
 curl -s -X POST -F "dataset=@DataSet.csv" http://127.0.0.1:5000/api/analyze_dataset
@@ -190,7 +204,11 @@ curl -s -X POST -F "apk=@banking_holdout_16/06c9ce6a7ba2c0c012bcc1079af86349b345
   http://127.0.0.1:5000/api/analyze_apk
 ```
 Expected: `analysis_id` prefixed `apk_`, `cert_sha256: null`.
-**Measured wall-clock: 119.7s.**
+**Timing: do not quote 119.7s — that figure is pre-Day-6, measured on a swapping
+machine, and VOID.** For current measured latency see
+`harness/DAY6_SCALING_RESULTS.json`: Day 6 latency-mode median 123.9s, IQR
+107.1-145.7s (n=14 valid runs of 30, live `/api/analyze_apk`, corpus files <=50 MB).
+This specific run has not been separately re-measured post-fix.
 
 ```
 curl -s -X POST -F "dataset=@DataSet.csv" http://127.0.0.1:5000/api/analyze_dataset
