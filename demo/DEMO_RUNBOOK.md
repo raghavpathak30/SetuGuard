@@ -132,6 +132,22 @@ come from a real, unmodified pipeline run happening right now, not a pre-run."
 
 ## Preconditions checklist
 
+- [ ] **Full reboot of the stage machine, not just a Flask restart.** Restarting
+  `backend/app.py` alone does not clear kernel memory pressure — see "kernel memory
+  pressure" above — and does not guarantee Ollama has no model resident. A clean boot is
+  the only state this runbook's timing guidance was measured against.
+- [ ] **Nothing else runs on the machine** for the rest of the session once it's booted:
+  no dev tooling, no other browser tabs, no background builds — anything competing for
+  the ~15 GB working set brings the memory-pressure onset closer, and Day 5 measured
+  onset within roughly 4 sequential calls on this machine, far earlier than previously
+  documented.
+- [ ] **`ollama ps` shows zero resident models before the first call.** If anything is
+  listed, the machine did not actually boot clean (or something else warmed a model) —
+  do not proceed to the warm-up call until this is empty.
+- [ ] **Expected pattern: a slower first call, then faster ones.** The warm-up call below
+  pays the one-time cold-load cost; do not mistake a slow first call for a broken
+  pipeline. If a later call in the same session is unexpectedly slow again, that's the
+  separate, unfixed memory-pressure mechanism, not a residency regression.
 - [ ] Ollama running: `systemctl status ollama` shows `active (running)` — narrative
   enrichment is optional (the endpoint still returns a complete rule-based-only report if
   Ollama is down) but both recorded runs had it live (`narrative_source: "ollama_rag"`).
@@ -178,14 +194,14 @@ curl -s -X POST -F "apk=@cicmaldroid_banking/007556ca146f4b2e9ac6bd51dc66be51305
 Expected: `analysis_id` prefixed `apk_`, `verdict: "malicious"`, `severity: "CRITICAL"`,
 `cert_sha256: "d6e80c1de6423814bb8b8e4de46d9eb84d7eaa5cadfd5c8116918e4922e070d6"`.
 **Timing: do not quote 162.2s — that figure is pre-Day-6, measured on a swapping
-machine, and VOID.** For current measured latency see
-`harness/DAY6_SCALING_RESULTS.json`: Day 6 latency-mode median 123.9s, IQR
-107.1-145.7s (n=14 valid runs of 30, live `/api/analyze_apk`, corpus files <=50 MB).
-This specific run was re-captured 2026-08-23 against the live post-fix backend (payload
-correction + demo re-capture session): **9.03s**, model already warm from prior calls in
-the same session. One sample, not a distribution — do not treat it as a new median, and
-do not drop the Day 6 figures above; this only confirms the residency fix still holds on
-this exact APK.
+machine, and VOID.** The only quotable latency figure is the Day 6 distribution
+(`harness/DAY6_SCALING_RESULTS.json`): median **123.9s**, IQR **107.1-145.7s** (n=14
+valid of 30 attempted, live `/api/analyze_apk`, `harness/banking_legit_corpus/`, files
+<=50 MB). **Per-call demo timings are not recorded in the response payload** —
+`analysis_seconds` has been removed from `/api/analyze_apk`'s JSON — because single-call
+samples on this machine, under varying memory pressure, ranged from 2.86s to 96.62s and
+are not a latency measurement. Do not quote a specific per-run number on stage; plan
+around the Day 6 distribution above.
 
 ```
 curl -s -X POST -F "dataset=@DataSet.csv" http://127.0.0.1:5000/api/analyze_dataset
@@ -219,14 +235,15 @@ curl -s -X POST -F "apk=@cicmaldroid_banking/30baab7000e14cd4a430c8a4a75ea3cae34
 Expected: `analysis_id` prefixed `apk_`, `verdict: "suspicious"`, `severity: "HIGH"`,
 `package: "com.kb"`, `c2_candidates` containing 4 `http://yessign.net:8688/...` strings.
 **Timing: do not quote 46.45s — that figure is pre-Day-6, measured on a swapping
-machine, and VOID.** For current measured latency see
-`harness/DAY6_SCALING_RESULTS.json`: Day 6 latency-mode median 123.9s, IQR
-107.1-145.7s (n=14 valid runs of 30, live `/api/analyze_apk`, corpus files <=50 MB).
-This specific run was re-captured 2026-08-23 against the live post-fix backend (payload
-correction + demo re-capture session): **6.66s**, model already warm. `demo/c2match_01_apk.json`
-now carries this measured value in its `analysis_seconds` field — the old `46.57` void-era
-number is gone from the committed file, not just re-flagged. One sample, not a distribution;
-the Day 6 figures above remain the number to plan around on stage.
+machine, and VOID.** The only quotable latency figure is the Day 6 distribution
+(`harness/DAY6_SCALING_RESULTS.json`): median **123.9s**, IQR **107.1-145.7s** (n=14
+valid of 30 attempted, live `/api/analyze_apk`, `harness/banking_legit_corpus/`, files
+<=50 MB). **Per-call demo timings are not recorded in the response payload** —
+`analysis_seconds` has been removed from `/api/analyze_apk`'s JSON, so
+`demo/c2match_01_apk.json` no longer carries a timing field at all — because single-call
+samples on this machine, under varying memory pressure, ranged from 2.86s to 96.62s and
+are not a latency measurement. Do not quote a specific per-run number on stage; plan
+around the Day 6 distribution above.
 
 ```
 curl -s -X POST -F "dataset=@DataSet.csv" http://127.0.0.1:5000/api/analyze_dataset
@@ -274,12 +291,14 @@ curl -s -X POST -F "apk=@banking_holdout_16/06c9ce6a7ba2c0c012bcc1079af86349b345
 ```
 Expected: `analysis_id` prefixed `apk_`, `cert_sha256: null`.
 **Timing: do not quote 119.7s — that figure is pre-Day-6, measured on a swapping
-machine, and VOID.** For current measured latency see
-`harness/DAY6_SCALING_RESULTS.json`: Day 6 latency-mode median 123.9s, IQR
-107.1-145.7s (n=14 valid runs of 30, live `/api/analyze_apk`, corpus files <=50 MB).
-This specific run was re-captured 2026-08-23 against the live post-fix backend (payload
-correction + demo re-capture session): **7.12s**, model already warm. One sample, not a
-distribution — the Day 6 figures above remain the number to plan around on stage.
+machine, and VOID.** The only quotable latency figure is the Day 6 distribution
+(`harness/DAY6_SCALING_RESULTS.json`): median **123.9s**, IQR **107.1-145.7s** (n=14
+valid of 30 attempted, live `/api/analyze_apk`, `harness/banking_legit_corpus/`, files
+<=50 MB). **Per-call demo timings are not recorded in the response payload** —
+`analysis_seconds` has been removed from `/api/analyze_apk`'s JSON — because single-call
+samples on this machine, under varying memory pressure, ranged from 2.86s to 96.62s and
+are not a latency measurement. Do not quote a specific per-run number on stage; plan
+around the Day 6 distribution above.
 
 ```
 curl -s -X POST -F "dataset=@DataSet.csv" http://127.0.0.1:5000/api/analyze_dataset
