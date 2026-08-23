@@ -1,0 +1,19 @@
+======================================================================
+PRE-FLIGHT
+======================================================================
+
+--- free -h ---
+               total        used        free      shared  buff/cache   available
+Mem:            15Gi       4.2Gi       4.8Gi       595Mi       7.1Gi        11Gi
+Swap:          8.0Gi          0B       8.0Gi
+
+--- llama-server PIDs (resolved by model, not by first match) ---
+embedding: 3998   mistral: 4032
+embedding (pid 3998): VmRSS=583124kB  VmSwap=0kB
+mistral (pid 4032): VmRSS=467396kB  VmSwap=0kB
+
+--- vm.swappiness ---
+vm.swappiness = 10
+======================================================================
+
+Pre-flight PASSED. Proceeding.
