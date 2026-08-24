@@ -253,6 +253,18 @@
   .alert-card .head .tier {
     font-weight: 700;
   }
+  .driver-item {
+    margin: 8px 0;
+  }
+  .driver-desc {
+    font-size: 0.95rem;
+    color: var(--ink);
+  }
+  .driver-meta {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-top: 2px;
+  }
   .error-box {
     border: 1px solid var(--line);
     padding: 24px;
@@ -371,6 +383,30 @@
     if (isMissing(v)) return '';
     return ' data-tier="' + esc(String(v).toUpperCase()) + '"';
   }
+
+  // ---------- feature data dictionary (verbatim from data/Description.xlsx,
+  // sheet 'Data_Dicitionary'; the 18 bank-finalized codes only) ----------
+
+  var FEATURE_DICT = {
+    "F115": { variable: "R_CI_NON_CASH_CHQ_TXN_L14_31D", description: "Ratio of Customer Induced Non Cash Non Cheque Total txns - last 14 to 31D" },
+    "F321": { variable: "RA_NON_CASH_CHQ_AMT_L7_14D", description: "Ratio of avgs: of Non Cash Non Cheque Total Amount - last 7 to 14D" },
+    "F527": { variable: "RA_CI_NON_CASH_CHQ_TXN_CR_L7_31D", description: "Ratio of avgs: of Customer Induced Non Cash Non Cheque Credit txns - last 7 to 31D" },
+    "F531": { variable: "RA_CI_NON_CASH_CHQ_AMT_DB_L7_31D", description: "Ratio of avgs: of Customer Induced Non Cash Non Cheque Debit Amount - last 7 to 31D" },
+    "F670": { variable: "MIN_UPI_XFER_TXNS_L7D", description: "Min UPI Total Txns - last 7D" },
+    "F1692": { variable: "CASH_TXNS_DB_L14D", description: "Cash Debit Txns - last 14D" },
+    "F2082": { variable: "AVG_NET_BNKING_TXNS_DB_L14D", description: "Average Net Banking Debit Txns - last 14D" },
+    "F2122": { variable: "AVG_CASH_TXNS_L31D", description: "Average Cash Transaction Count - last 31D" },
+    "F2582": { variable: "DA_UPI_TXN_CR_L7_14D", description: "Deviation of avgs: of UPI  Total Amount - last 7 to 14D" },
+    "F2678": { variable: "DA_ELEC_XFER_AMT_L14_31D", description: "Deviation of avgs: of Online Transfer (IMPS+NEFT+RTGS) Total Amount - last 14 to 31D" },
+    "F2737": { variable: "DA_NON_CASH_CHQ_AMT_L7_31D", description: "Deviation of avgs: of Non Cash Non Cheque Total Amount - last 7 to 31D" },
+    "F2956": { variable: "D_TA_CI_NON_CASH_CHQ_TXN_CR_L14D", description: "Deviation of total from avg: Customer Induced Non Cash Non Cheque Credit txns - last 14 to 31D" },
+    "F3043": { variable: "D_TA_CASH_TXN_L31D", description: "Deviation of total from avg: Cash Total txns - last 7 to 14D" },
+    "F3836": { variable: "AVG_BAL_14DAYS", description: "Average  account balance in last 14 days" },
+    "F3887": { variable: "TENURE_AS_OF_ALERT", description: "Customer tenure with the bank as of the alert date" },
+    "F3889": { variable: "ACCT_OPN_DAYS", description: "Number of days since account opened (buckets)" },
+    "F3891": { variable: "CUST_OCCP", description: "Occupation code of customer" },
+    "F3894": { variable: "AGE_IN_YRS", description: "Customer age as of alert date " }
+  };
 
   // ---------- shape detection (by keys present, never by filename) ----------
 
@@ -649,7 +685,17 @@
           html += emptyState('No SHAP drivers returned.');
         } else {
           html += '<ul class="plainlist">' + drivers.map(function (d) {
-            return '<li class="mono">' + scalar(d.feature) + ': ' + scalar(d.shap) + '</li>';
+            var entry = isMissing(d.feature) ? null : FEATURE_DICT[String(d.feature)];
+            var metaParts = [scalar(d.feature)];
+            if (entry) metaParts.push(esc(entry.variable));
+            metaParts.push(scalar(d.shap));
+            var li = '<li class="driver-item">';
+            if (entry) {
+              li += '<div class="driver-desc">' + esc(entry.description) + '</div>';
+            }
+            li += '<div class="driver-meta mono">' + metaParts.join(' &middot; ') + '</div>';
+            li += '</li>';
+            return li;
           }).join('') + '</ul>';
         }
         html += '</div>';
