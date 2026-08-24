@@ -1,3 +1,4 @@
+
 # SetuGuard — Repository Context
 
 **As of 21 August 2026.** Written for a reader with no prior exposure to this

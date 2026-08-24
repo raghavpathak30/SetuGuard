@@ -409,7 +409,7 @@ def _safe_field(fn, default, field_name: str):
         return default
 
 
-def _adapt_apk_response(features: dict, report: dict, yar_text, elapsed: float) -> dict:
+def _adapt_apk_response(features: dict, report: dict, yar_text) -> dict:
     score = int(round(report["confidence"] * 100)) if report["verdict"] != "benign" else int(round(report["confidence"] * 20))
     severity = _severity_for_score(score)
 
@@ -472,7 +472,6 @@ def _adapt_apk_response(features: dict, report: dict, yar_text, elapsed: float) 
             "compiles": yar_compiles,
             "validated": yar_validated,
         },
-        "analysis_seconds": round(elapsed, 2),
         "raw_features": features,  # kept for /api/bridge; frontend ignores unknown fields
         "verdict": report["verdict"],
         "confidence": report["confidence"],
@@ -483,7 +482,6 @@ def _adapt_apk_response(features: dict, report: dict, yar_text, elapsed: float) 
 
 @app.route("/api/analyze_apk", methods=["POST"])
 def analyze_apk_endpoint():
-    t0 = time.perf_counter()
     if "apk" not in request.files:
         return jsonify({"error": "no 'apk' file in request"}), 400
     max_bytes = MAX_APK_UPLOAD_MB * 1024 * 1024
@@ -525,7 +523,7 @@ def analyze_apk_endpoint():
         yar_text = None
         if report["verdict"] != "benign":
             yar_text = yara_gen.generate_yara(features, report)
-        resp = _adapt_apk_response(features, report, yar_text, time.perf_counter() - t0)
+        resp = _adapt_apk_response(features, report, yar_text)
         resp["play_signing"] = _play_signing_check(features)
         resp["analysis_id"] = store_analysis("apk", resp["package"], dict(resp))
         resp["kind"] = "apk"

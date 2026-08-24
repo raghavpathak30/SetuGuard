@@ -115,7 +115,7 @@ apkBtn.addEventListener("click", async () => {
       addAudit("APK analysis incomplete", `${apkInput.files[0].name} → requires_manual_review (${data.reason})`);
       return;
     }
-    statusEl.textContent = `Done in ${data.analysis_seconds}s.`;
+    statusEl.textContent = data.analysis_seconds != null ? `Done in ${data.analysis_seconds}s.` : "Done.";
     renderApkResults(data);
 
     state.backendOnline = true;
