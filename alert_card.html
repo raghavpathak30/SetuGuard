@@ -5,12 +5,19 @@
 <title>SetuGuard Analyst Alert Card</title>
 <style>
   :root {
-    --bg: #faf9f6;
+    --bg: #faf9f5;
     --panel: #ffffff;
     --ink: #1b1a17;
-    --muted: #6b6a63;
-    --line: #d9d7cf;
-    --accent: #7a2e1d;
+    --muted: #6f6e67;
+    --line: #ddd9d0;
+    --sev-critical: #7a2e1d;
+    --sev-high: #9c4a1f;
+    --sev-medium: #8a6d1f;
+    --sev-low: #4b6b52;
+    --tier-t4: #7a2e1d;
+    --tier-t3: #9c4a1f;
+    --tier-t2: #8a6d1f;
+    --tier-t1: #6f6e67;
   }
   * { box-sizing: border-box; }
   html, body {
@@ -19,22 +26,24 @@
     background: var(--bg);
     color: var(--ink);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    font-size: 15px;
-    line-height: 1.5;
+    font-size: 16px;
+    line-height: 1.6;
   }
   .mono {
     font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
   }
   #dropzone {
     border: 1px dashed var(--line);
-    padding: 18px 24px;
-    margin: 24px;
+    padding: 20px 24px;
+    margin: 32px auto;
+    max-width: 640px;
     text-align: center;
     color: var(--muted);
+    font-size: 0.9rem;
     cursor: pointer;
   }
   #dropzone.dragging {
-    background: #f1efe9;
+    background: #efece3;
     color: var(--ink);
   }
   #dropzone .filename {
@@ -43,53 +52,56 @@
   }
   #fileInput { display: none; }
   main#card {
-    max-width: 880px;
-    margin: 0 auto 80px auto;
+    max-width: 640px;
+    margin: 0 auto 100px auto;
     padding: 0 24px;
   }
   .kicker {
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    font-size: 12px;
+    font-size: 0.75rem;
     color: var(--muted);
-    margin: 0 0 8px 0;
+    margin: 40px 0 4px 0;
   }
   section {
-    padding: 28px 0;
-    border-bottom: 1px solid var(--line);
+    padding: 48px 0;
   }
-  section:last-child { border-bottom: none; }
+  section + section {
+    border-top: 1px solid var(--line);
+  }
   h2.section-title {
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--muted);
-    margin: 0 0 14px 0;
+    font-size: 1.2rem;
     font-weight: 600;
+    color: var(--ink);
+    margin: 0 0 6px 0;
+    text-transform: none;
+    letter-spacing: normal;
+  }
+  p.section-subtitle {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin: 0 0 24px 0;
   }
   .absent {
     color: var(--muted);
     font-style: italic;
   }
-  .action-line {
-    color: var(--accent);
-  }
   .action-line .rec {
     font-weight: 700;
-    margin: 0 0 8px 0;
+    margin: 0 0 12px 0;
+    color: var(--ink);
   }
-  .action-line .rec:nth-child(1) { font-size: 1.7rem; line-height: 1.25; }
-  .action-line .rec:nth-child(2) { font-size: 1.2rem; }
-  .action-line .rec:nth-child(n+3) { font-size: 1rem; font-weight: 600; }
+  .action-line .rec:nth-child(1) { font-size: 2.4rem; line-height: 1.2; }
+  .action-line .rec:nth-child(2) { font-size: 1.5rem; }
+  .action-line .rec:nth-child(n+3) { font-size: 1.15rem; font-weight: 600; }
   dl.fieldgrid {
     display: grid;
     grid-template-columns: max-content 1fr;
-    gap: 6px 18px;
+    gap: 10px 20px;
     margin: 0;
+    font-size: 1rem;
   }
   dl.fieldgrid dt {
     color: var(--muted);
-    font-size: 13px;
+    font-size: 0.85rem;
     padding-top: 2px;
   }
   dl.fieldgrid dd {
@@ -98,163 +110,176 @@
   }
   .verdict-source {
     color: var(--muted);
-    font-size: 13px;
-    margin-top: 10px;
+    font-size: 0.85rem;
+    margin-top: 14px;
   }
   table.evidence {
     width: 100%;
     border-collapse: collapse;
-    margin: 10px 0 18px 0;
-    font-size: 14px;
+    margin: 4px 0 24px 0;
+    font-size: 0.95rem;
   }
   table.evidence th, table.evidence td {
     text-align: left;
-    padding: 6px 10px 6px 0;
+    padding: 8px 12px 8px 0;
     border-bottom: 1px solid var(--line);
     vertical-align: top;
   }
   table.evidence th {
     color: var(--muted);
     font-weight: 600;
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
+    font-size: 0.78rem;
+    text-transform: none;
+    letter-spacing: normal;
   }
-  .standing-label {
-    font-size: 13px;
-    color: var(--muted);
-    margin-bottom: 8px;
+  .disclosure-label {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--ink);
+    background: #f1efe7;
+    border-left: 3px solid var(--line);
+    padding: 12px 16px;
+    margin: 4px 0 16px 0;
   }
-  .subblock { margin: 16px 0; }
+  .subblock { margin: 28px 0 0 0; }
   .subblock h3 {
-    font-size: 13px;
+    font-size: 0.9rem;
     color: var(--muted);
     font-weight: 600;
-    margin: 0 0 6px 0;
+    margin: 0 0 8px 0;
     text-transform: none;
   }
   ul.plainlist {
     margin: 0;
-    padding-left: 18px;
+    padding-left: 20px;
+    font-size: 0.95rem;
   }
   ul.plainlist li {
-    margin: 2px 0;
+    margin: 3px 0;
     word-break: break-all;
   }
   .narrative-block {
-    margin-top: 8px;
-    padding-left: 18px;
+    margin-top: 4px;
+    padding-left: 20px;
     border-left: 2px solid var(--line);
     color: var(--muted);
-    font-size: 13px;
+    font-size: 0.85rem;
   }
   .narrative-block p {
-    margin: 0 0 10px 0;
+    margin: 0 0 12px 0;
   }
   pre.yara {
-    background: #f4f3ee;
+    background: #f1efe7;
     border: 1px solid var(--line);
-    padding: 14px;
+    padding: 16px;
     overflow-x: auto;
     white-space: pre;
-    font-size: 12.5px;
-    margin: 8px 0 0 0;
+    font-size: 0.8rem;
+    margin: 12px 0 0 0;
   }
   .bridge-link {
     border: 1px solid var(--line);
-    padding: 14px 16px;
-    margin: 0 0 14px 0;
+    padding: 18px 20px;
+    margin: 0 0 20px 0;
   }
   .bridge-link .row1 {
     display: grid;
     grid-template-columns: max-content 1fr;
-    gap: 4px 16px;
-    font-size: 13px;
+    gap: 6px 18px;
+    font-size: 0.9rem;
   }
   .bridge-link .row1 dt { color: var(--muted); }
   .bridge-link .row1 dd { margin: 0; word-break: break-all; }
   .bridge-link .sep {
     border-top: 1px solid var(--line);
-    margin: 12px 0;
+    margin: 16px 0;
   }
   .bridge-link .tier-block, .bridge-link .action-block {
-    font-size: 13px;
+    font-size: 0.9rem;
   }
   .bridge-link .tier-block .label, .bridge-link .action-block .label {
     color: var(--muted);
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    margin-bottom: 3px;
+    font-size: 0.78rem;
+    margin-bottom: 4px;
   }
   .bridge-link .tier-block .value {
     font-weight: 700;
-    font-size: 1rem;
+    font-size: 1.1rem;
   }
   .nomatch-box {
-    padding: 14px 16px;
+    padding: 18px 20px;
     border: 1px solid var(--line);
+    font-size: 0.95rem;
   }
   .dataset-stats {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 18px;
-    margin-bottom: 20px;
+    gap: 24px;
+    margin-bottom: 28px;
   }
   .dataset-stats .stat .label {
     color: var(--muted);
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    margin-bottom: 4px;
+    font-size: 0.78rem;
+    margin-bottom: 6px;
   }
   .dataset-stats .stat .value {
-    font-size: 1.3rem;
+    font-size: 1.4rem;
     font-weight: 700;
   }
   .tier-counts {
     display: grid;
     grid-template-columns: repeat(4, max-content);
-    gap: 8px 28px;
-    margin-bottom: 20px;
+    gap: 10px 32px;
+    margin-bottom: 28px;
   }
   .tier-counts .tc .label {
     color: var(--muted);
-    font-size: 12px;
+    font-size: 0.78rem;
   }
   .tier-counts .tc .value {
     font-weight: 700;
   }
   .alert-card {
     border: 1px solid var(--line);
-    padding: 12px 14px;
-    margin-bottom: 10px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
   }
   .alert-card .head {
     display: flex;
     justify-content: space-between;
-    font-size: 13px;
-    margin-bottom: 6px;
+    font-size: 0.9rem;
+    margin-bottom: 8px;
   }
   .alert-card .head .tier {
     font-weight: 700;
   }
   .error-box {
     border: 1px solid var(--line);
-    padding: 20px;
-    margin: 24px;
+    padding: 24px;
+    margin: 32px auto;
+    max-width: 640px;
     color: var(--ink);
   }
   .error-box .title {
     font-weight: 700;
-    margin-bottom: 6px;
+    margin-bottom: 8px;
   }
   footer.hint {
     text-align: center;
     color: var(--muted);
-    font-size: 12px;
-    padding: 20px 0 40px 0;
+    font-size: 0.75rem;
+    padding: 24px 0 48px 0;
   }
+  [data-sev="CRITICAL"] { color: var(--sev-critical); }
+  [data-sev="HIGH"] { color: var(--sev-high); }
+  [data-sev="MEDIUM"] { color: var(--sev-medium); }
+  [data-sev="SUSPICIOUS"] { color: var(--sev-medium); }
+  [data-sev="LOW"] { color: var(--sev-low); }
+  [data-sev="BENIGN"] { color: var(--sev-low); }
+  [data-tier="T4"] { color: var(--tier-t4); }
+  [data-tier="T3"] { color: var(--tier-t3); }
+  [data-tier="T2"] { color: var(--tier-t2); }
+  [data-tier="T1"] { color: var(--tier-t1); }
 </style>
 </head>
 <body>
@@ -333,6 +358,20 @@
     while (node.firstChild) node.removeChild(node.firstChild);
   }
 
+  // presentation-only helpers: attach a data attribute so CSS can colour a
+  // severity/tier value. They never affect which text is shown (that is
+  // still decided by scalar()/notComputedField() above) and never fire on a
+  // missing value, so absent states are always left in the neutral/italic
+  // "absent" styling.
+  function sevAttr(v) {
+    if (isMissing(v)) return '';
+    return ' data-sev="' + esc(String(v).toUpperCase()) + '"';
+  }
+  function tierAttr(v) {
+    if (isMissing(v)) return '';
+    return ' data-tier="' + esc(String(v).toUpperCase()) + '"';
+  }
+
   // ---------- shape detection (by keys present, never by filename) ----------
 
   function detectShape(data) {
@@ -369,6 +408,7 @@
     var recs = arrOrEmpty(report.recommendations);
     html += '<section>';
     html += '<h2 class="section-title">Recommended action</h2>';
+    html += '<p class="section-subtitle">What the analyst does next.</p>';
     html += '<div class="action-line">';
     if (recs.length === 0) {
       html += emptyState('No recommended action returned.');
@@ -383,17 +423,19 @@
     // 2. Verdict block
     html += '<section>';
     html += '<h2 class="section-title">Verdict</h2>';
+    html += '<p class="section-subtitle">Produced by the rule scorer from extracted static features. The language model does not reach this field.</p>';
     html += '<dl class="fieldgrid">';
     html += '<dt>Verdict</dt><dd>' + scalar(data.verdict) + '</dd>';
     html += '<dt>Risk score</dt><dd>' + scalar(data.risk_score) + '</dd>';
-    html += '<dt>Severity</dt><dd>' + scalar(data.severity) + '</dd>';
+    html += '<dt>Severity</dt><dd><span' + sevAttr(data.severity) + '>' + scalar(data.severity) + '</span></dd>';
     html += '</dl>';
     html += '<p class="verdict-source">Verdict produced by: <strong>' + scalar(data.verdict_source) + '</strong></p>';
     html += '</section>';
 
-    // 3. Package identity
+    // 3. Application identity
     html += '<section>';
-    html += '<h2 class="section-title">Package identity</h2>';
+    html += '<h2 class="section-title">Application identity</h2>';
+    html += '<p class="section-subtitle">Publisher certificate and target SDK, as extracted.</p>';
     html += '<dl class="fieldgrid">';
     html += '<dt>Package</dt><dd>' + scalar(data.package) + '</dd>';
     html += '<dt>Certificate SHA-256</dt><dd class="mono">' + certField(data.cert_sha256) + '</dd>';
@@ -416,7 +458,7 @@
     // 4. Evidence, authoritative
     html += '<section>';
     html += '<h2 class="section-title">Evidence</h2>';
-    html += '<p class="standing-label">Deterministic extraction output. Each row names the API that triggered it.</p>';
+    html += '<p class="section-subtitle">Deterministic extraction output. Each row names the API that triggered it.</p>';
     var mitre = arrOrEmpty(data.mitre);
     if (mitre.length === 0) {
       html += emptyState('No MITRE-mapped indicators extracted.');
@@ -474,7 +516,8 @@
     // 5. Narrative, subordinate
     html += '<section>';
     html += '<h2 class="section-title">Narrative</h2>';
-    html += '<p class="standing-label">Model-generated commentary. Technique identifiers appearing in this text are not extraction results, are not evidence, and vary between runs on identical input. &mdash; narrative_source: <strong>' + scalar(data.narrative_source) + '</strong></p>';
+    html += '<p class="section-subtitle">Model-generated commentary, subordinate to the evidence above.</p>';
+    html += '<p class="disclosure-label">Model-generated commentary. Technique identifiers appearing in this text are not extraction results, are not evidence, and vary between runs on identical input. &mdash; narrative_source: <strong>' + scalar(data.narrative_source) + '</strong></p>';
     var narrative = arrOrEmpty(report.narrative);
     html += '<div class="narrative-block">';
     if (narrative.length === 0) {
@@ -487,9 +530,10 @@
     html += '</div>';
     html += '</section>';
 
-    // 6. YARA block
+    // 6. Generated detection rule (YARA)
     html += '<section>';
-    html += '<h2 class="section-title">YARA</h2>';
+    html += '<h2 class="section-title">Generated detection rule</h2>';
+    html += '<p class="section-subtitle">Produced from the extracted indicators. Compilation status shown.</p>';
     if (!yara || typeof yara !== 'object') {
       html += emptyState('No YARA data returned.');
     } else {
@@ -520,7 +564,8 @@
     var links = arrOrEmpty(data.links);
 
     html += '<section>';
-    html += '<h2 class="section-title">Account linkage</h2>';
+    html += '<h2 class="section-title">Bridge linkage</h2>';
+    html += '<p class="section-subtitle">Accounts linked to this application by shared indicator. Tier and recommended action are computed independently.</p>';
 
     if (links.length > 0) {
       var sorted = links.slice().sort(function (a, b) {
@@ -538,7 +583,7 @@
         html += '<dt>Linked APK package</dt><dd class="mono">' + scalar(link.linked_apk_package) + '</dd>';
         html += '</dl>';
         html += '<div class="sep"></div>';
-        html += '<div class="tier-block"><div class="label">Tier</div><div class="value">' + scalar(link.tier) + '</div></div>';
+        html += '<div class="tier-block"><div class="label">Tier</div><div class="value"' + tierAttr(link.tier) + '>' + scalar(link.tier) + '</div></div>';
         html += '<div class="sep"></div>';
         html += '<div class="action-block"><div class="label">Recommended action</div><div>' + scalar(link.recommended_action) + '</div></div>';
         html += '</div>';
@@ -569,7 +614,10 @@
     html += '<p class="kicker">Dataset analysis' + (filename ? ' &middot; loaded: ' + esc(filename) : '') + '</p>';
 
     html += '<section>';
-    html += '<h2 class="section-title">Model performance</h2>';
+    html += '<h2 class="section-title">Account model output</h2>';
+    html += '<p class="section-subtitle">Inference-only against a committed model artifact over the bank&#39;s approved feature list.</p>';
+
+    html += '<div class="subblock"><h3>Model performance</h3>';
     html += '<div class="dataset-stats">';
     html += '<div class="stat"><div class="label">Headline AUCPR</div><div class="value">' + notComputedField(data.headline_aucpr) + '</div></div>';
     html += '<div class="stat"><div class="label">Holdout AUCPR</div><div class="value">' + notComputedField(data.holdout_aucpr) + '</div></div>';
@@ -582,21 +630,20 @@
       html += emptyState('No tier counts returned.');
     } else {
       ['T1', 'T2', 'T3', 'T4'].forEach(function (t) {
-        html += '<div class="tc"><div class="label">' + t + '</div><div class="value">' + notComputedField(tc[t]) + '</div></div>';
+        html += '<div class="tc" data-tier="' + t + '"><div class="label">' + t + '</div><div class="value">' + notComputedField(tc[t]) + '</div></div>';
       });
     }
     html += '</div>';
-    html += '</section>';
+    html += '</div>';
 
-    html += '<section>';
-    html += '<h2 class="section-title">Top alerts</h2>';
+    html += '<div class="subblock"><h3>Top alerts</h3>';
     var alerts = arrOrEmpty(data.top_alerts);
     if (alerts.length === 0) {
       html += emptyState('No top alerts returned.');
     } else {
       alerts.forEach(function (a) {
         html += '<div class="alert-card">';
-        html += '<div class="head"><span class="mono">' + scalar(a.account_hash) + '</span><span class="tier">' + scalar(a.tier) + '</span><span>score: ' + notComputedField(a.score) + '</span></div>';
+        html += '<div class="head"><span class="mono">' + scalar(a.account_hash) + '</span><span class="tier"' + tierAttr(a.tier) + '>' + scalar(a.tier) + '</span><span>score: ' + notComputedField(a.score) + '</span></div>';
         var drivers = arrOrEmpty(a.shap_drivers);
         if (drivers.length === 0) {
           html += emptyState('No SHAP drivers returned.');
@@ -608,6 +655,8 @@
         html += '</div>';
       });
     }
+    html += '</div>';
+
     html += '</section>';
 
     return html;
