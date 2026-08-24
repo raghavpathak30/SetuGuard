@@ -1,3 +1,19 @@
+> **CORRECTION — 24 August 2026.** This file predates `ERRATA.md`. Two figures
+> below are no longer quotable: **AUC 0.9366** and the **17.1% (50 of 292)**
+> general-benign flag rate. Both derive from the F-Droid general benign corpus,
+> which the submitted report's §IX Limitations excludes as contaminated by
+> selection — that corpus was available during scorer term selection, and the
+> report states it appears nowhere in the report. PS1 therefore has no
+> false-positive rate and claims none.
+>
+> The current PS1 headline is **PRIMARY AUC 0.1444 [0.0905, 0.2081]** against
+> `harness/banking_legit_corpus/` (51 packages / 32 issuer clusters),
+> pre-registered at commit `be6a15c`. Both CI bounds below 0.5.
+>
+> Where this file and `ERRATA.md` or `SETUGUARD_BRIEFING_v3.md` disagree, those
+> win. The body below is retained unedited as a record of what was believed on
+> its own date.
+
 # REPORT_FACTS.md — the only source of quotable numbers
 
 **Authoritative as of 19 August 2026.** For the 27 August Grand Finale. Write from this file

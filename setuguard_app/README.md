@@ -66,8 +66,13 @@ constructed.
 
 **PS1's static-only ranking inverts on legitimate banking apps.** Measured, not
 assumed: PRIMARY AUC 0.1444 [0.0905, 0.2081] over 51 real legitimate banking apps
-across 32 issuer clusters vs 360 confirmed malware — see `REPORT_FACTS.md`. The same
-scorer separates malware from general-purpose benign apps at AUC 0.9366. The intended
+across 32 issuer clusters vs 360 confirmed malware — see `REPORT_FACTS.md`. PS1 ships
+as an evidence extractor, not a detector: it carries no threshold and claims no
+false-positive rate. The pre-registered measurement against a legitimate banking
+corpus (51 packages / 32 issuer clusters) gives PRIMARY AUC 0.1444 [0.0905, 0.2081] —
+both bounds below 0.5, meaning a threshold on this feature set ranks production
+banking applications above confirmed trojans. See `ERRATA.md` and
+`SETUGUARD_BRIEFING_v3.md`. The intended
 scoping — untrusted/sideloaded APKs only — is not enforced anywhere in the request
 path; any uploaded APK is scored regardless of provenance. The Play-signed allowlist
 below is a triage aid for that inversion, not an enforced scope boundary.
