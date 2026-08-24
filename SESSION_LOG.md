@@ -2379,3 +2379,17 @@ change, no other tuning applied beyond what the checklist now documents.
 `setuguard_app/backend/app.py` and `setuguard_app/frontend/app.js` (`analysis_seconds`
 removal), and all nine `demo/*.json` captures (re-taken with the field absent). No
 frozen file touched.
+
+## 2026-08-24 (Day 6) — errata findings, narrative non-determinism, verification gap
+
+Allowlist errata investigated and struck. Extracted text from both submitted PDF variants and grepped for allowlist, Play-signed, exclusion, and excluded. The report states in three separate places that the allowlist is unimplemented: in the operational-scoping paragraph, in the limitations list, and as the first item of remaining work. There was nothing to retract. What shipped is display-layer publisher tagging, which exceeds what the report claims. Recorded as progress since submission, not as an erratum. Negative result — the item that was believed load-bearing for six days does not exist.
+
+The Mistral narrative is not deterministic. Re-capturing nomatch_01 produced entirely different narrative prose with narrative_source: ollama_rag on both runs, under the pinned temperature=0 and seed=42. The earlier text named T1636.004 and T1398; the newer text named only techniques present in mitre[]. The determinism guarantee covers verdict, risk score, severity, confidence, family verdict and YARA text — all rule-derived — and does not extend to narrative text. The MITRE-citation defect is therefore intermittent rather than fixed, and can reappear on any run. Disclosed presentationally; not fixable before the demonstration.
+
+Verification gap: narrative_source was not in the Day 5 checked-field list. Day 5 verified verdict, risk_score, verdict_source, yara.compiles and four bridge fields across all nine captures. A capture taken with Ollama unreachable passes every one of those checks. Two demo captures were in fact re-taken under a model-down condition and the Day 5 check would not have caught it. Add narrative_source to the verification field list. Recurring pattern, third instance: the check was narrower than the claim it supported.
+
+Two PDF variants are equivalent on load-bearing claims. The 150,149-byte and 249,610-byte files carry identical AUC values and confidence intervals, flag rates, allowlist status, memory figures and throughput figures. The size difference is layout regeneration. The portal check on which file the panel holds is therefore unnecessary.
+
+Four errata entries written and committed to ERRATA.md: throughput figure divides wall clock including two 600-second timeouts by all 60 attempts, where 58 completions averaged 20.1 seconds; the 77.9-second slowest-extraction figure is the probe batch maximum, not the run maximum, which was 93.9 seconds; the 0.66-second account-scoring latency has no producing harness in the repository; and two divergent risk-tier ladders exist, with the served ladder authoritative and neither calibrated.
+
+Business Potential section written against RBI Annual Report 2025-26 and I4C/CFCFRMS figures from Lok Sabha answers. Framing note: the RBI bank-fraud series shows digital-payment fraud falling sharply, so the market argument is built on citizen-side complaint volume rising while per-case value falls — the shape that breaks manual triage. Do not claim losses are rising.
