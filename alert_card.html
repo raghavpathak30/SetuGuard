@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SetuGuard Analyst Alert Card</title>
+<style>
+  :root {
+    --bg: #faf9f6;
+    --panel: #ffffff;
+    --ink: #1b1a17;
+    --muted: #6b6a63;
+    --line: #d9d7cf;
+    --accent: #7a2e1d;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  .mono {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  }
+  #dropzone {
+    border: 1px dashed var(--line);
+    padding: 18px 24px;
+    margin: 24px;
+    text-align: center;
+    color: var(--muted);
+    cursor: pointer;
+  }
+  #dropzone.dragging {
+    background: #f1efe9;
+    color: var(--ink);
+  }
+  #dropzone .filename {
+    color: var(--ink);
+    font-weight: 600;
+  }
+  #fileInput { display: none; }
+  main#card {
+    max-width: 880px;
+    margin: 0 auto 80px auto;
+    padding: 0 24px;
+  }
+  .kicker {
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 12px;
+    color: var(--muted);
+    margin: 0 0 8px 0;
+  }
+  section {
+    padding: 28px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  section:last-child { border-bottom: none; }
+  h2.section-title {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin: 0 0 14px 0;
+    font-weight: 600;
+  }
+  .absent {
+    color: var(--muted);
+    font-style: italic;
+  }
+  .action-line {
+    color: var(--accent);
+  }
+  .action-line .rec {
+    font-weight: 700;
+    margin: 0 0 8px 0;
+  }
+  .action-line .rec:nth-child(1) { font-size: 1.7rem; line-height: 1.25; }
+  .action-line .rec:nth-child(2) { font-size: 1.2rem; }
+  .action-line .rec:nth-child(n+3) { font-size: 1rem; font-weight: 600; }
+  dl.fieldgrid {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 6px 18px;
+    margin: 0;
+  }
+  dl.fieldgrid dt {
+    color: var(--muted);
+    font-size: 13px;
+    padding-top: 2px;
+  }
+  dl.fieldgrid dd {
+    margin: 0;
+    word-break: break-all;
+  }
+  .verdict-source {
+    color: var(--muted);
+    font-size: 13px;
+    margin-top: 10px;
+  }
+  table.evidence {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0 18px 0;
+    font-size: 14px;
+  }
+  table.evidence th, table.evidence td {
+    text-align: left;
+    padding: 6px 10px 6px 0;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+  }
+  table.evidence th {
+    color: var(--muted);
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .standing-label {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .subblock { margin: 16px 0; }
+  .subblock h3 {
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 600;
+    margin: 0 0 6px 0;
+    text-transform: none;
+  }
+  ul.plainlist {
+    margin: 0;
+    padding-left: 18px;
+  }
+  ul.plainlist li {
+    margin: 2px 0;
+    word-break: break-all;
+  }
+  .narrative-block {
+    margin-top: 8px;
+    padding-left: 18px;
+    border-left: 2px solid var(--line);
+    color: var(--muted);
+    font-size: 13px;
+  }
+  .narrative-block p {
+    margin: 0 0 10px 0;
+  }
+  pre.yara {
+    background: #f4f3ee;
+    border: 1px solid var(--line);
+    padding: 14px;
+    overflow-x: auto;
+    white-space: pre;
+    font-size: 12.5px;
+    margin: 8px 0 0 0;
+  }
+  .bridge-link {
+    border: 1px solid var(--line);
+    padding: 14px 16px;
+    margin: 0 0 14px 0;
+  }
+  .bridge-link .row1 {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 4px 16px;
+    font-size: 13px;
+  }
+  .bridge-link .row1 dt { color: var(--muted); }
+  .bridge-link .row1 dd { margin: 0; word-break: break-all; }
+  .bridge-link .sep {
+    border-top: 1px solid var(--line);
+    margin: 12px 0;
+  }
+  .bridge-link .tier-block, .bridge-link .action-block {
+    font-size: 13px;
+  }
+  .bridge-link .tier-block .label, .bridge-link .action-block .label {
+    color: var(--muted);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 3px;
+  }
+  .bridge-link .tier-block .value {
+    font-weight: 700;
+    font-size: 1rem;
+  }
+  .nomatch-box {
+    padding: 14px 16px;
+    border: 1px solid var(--line);
+  }
+  .dataset-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    margin-bottom: 20px;
+  }
+  .dataset-stats .stat .label {
+    color: var(--muted);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 4px;
+  }
+  .dataset-stats .stat .value {
+    font-size: 1.3rem;
+    font-weight: 700;
+  }
+  .tier-counts {
+    display: grid;
+    grid-template-columns: repeat(4, max-content);
+    gap: 8px 28px;
+    margin-bottom: 20px;
+  }
+  .tier-counts .tc .label {
+    color: var(--muted);
+    font-size: 12px;
+  }
+  .tier-counts .tc .value {
+    font-weight: 700;
+  }
+  .alert-card {
+    border: 1px solid var(--line);
+    padding: 12px 14px;
+    margin-bottom: 10px;
+  }
+  .alert-card .head {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    margin-bottom: 6px;
+  }
+  .alert-card .head .tier {
+    font-weight: 700;
+  }
+  .error-box {
+    border: 1px solid var(--line);
+    padding: 20px;
+    margin: 24px;
+    color: var(--ink);
+  }
+  .error-box .title {
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  footer.hint {
+    text-align: center;
+    color: var(--muted);
+    font-size: 12px;
+    padding: 20px 0 40px 0;
+  }
+</style>
+</head>
+<body>
+
+<div id="dropzone" tabindex="0" role="button" aria-label="Drop a SetuGuard JSON response here, or click to browse">
+  <div id="dropzoneText">Drop a SetuGuard JSON response here, or click to browse.</div>
+</div>
+<input id="fileInput" type="file" accept="application/json,.json">
+
+<main id="card"></main>
+
+<footer class="hint">SetuGuard analyst alert card &mdash; runs entirely in this browser tab, no network, no storage.</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  var dropzone = document.getElementById('dropzone');
+  var dropzoneText = document.getElementById('dropzoneText');
+  var fileInput = document.getElementById('fileInput');
+  var card = document.getElementById('card');
+
+  // ---------- generic helpers ----------
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function defang(s) {
+    return String(s).split('.').join('[.]');
+  }
+
+  function isMissing(v) {
+    return v === null || v === undefined || v === '';
+  }
+
+  // plain scalar field: shows "missing" (or a custom empty label) when absent/null/empty
+  function scalar(v, emptyText) {
+    if (isMissing(v)) {
+      return '<span class="absent">' + esc(emptyText || 'missing') + '</span>';
+    }
+    return esc(String(v));
+  }
+
+  // fields inside a certificate object (or cert_sha256 itself): null/absent renders
+  // as "certificate extraction failed", never "false", never "null", never blank
+  function certField(v) {
+    if (isMissing(v)) {
+      return '<span class="absent">certificate extraction failed</span>';
+    }
+    return esc(String(v));
+  }
+
+  // dataset metric fields: null/absent renders as "not computed"
+  function notComputedField(v) {
+    if (isMissing(v) || v === 'not_computed') {
+      return '<span class="absent">not computed</span>';
+    }
+    return esc(String(v));
+  }
+
+  function arrOrEmpty(v) {
+    return Array.isArray(v) ? v : [];
+  }
+
+  function emptyState(text) {
+    return '<p class="absent">' + esc(text) + '</p>';
+  }
+
+  function clear(node) {
+    while (node.firstChild) node.removeChild(node.firstChild);
+  }
+
+  // ---------- shape detection (by keys present, never by filename) ----------
+
+  function detectShape(data) {
+    if (!data || typeof data !== 'object' || Array.isArray(data)) {
+      return null;
+    }
+    var hasBridgeShape =
+      ('links' in data) && ('inputs' in data) && ('matched' in data || 'match_count' in data);
+    if (hasBridgeShape) return 'bridge';
+
+    var hasDatasetShape =
+      data.kind === 'dataset' || (('tier_counts' in data) && ('top_alerts' in data));
+    if (hasDatasetShape) return 'dataset';
+
+    var hasApkShape =
+      data.kind === 'apk' || (('raw_features' in data) && ('report' in data));
+    if (hasApkShape) return 'apk';
+
+    return null;
+  }
+
+  // ---------- APK rendering ----------
+
+  function renderApk(data, filename) {
+    var report = data.report || {};
+    var rawFeatures = data.raw_features || {};
+    var certificate = rawFeatures.certificate || {};
+    var yara = data.yara;
+
+    var html = '';
+    html += '<p class="kicker">APK analysis' + (filename ? ' &middot; loaded: ' + esc(filename) : '') + '</p>';
+
+    // 1. Action line
+    var recs = arrOrEmpty(report.recommendations);
+    html += '<section>';
+    html += '<h2 class="section-title">Recommended action</h2>';
+    html += '<div class="action-line">';
+    if (recs.length === 0) {
+      html += emptyState('No recommended action returned.');
+    } else {
+      recs.forEach(function (r) {
+        html += '<p class="rec">' + scalar(r) + '</p>';
+      });
+    }
+    html += '</div>';
+    html += '</section>';
+
+    // 2. Verdict block
+    html += '<section>';
+    html += '<h2 class="section-title">Verdict</h2>';
+    html += '<dl class="fieldgrid">';
+    html += '<dt>Verdict</dt><dd>' + scalar(data.verdict) + '</dd>';
+    html += '<dt>Risk score</dt><dd>' + scalar(data.risk_score) + '</dd>';
+    html += '<dt>Severity</dt><dd>' + scalar(data.severity) + '</dd>';
+    html += '</dl>';
+    html += '<p class="verdict-source">Verdict produced by: <strong>' + scalar(data.verdict_source) + '</strong></p>';
+    html += '</section>';
+
+    // 3. Package identity
+    html += '<section>';
+    html += '<h2 class="section-title">Package identity</h2>';
+    html += '<dl class="fieldgrid">';
+    html += '<dt>Package</dt><dd>' + scalar(data.package) + '</dd>';
+    html += '<dt>Certificate SHA-256</dt><dd class="mono">' + certField(data.cert_sha256) + '</dd>';
+    html += '<dt>Target SDK</dt><dd>' + scalar(rawFeatures.target_sdk) + '</dd>';
+    html += '<dt>Certificate subject</dt><dd>' + certField(certificate.subject) + '</dd>';
+    html += '<dt>Certificate issuer</dt><dd>' + certField(certificate.issuer) + '</dd>';
+    html += '<dt>Certificate self-signed</dt><dd>' + certField(certificate.self_signed) + '</dd>';
+    html += '</dl>';
+    if (data.play_signing && typeof data.play_signing === 'object') {
+      html += '<p class="verdict-source">Play Store signing detected: <strong>' + scalar(data.play_signing.detected) + '</strong>';
+      if (!isMissing(data.play_signing.note)) {
+        html += ' &mdash; ' + esc(data.play_signing.note);
+      }
+      html += '</p>';
+    } else {
+      html += '<p class="verdict-source">Play Store signing: <span class="absent">not present in response</span></p>';
+    }
+    html += '</section>';
+
+    // 4. Evidence, authoritative
+    html += '<section>';
+    html += '<h2 class="section-title">Evidence</h2>';
+    html += '<p class="standing-label">Deterministic extraction output. Each row names the API that triggered it.</p>';
+    var mitre = arrOrEmpty(data.mitre);
+    if (mitre.length === 0) {
+      html += emptyState('No MITRE-mapped indicators extracted.');
+    } else {
+      html += '<table class="evidence"><thead><tr><th>ID</th><th>Name</th><th>Detection</th></tr></thead><tbody>';
+      mitre.forEach(function (m) {
+        html += '<tr><td>' + scalar(m.id) + '</td><td>' + scalar(m.name) + '</td><td>' + scalar(m.detection) + '</td></tr>';
+      });
+      html += '</tbody></table>';
+    }
+
+    html += '<div class="subblock"><h3>Dangerous permissions</h3>';
+    var perms = arrOrEmpty(data.dangerous_permissions);
+    if (perms.length === 0) {
+      html += emptyState('No dangerous permissions reported.');
+    } else {
+      html += '<ul class="plainlist">' + perms.map(function (p) { return '<li>' + scalar(p) + '</li>'; }).join('') + '</ul>';
+    }
+    html += '</div>';
+
+    html += '<div class="subblock"><h3>Suspicious API calls</h3>';
+    var apis = arrOrEmpty(rawFeatures.suspicious_apis);
+    if (apis.length === 0) {
+      html += emptyState('No suspicious API calls recorded.');
+    } else {
+      html += '<table class="evidence"><thead><tr><th>Class</th><th>Method</th><th>Call count</th><th>Category</th></tr></thead><tbody>';
+      apis.forEach(function (a) {
+        html += '<tr><td class="mono">' + scalar(a['class']) + '</td><td class="mono">' + scalar(a.method) + '</td><td>' + scalar(a.call_count) + '</td><td>' + scalar(a.category) + '</td></tr>';
+      });
+      html += '</tbody></table>';
+    }
+    html += '</div>';
+
+    html += '<div class="subblock"><h3>API indicators of compromise</h3>';
+    var apiIocs = arrOrEmpty(data.api_iocs);
+    if (apiIocs.length === 0) {
+      html += emptyState('No API indicator strings recorded.');
+    } else {
+      html += '<ul class="plainlist mono">' + apiIocs.map(function (s) { return '<li>' + scalar(s) + '</li>'; }).join('') + '</ul>';
+    }
+    html += '</div>';
+
+    html += '<div class="subblock"><h3>C2 candidates</h3>';
+    var c2 = arrOrEmpty(data.c2_candidates);
+    if (c2.length === 0) {
+      html += emptyState('No C2 candidates recorded.');
+    } else {
+      html += '<ul class="plainlist mono">' + c2.map(function (s) {
+        return '<li>' + (isMissing(s) ? scalar(s) : esc(defang(String(s)))) + '</li>';
+      }).join('') + '</ul>';
+    }
+    html += '</div>';
+    html += '</section>';
+
+    // 5. Narrative, subordinate
+    html += '<section>';
+    html += '<h2 class="section-title">Narrative</h2>';
+    html += '<p class="standing-label">Model-generated commentary. Technique identifiers appearing in this text are not extraction results, are not evidence, and vary between runs on identical input. &mdash; narrative_source: <strong>' + scalar(data.narrative_source) + '</strong></p>';
+    var narrative = arrOrEmpty(report.narrative);
+    html += '<div class="narrative-block">';
+    if (narrative.length === 0) {
+      html += emptyState('No narrative text returned.');
+    } else {
+      narrative.forEach(function (n) {
+        html += '<p>' + scalar(n) + '</p>';
+      });
+    }
+    html += '</div>';
+    html += '</section>';
+
+    // 6. YARA block
+    html += '<section>';
+    html += '<h2 class="section-title">YARA</h2>';
+    if (!yara || typeof yara !== 'object') {
+      html += emptyState('No YARA data returned.');
+    } else {
+      html += '<dl class="fieldgrid">';
+      html += '<dt>Rule name</dt><dd class="mono">' + scalar(yara.rule_name) + '</dd>';
+      html += '<dt>Compiles</dt><dd>' + scalar(yara.compiles) + '</dd>';
+      html += '<dt>Validated</dt><dd>' + scalar(yara.validated) + '</dd>';
+      html += '</dl>';
+      if (isMissing(yara.yar_text)) {
+        html += emptyState('No YARA rule text returned.');
+      } else {
+        html += '<pre class="yara mono">' + esc(yara.yar_text) + '</pre>';
+      }
+    }
+    html += '</section>';
+
+    return html;
+  }
+
+  // ---------- Bridge rendering ----------
+
+  var TIER_RANK = { T4: 4, T3: 3, T2: 2, T1: 1 };
+
+  function renderBridge(data, filename) {
+    var html = '';
+    html += '<p class="kicker">Bridge response' + (filename ? ' &middot; loaded: ' + esc(filename) : '') + '</p>';
+
+    var links = arrOrEmpty(data.links);
+
+    html += '<section>';
+    html += '<h2 class="section-title">Account linkage</h2>';
+
+    if (links.length > 0) {
+      var sorted = links.slice().sort(function (a, b) {
+        var ra = TIER_RANK.hasOwnProperty(a.tier) ? TIER_RANK[a.tier] : -1;
+        var rb = TIER_RANK.hasOwnProperty(b.tier) ? TIER_RANK[b.tier] : -1;
+        return rb - ra;
+      });
+      sorted.forEach(function (link) {
+        html += '<div class="bridge-link">';
+        html += '<dl class="row1">';
+        html += '<dt>Account hash</dt><dd class="mono">' + scalar(link.account_hash) + '</dd>';
+        html += '<dt>Matched on</dt><dd>' + scalar(link.matched_on) + '</dd>';
+        html += '<dt>Shared IOC</dt><dd class="mono">' + (isMissing(link.shared_ioc) ? scalar(link.shared_ioc) : esc(defang(String(link.shared_ioc)))) + '</dd>';
+        html += '<dt>Score</dt><dd>' + scalar(link.score) + '</dd>';
+        html += '<dt>Linked APK package</dt><dd class="mono">' + scalar(link.linked_apk_package) + '</dd>';
+        html += '</dl>';
+        html += '<div class="sep"></div>';
+        html += '<div class="tier-block"><div class="label">Tier</div><div class="value">' + scalar(link.tier) + '</div></div>';
+        html += '<div class="sep"></div>';
+        html += '<div class="action-block"><div class="label">Recommended action</div><div>' + scalar(link.recommended_action) + '</div></div>';
+        html += '</div>';
+      });
+    } else {
+      var inputs = data.inputs || {};
+      var apkIn = inputs.apk || {};
+      var dsIn = inputs.dataset || {};
+      var apkLabel = isMissing(apkIn.label) ? 'an unnamed APK' : esc(apkIn.label);
+      var apkId = isMissing(apkIn.id) ? '' : ' (' + esc(apkIn.id) + ')';
+      var dsLabel = isMissing(dsIn.label) ? 'an unnamed dataset' : esc(dsIn.label);
+      var dsId = isMissing(dsIn.id) ? '' : ' (' + esc(dsIn.id) + ')';
+      html += '<div class="nomatch-box">';
+      html += '<p><strong>No linkage match.</strong></p>';
+      html += '<p>Compared: ' + apkLabel + apkId + ' against ' + dsLabel + dsId + '.</p>';
+      html += '</div>';
+      // per spec: render nothing at all for severity and recommended_action here
+    }
+    html += '</section>';
+
+    return html;
+  }
+
+  // ---------- Dataset rendering ----------
+
+  function renderDataset(data, filename) {
+    var html = '';
+    html += '<p class="kicker">Dataset analysis' + (filename ? ' &middot; loaded: ' + esc(filename) : '') + '</p>';
+
+    html += '<section>';
+    html += '<h2 class="section-title">Model performance</h2>';
+    html += '<div class="dataset-stats">';
+    html += '<div class="stat"><div class="label">Headline AUCPR</div><div class="value">' + notComputedField(data.headline_aucpr) + '</div></div>';
+    html += '<div class="stat"><div class="label">Holdout AUCPR</div><div class="value">' + notComputedField(data.holdout_aucpr) + '</div></div>';
+    html += '<div class="stat"><div class="label">Holdout AUROC</div><div class="value">' + notComputedField(data.holdout_auroc) + '</div></div>';
+    html += '</div>';
+
+    var tc = data.tier_counts;
+    html += '<div class="tier-counts">';
+    if (!tc || typeof tc !== 'object') {
+      html += emptyState('No tier counts returned.');
+    } else {
+      ['T1', 'T2', 'T3', 'T4'].forEach(function (t) {
+        html += '<div class="tc"><div class="label">' + t + '</div><div class="value">' + notComputedField(tc[t]) + '</div></div>';
+      });
+    }
+    html += '</div>';
+    html += '</section>';
+
+    html += '<section>';
+    html += '<h2 class="section-title">Top alerts</h2>';
+    var alerts = arrOrEmpty(data.top_alerts);
+    if (alerts.length === 0) {
+      html += emptyState('No top alerts returned.');
+    } else {
+      alerts.forEach(function (a) {
+        html += '<div class="alert-card">';
+        html += '<div class="head"><span class="mono">' + scalar(a.account_hash) + '</span><span class="tier">' + scalar(a.tier) + '</span><span>score: ' + notComputedField(a.score) + '</span></div>';
+        var drivers = arrOrEmpty(a.shap_drivers);
+        if (drivers.length === 0) {
+          html += emptyState('No SHAP drivers returned.');
+        } else {
+          html += '<ul class="plainlist">' + drivers.map(function (d) {
+            return '<li class="mono">' + scalar(d.feature) + ': ' + scalar(d.shap) + '</li>';
+          }).join('') + '</ul>';
+        }
+        html += '</div>';
+      });
+    }
+    html += '</section>';
+
+    return html;
+  }
+
+  // ---------- top-level render / error ----------
+
+  function renderError(message) {
+    clear(card);
+    var box = document.createElement('div');
+    box.className = 'error-box';
+    var title = document.createElement('div');
+    title.className = 'title';
+    title.textContent = 'Could not render this file.';
+    var body = document.createElement('div');
+    body.textContent = message;
+    box.appendChild(title);
+    box.appendChild(body);
+    card.appendChild(box);
+  }
+
+  function renderReport(data, filename) {
+    try {
+      var shape = detectShape(data);
+      var html;
+      if (shape === 'apk') {
+        html = renderApk(data, filename);
+      } else if (shape === 'dataset') {
+        html = renderDataset(data, filename);
+      } else if (shape === 'bridge') {
+        html = renderBridge(data, filename);
+      } else {
+        renderError('This JSON does not match any known SetuGuard response shape (APK analysis, dataset analysis, or bridge response).');
+        return;
+      }
+      card.innerHTML = html;
+    } catch (err) {
+      renderError('An unexpected problem occurred while rendering this file: ' + (err && err.message ? err.message : String(err)));
+    }
+  }
+
+  function handleFile(file) {
+    if (!file) return;
+    dropzoneText.innerHTML = 'Loaded: <span class="filename">' + esc(file.name) + '</span> &mdash; drop another file to replace it.';
+    var reader = new FileReader();
+    reader.onload = function () {
+      var data;
+      try {
+        data = JSON.parse(String(reader.result));
+      } catch (e) {
+        renderError('This file is not valid JSON (' + e.message + ').');
+        return;
+      }
+      renderReport(data, file.name);
+    };
+    reader.onerror = function () {
+      renderError('Could not read the dropped file.');
+    };
+    reader.readAsText(file);
+  }
+
+  // ---------- wiring: drag/drop + click-to-browse ----------
+
+  window.addEventListener('dragover', function (e) { e.preventDefault(); });
+  window.addEventListener('drop', function (e) { e.preventDefault(); });
+
+  dropzone.addEventListener('dragover', function (e) {
+    e.preventDefault();
+    dropzone.classList.add('dragging');
+  });
+  dropzone.addEventListener('dragleave', function () {
+    dropzone.classList.remove('dragging');
+  });
+  dropzone.addEventListener('drop', function (e) {
+    e.preventDefault();
+    dropzone.classList.remove('dragging');
+    var files = e.dataTransfer && e.dataTransfer.files;
+    if (files && files.length > 0) {
+      handleFile(files[0]);
+    }
+  });
+  dropzone.addEventListener('click', function () {
+    fileInput.click();
+  });
+  dropzone.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      fileInput.click();
+    }
+  });
+  fileInput.addEventListener('change', function () {
+    if (fileInput.files && fileInput.files.length > 0) {
+      handleFile(fileInput.files[0]);
+    }
+  });
+})();
+</script>
+</body>
+</html>
